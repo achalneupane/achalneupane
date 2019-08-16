@@ -42,9 +42,12 @@ social:
 - icon: github
   icon_pack: fab
   link: https://github.com/achalneupane
-  # - icon: stack-overflow
-  # icon_pack: fab
-  # link: https://stackoverflow.com/
+- icon: stack-overflow
+  icon_pack: fab
+  link: https://stackoverflow.com/users/4701887/mapk
+- icon: researchgate
+  icon_pack: ai
+  link: https://www.researchgate.net/profile/An_An34
   
 superuser: true
 user_groups:
