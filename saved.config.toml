@@ -18,7 +18,7 @@ copyright = "&copy; 2019"
 # Enable analytics by entering your Google Analytics tracking ID
 googleAnalytics = "UA-145752794-1"
 
-publishDir = 'achalneupane.github.io'
+publishDir = "achalneupane.github.io"
 
 ############################
 ## Advanced options below ##
