@@ -59,4 +59,4 @@ Recently, I have studied the effects of hypovirulence-associated DNA virus 1(SsH
 
 I am intereted in big data analysis, algorithm development, scientific computing, including analysis of biological (NGS)/non-biological datasets. During my graduate studies, I had taken several graduate level courses in Statistics, Computer science and Biological science. 
 
-**Graduate level courses in Statistics and Computer science:** [HTML](/Users/owner1/Desktop/Sites/achalneupane/content/authors/admin/CS_and_Stat.html)
+**Graduate level courses in Statistics and Computer science:** [HTML](/CS_and_Stat.html)
