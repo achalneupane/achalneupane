@@ -1,11 +1,12 @@
 ---
 title: "Functions"
-date: "2016-04-27T00:00:00Z"
+date: 2019-08-15T17:26:23-05:00
 draft: false
+output: html_document
 tags:
 - R
 - Statistics
-summary: Statistic series
+summary: Statistics series
 ---
 
 
@@ -233,15 +234,15 @@ mbm &lt;- microbenchmark(&quot;Using first formula&quot; = pois.pmf.first(x=x, l
 mbm</code></pre>
 <pre><code>## Unit: microseconds
 ##                  expr   min     lq     mean median     uq      max neval
-##   Using first formula 1.767 1.8195 60.49865 1.8595 1.9075 5835.505   100
-##  Using second formula 1.929 1.9905  2.07908 2.0165 2.0695    5.418   100
+##   Using first formula 1.878 1.9350 61.48143  1.959 2.0165 5929.279   100
+##  Using second formula 1.970 2.0165  2.54380  2.051 2.1015   40.581   100
 ##  cld
 ##    a
 ##    a</code></pre>
 <pre class="r"><code>library(ggplot2)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
-<p><img src="/achalneupane.github.io/post/Functions/index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<p><img src="/achalneupane.github.io/post/Functions_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 Based on the execution time, looks like using the first formula takes a bit longer time to execute.</p>
 </div>
 </div>
