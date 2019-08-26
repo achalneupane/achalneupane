@@ -6,7 +6,6 @@ image:
 summary: Some Statistics
 title: Updates
 ---
-Null 
 
 
 
