@@ -1,6 +1,8 @@
 +++
 title = "A Nomenclatural Conundrum: Applying Existing Nomenclature to the Identification of Soybean (*Glycine max*) MAP Kinase Genes"
 date = 2012-03-24
+location = "Nebraska, USA"
+event = "American Society of Plant Biologists, Midwestern Sectional Society, 2012"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["**Achal Neupane**", "Sarbottam Piya", "Senthil Subramanian", "Jai S. Rohila", "Madhav Nepal"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Nebraska, USA
-
-Event: American Society of Plant Biologists, Midwestern Sectional Society, 2012
-
 
 
 **Abstract**

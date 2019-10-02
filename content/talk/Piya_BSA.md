@@ -1,6 +1,8 @@
 +++
 title = "Population Genetics of *Falcaria vulgaris* (Sickleweed) in North America"
 date = 2012-07-11
+location = "Ohio, USA"
+event = "Botanical Society of America Conference, 2012"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Sarbottam Piya", "**Achal Neupane**", "Jack Butler", "Gary Larson", "Madhav Nepal"]
@@ -56,9 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Ohio, USA
-
-Event: Botanical Society of America Conference, 2012
 
 
 

@@ -17,20 +17,14 @@
       <link>/achalneupane.github.io/talk/leo_et_al/</link>
       <pubDate>Sun, 21 Aug 2016 00:00:00 -0500</pubDate>
       <guid>/achalneupane.github.io/talk/leo_et_al/</guid>
-      <description>&lt;p&gt;Location: Melbourne, Australia&lt;/p&gt;
-
-&lt;p&gt;Event: International Congress of Immunology, 2016&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Abstract&lt;/strong&gt;&lt;/p&gt;
+      <description>&lt;p&gt;&lt;strong&gt;Abstract&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Background&lt;/strong&gt;
 :&lt;/p&gt;
 
 &lt;p&gt;Gene and mutation discovery in cancers is typically performed by sequencing somatic and germline samples from the same individuals and subtracting germline mutations.
 However, in biobanked acute myeloid leukaemia (AML) samples, matched germline DNA is
-frequently unavailable. When germline samples a
-re available, sequencing both germline and
-somatic samples for each patient significantly increases costs. This study explores whether it is possible to utilise unrelated germline controls to identify ocogenic drivers.&lt;/p&gt;
+frequently unavailable. When germline samples are available, sequencing both germline and somatic samples for each patient significantly increases costs. This study explores whether it is possible to utilise unrelated germline controls to identify ocogenic drivers.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Methods&lt;/strong&gt;
 :&lt;/p&gt;
@@ -42,10 +36,7 @@ somatic samples for each patient significantly increases costs. This study explo
 
 &lt;p&gt;Burden tests that included damaging protein coding mutations identified genes
 previously described with recurrent mutations in AML (e.g.
-NPM1, DNMT3A, IDH2, NRAS,
-RUNX1, FLT3, IDH1, TET2, ASXL1
-) thus validating th
-is bioinformatics approach.
+NPM1, DNMT3A, IDH2, NRAS, RUNX1, FLT3, IDH1, TET2, ASXL1) thus validating this bioinformatics approach.
 Furthermore, this methodology resulted in the detection of several additional novel genes not previously identified in AML.
 These mutations are currently undergoing conventional validation by Sanger sequencing, as well as bioinformatic validation using whole genome sequencing data from 128 of the same AML samples sequenced using the Complete Genomics platform.&lt;/p&gt;
 
@@ -70,11 +61,7 @@ These mutations are currently undergoing conventional validation by Sanger seque
       <link>/achalneupane.github.io/talk/esh_2015_buddapest/</link>
       <pubDate>Thu, 10 Sep 2015 00:00:00 -0500</pubDate>
       <guid>/achalneupane.github.io/talk/esh_2015_buddapest/</guid>
-      <description>&lt;p&gt;Location: Buddapest, Hungary&lt;/p&gt;
-
-&lt;p&gt;Event: European School of Hematology (ESH), 2015&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Abstract&lt;/strong&gt;&lt;/p&gt;
+      <description>&lt;p&gt;&lt;strong&gt;Abstract&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;Whole exome sequencing (WES) can detect a high proportion of cancer causing genetic mutations, and therefore has the potential to replace targeted molecular assays and identify additional novel, patient-specific mutations. To test the ability of WES to detect variants of clinical consequence, we compared WES findings to results for FLT3-ITD and NPM1mut obtained by routine pathology testing (high-resolution fragment analysis (HRFA) and Matrix Assisted Laser Desorption/Ionization – Time of Flight Mass Spectrometry (MALDI-TOF) respectively), and to point mutation findings in DNMT3A, IDH1/2, JAK2, KRAS, NRAS and MPL, as determined by Sequenom, across a cohort of 188 AML samples from adults (n
 = 144) and children (n = 44). All subjects provided written informed consent, and the study protocols had been approved by institutional research ethics committees. Median age at diagnosis was 51 years, (range 1-89) and median bone marrow blast percentage was 76% (range 8-100).

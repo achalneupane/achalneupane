@@ -1,6 +1,8 @@
 +++
 title = "Gene Discovery in Acute Myeloid Leukaemia: somatic and germline mutations."
 date = 2016-08-21
+location = "Melbourne, Australia"
+event = "International Congress of Immunology, 2016"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Paul Leo", "Achal Neupane", "Mahmoud Bassal", "Zeya Kyaw Maung", "Felicity Newell", "Megan Ellis", "Gregory Boxall", "Amanda Smith", "Paula Marlton", "Richard D'Andrea", "Thomas Gonda", "Matthew Brown", "Russell Saal", "Andrew Moore"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Melbourne, Australia
-
-Event: International Congress of Immunology, 2016
-
 
 
 **Abstract**
@@ -70,9 +68,7 @@ Event: International Congress of Immunology, 2016
 
 Gene and mutation discovery in cancers is typically performed by sequencing somatic and germline samples from the same individuals and subtracting germline mutations.
 However, in biobanked acute myeloid leukaemia (AML) samples, matched germline DNA is
-frequently unavailable. When germline samples a
-re available, sequencing both germline and
-somatic samples for each patient significantly increases costs. This study explores whether it is possible to utilise unrelated germline controls to identify ocogenic drivers.
+frequently unavailable. When germline samples are available, sequencing both germline and somatic samples for each patient significantly increases costs. This study explores whether it is possible to utilise unrelated germline controls to identify ocogenic drivers.
 
 **Methods**
 :
@@ -84,10 +80,7 @@ Whole exome sequencing was performed on somatic samples from 188 adults and chil
 
 Burden tests that included damaging protein coding mutations identified genes
 previously described with recurrent mutations in AML (e.g.
-NPM1, DNMT3A, IDH2, NRAS,
-RUNX1, FLT3, IDH1, TET2, ASXL1
-) thus validating th
-is bioinformatics approach.
+NPM1, DNMT3A, IDH2, NRAS, RUNX1, FLT3, IDH1, TET2, ASXL1) thus validating this bioinformatics approach.
 Furthermore, this methodology resulted in the detection of several additional novel genes not previously identified in AML.
 These mutations are currently undergoing conventional validation by Sanger sequencing, as well as bioinformatic validation using whole genome sequencing data from 128 of the same AML samples sequenced using the Complete Genomics platform.
 

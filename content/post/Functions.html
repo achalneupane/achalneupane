@@ -7,12 +7,12 @@ output: html_document
 tags:
 - R
 - Statistics
+- Statistical_programming
 summary: Statistics series
 ---
 
 
 
-<p>Author: <strong>Achal Neupane</strong></p>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 <div id="exercise-1" class="section level1">
@@ -40,7 +40,7 @@ m2=384.4
 s1=124.8
 s2=168.3
 cohen.d(m1=m1,s1=s1,m2=m2,s2=s2)</code></pre>
-<pre><code>## [1] 0.784987603959</code></pre>
+<pre><code>## [1] 0.7849876</code></pre>
 </div>
 <div id="versus-1997" class="section level4">
 <h4>1936 versus 1997</h4>
@@ -49,7 +49,7 @@ m2=288.6
 s1=124.8
 s2=122.0
 cohen.d(m1=m1,s1=s1,m2=m2,s2=s2)</code></pre>
-<pre><code>## [1] 0.166115727787</code></pre>
+<pre><code>## [1] 0.1661157</code></pre>
 </div>
 <div id="versus-2006-1" class="section level4">
 <h4>1997 versus 2006</h4>
@@ -58,7 +58,7 @@ m2=384.4
 s1=122.0
 s2=168.3
 cohen.d(m1=m1,s1=s1,m2=m2,s2=s2)</code></pre>
-<pre><code>## [1] 0.651769377713</code></pre>
+<pre><code>## [1] 0.6517694</code></pre>
 <p>Check your work by comparing with the previous homework.
 -Answers match with previous homework!</p>
 </div>
@@ -143,19 +143,19 @@ norm.pdf &lt;- function(x,mu=0,sigma=1){
 <h4><span class="math inline">\(x=-0.1\)</span></h4>
 <pre class="r"><code>x=-0.1
 norm.pdf(x)</code></pre>
-<pre><code>## [1] 0.396952547477</code></pre>
+<pre><code>## [1] 0.3969525</code></pre>
 </div>
 <div id="x0.0" class="section level4">
 <h4><span class="math inline">\(x=0.0\)</span></h4>
 <pre class="r"><code>x=0.0
 norm.pdf(x)</code></pre>
-<pre><code>## [1] 0.398942280401</code></pre>
+<pre><code>## [1] 0.3989423</code></pre>
 </div>
 <div id="x0.1" class="section level4">
 <h4><span class="math inline">\(x=0.1\)</span></h4>
 <pre class="r"><code>x=0.1
 norm.pdf(x)</code></pre>
-<pre><code>## [1] 0.396952547477</code></pre>
+<pre><code>## [1] 0.3969525</code></pre>
 <p>Check your work by comparing with the previous homework.
 -Answers match with previous homework!</p>
 </div>
@@ -184,28 +184,28 @@ Test your function with <span class="math inline">\(\lambda = 12\)</span> at <sp
 <pre class="r"><code>lambda=12
 x=4
 pois.pmf(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.00530859947328</code></pre>
+<pre><code>## [1] 0.005308599</code></pre>
 </div>
 <div id="x12" class="section level4">
 <h4><span class="math inline">\(x=12\)</span></h4>
 <pre class="r"><code>lambda=12
 x=12
 pois.pmf(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.114367915509</code></pre>
+<pre><code>## [1] 0.1143679</code></pre>
 </div>
 <div id="x20" class="section level4">
 <h4><span class="math inline">\(x=20\)</span></h4>
 <pre class="r"><code>lambda=12
 x=20
 pois.pmf(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.00968203216822</code></pre>
+<pre><code>## [1] 0.009682032</code></pre>
 <p>You can check your work against the built in Poisson distribution functions.</p>
 <pre class="r"><code># Using built-in function &#39;dpois&#39;, we can check our answers:
 # for x=4
 x= 4
 lambda=12
 dpois(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.00530859947328</code></pre>
+<pre><code>## [1] 0.005308599</code></pre>
 <pre class="r"><code># #or
 # ppois(x,lambda)-ppois(x-1,lambda)
 
@@ -213,12 +213,12 @@ dpois(x=x, lambda = lambda)</code></pre>
 x= 12
 lambda=12
 dpois(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.114367915509</code></pre>
+<pre><code>## [1] 0.1143679</code></pre>
 <pre class="r"><code># for x=20
 x= 20
 lambda=12
 dpois(x=x, lambda = lambda)</code></pre>
-<pre><code>## [1] 0.00968203216822</code></pre>
+<pre><code>## [1] 0.009682032</code></pre>
 <pre class="r"><code># which was correct for all three x&#39;s</code></pre>
 <p>Something to ponder. Note that there are two formula given. Can you implement both forms in R/IML/Macro language? Would there be a difference in computational speed or efficiency?</p>
 <pre class="r"><code># Implementation of the first formula
@@ -236,15 +236,15 @@ mbm &lt;- microbenchmark(&quot;Using first formula&quot; = pois.pmf.first(x=x, l
 mbm</code></pre>
 <pre><code>## Unit: microseconds
 ##                  expr   min     lq     mean median     uq      max neval
-##   Using first formula 1.839 2.0075 67.46909 2.0500 2.1295 6524.948   100
-##  Using second formula 2.075 2.1280  2.72028 2.1695 2.2505   24.049   100
+##   Using first formula 2.478 2.5830 66.55456 2.6430 2.6945 6367.856   100
+##  Using second formula 2.687 2.7335  2.84033 2.7675 2.8175    6.687   100
 ##  cld
 ##    a
 ##    a</code></pre>
 <pre class="r"><code>library(ggplot2)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
-<p><img src="/achalneupane.github.io/post/Functions_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<p><img src="/achal.github.io/post/Functions_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 Based on the execution time, looks like using the first formula takes a bit longer time to execute.</p>
 </div>
 </div>

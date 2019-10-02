@@ -1,0 +1,208 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Getting Started"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+
+-references:
+- author:
+  - family: Wansink
+    given: Brian
+  - family: Payne
+    given: Collin
+  id: wansink2009joy
+  issue: 150
+  issued:
+    month: 2
+    year: 2009
+  page: 291-292
+  source: Annals of Internal Medicine
+  title: 'The joy of cooking too much: 70 years of calorie increases in classic recipes'
+  type: article-journal
+  volume: 150
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<div id="instructions" class="section level1">
+<h1>Instructions</h1>
+<p>This document runs a simple analysis of the Table 1 from <span class="citation">[@wansink2009joy]</span>. Edit the header information to show your name and the date you complete the assignment.</p>
+<p>Modify this document to analyze either Calories per Serving or Servings per Recipe. Document any changes you make in the literate portion of the file. Comment on your choice of measure to analyze.</p>
+<p>Change the name of this file to match your user name on D2L, keeping the ‘Rmd’ extension, and include week number in the title (for example, <code>Peter.Claussen.1.Rmd</code>). Upload this file to D2L. Typeset this file to Word or PDF and upload the result to D2L as well.</p>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<table>
+<caption>Mean and (SD) for selected recipes from “Joy of Cooking”</caption>
+<colgroup>
+<col width="16%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Measure</th>
+<th align="right">1936</th>
+<th align="right">1946</th>
+<th align="right">1951</th>
+<th align="right">1963</th>
+<th align="right">1975</th>
+<th align="right">1997</th>
+<th align="right">2006</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">calories per recipe (SD)</td>
+<td align="right">2123.8 (1050.0)</td>
+<td align="right">2122.3 (1002.3)</td>
+<td align="right">2089.9 (1009.6)</td>
+<td align="right">2250.0 (1078.6)</td>
+<td align="right">2234.2 (1089.2)</td>
+<td align="right">2249.6 (1094.8)</td>
+<td align="right">3051.9 (1496.2)</td>
+</tr>
+<tr class="even">
+<td align="left">calories per serving (SD)</td>
+<td align="right">268.1 (124.8)</td>
+<td align="right">271.1 (124.2)</td>
+<td align="right">280.9 (116.2)</td>
+<td align="right">294.7 (117.7)</td>
+<td align="right">285.6 (118.3)</td>
+<td align="right">288.6 (122.0)</td>
+<td align="right">384.4 (168.3)</td>
+</tr>
+<tr class="odd">
+<td align="left">servings per recipe (SD)</td>
+<td align="right">12.9 (13.3)</td>
+<td align="right">12.9 (13.3)</td>
+<td align="right">13.0 (14.5)</td>
+<td align="right">12.7 (14.6)</td>
+<td align="right">12.4 (14.3)</td>
+<td align="right">12.4 (14.3)</td>
+<td align="right">12.7 (13.0)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="analysis" class="section level1">
+<h1>Analysis</h1>
+<div id="enter-data" class="section level3">
+<h3>Enter data</h3>
+<pre class="r"><code>CookingTooMuch.dat &lt;- data.frame(
+  Year=c(1936, 1946, 1951, 1963, 1975, 1997, 2006),
+  CaloriesPerRecipeMean = c(2123.8, 2122.3, 2089.9, 2250.0, 2234.2, 2249.6, 3051.9),
+  CaloriesPerRecipeSD = c(1050.0, 1002.3, 1009.6, 1078.6, 1089.2, 1094.8, 1496.2),
+  CaloriesPerServingMean = c(268.1, 271.1, 280.9, 294.7, 285.6, 288.6, 384.4),
+  CaloriesPerServingSD = c(124.8, 124.2, 116.2, 117.7, 118.3, 122.0, 168.3),
+  ServingsPerRecipeMean = c(12.9, 12.9, 13.0, 12.7, 12.4, 12.4, 12.7),
+  ServingsPerRecipeSD = c(13.3, 13.3, 14.5, 14.6, 14.3, 14.3, 13.0)
+)</code></pre>
+</div>
+<div id="create-values-for-confidence-interval-plot" class="section level3">
+<h3>Create values for confidence interval plot</h3>
+<p>Wansink reports that 18 recipes were analyzed.</p>
+<pre class="r"><code>n &lt;- 18</code></pre>
+<p>Assume a significance level <span class="math inline">\(\alpha\)</span> of 5%.</p>
+<pre class="r"><code>alpha &lt;- 0.05</code></pre>
+<p>Use standard formula for standard error <span class="math inline">\(\sigma / \sqrt{n}\)</span> and confidence interval <span class="math inline">\(t_{\alpha/2} \times s.e.\)</span>.</p>
+<pre class="r"><code>StandardError &lt;- function(sigma, n) {
+  sigma/sqrt(n)
+}
+ConfidenceInterval &lt;- function(sigma, n) {
+  qt(1-alpha/2, Inf)*StandardError(sigma,n)
+}</code></pre>
+<p>Create a variable for plotting and calculate upper and lower bounds using confidence intervals.
+For this assignment, I am plotting ServingsPerRecipe.</p>
+<pre class="r"><code>PlotCookingTooMuch.dat &lt;- CookingTooMuch.dat
+PlotCookingTooMuch.dat$ServingsPerRecipe &lt;-
+  PlotCookingTooMuch.dat$ServingsPerRecipeMean
+PlotCookingTooMuch.dat$Lower &lt;-
+  PlotCookingTooMuch.dat$ServingsPerRecipe - ConfidenceInterval(CookingTooMuch.dat$ServingsPerRecipeSD, n)
+PlotCookingTooMuch.dat$Upper &lt;-
+  PlotCookingTooMuch.dat$ServingsPerRecipe + ConfidenceInterval(CookingTooMuch.dat$ServingsPerRecipeSD, n)</code></pre>
+<p>Here, we are selecting only ServingsPerRecipe variable for plotting.</p>
+<pre class="r"><code>PlotCookingTooMuch.dat &lt;-
+  PlotCookingTooMuch.dat[, c(&quot;Year&quot;, &quot;ServingsPerRecipe&quot;, &quot;Lower&quot;, &quot;Upper&quot;)]</code></pre>
+<p>Examine the values to make sure we’ve entered correctly.</p>
+<pre class="r"><code>print(PlotCookingTooMuch.dat)</code></pre>
+<pre><code>##   Year ServingsPerRecipe    Lower    Upper
+## 1 1936              12.9 6.755826 19.04417
+## 2 1946              12.9 6.755826 19.04417
+## 3 1951              13.0 6.301465 19.69854
+## 4 1963              12.7 5.955268 19.44473
+## 5 1975              12.4 5.793858 19.00614
+## 6 1997              12.4 5.793858 19.00614
+## 7 2006              12.7 6.694417 18.70558</code></pre>
+<p>Couldn’t find the confidence intervals for ServingsPerRecipe in Wanskins report
+for 1936 and 2006. So I am using the Reference CI as calculated CI using
+confidence interval function above. So here, I am using ComValues as
+ReferneceValues</p>
+<pre class="r"><code>CompValues &lt;- PlotCookingTooMuch.dat[c(1, 7), c(&quot;Lower&quot;, &quot;Upper&quot;)]
+#ReferenceValues &lt;- matrix(c(1638.7, 2608.9, 2360.7, 3743.1),nrow=2,byrow=TRUE)
+ReferenceValues &lt;- CompValues
+CompValues</code></pre>
+<pre><code>##      Lower    Upper
+## 1 6.755826 19.04417
+## 7 6.694417 18.70558</code></pre>
+<pre class="r"><code>ReferenceValues</code></pre>
+<pre><code>##      Lower    Upper
+## 1 6.755826 19.04417
+## 7 6.694417 18.70558</code></pre>
+<pre class="r"><code>any(abs(CompValues - ReferenceValues) &gt; 0.1)</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<p>We no longer need the original data.</p>
+<pre class="r"><code>CookingTooMuch.dat &lt;- NULL</code></pre>
+</div>
+</div>
+<div id="plot-the-table" class="section level1">
+<h1>Plot the table</h1>
+<p>#Here, changed the title and y and x labels to Servings Per Recipe</p>
+<pre class="r"><code>plot(
+  ServingsPerRecipe ~ Year,
+  data = PlotCookingTooMuch.dat,
+  col = &quot;blue&quot;,
+  pch = 19,
+  main = &quot;Servings per Recipe&quot;,
+  ylab = &quot;Servings&quot;,
+  ylim = c(
+    min(PlotCookingTooMuch.dat$Lower),
+    max(PlotCookingTooMuch.dat$Upper)
+  )
+)
+lines(
+  ServingsPerRecipe ~ Year,
+  data = PlotCookingTooMuch.dat,
+  lty = &quot;dashed&quot;,
+  col = &quot;blue&quot;,
+  lend = 2
+)
+segments(
+  x0 = PlotCookingTooMuch.dat$Year,
+  y0 = PlotCookingTooMuch.dat$Lower,
+  x1 = PlotCookingTooMuch.dat$Year,
+  y1 = PlotCookingTooMuch.dat$Upper
+)</code></pre>
+<p><img src="/achal.github.io/post/Getting_started_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="comments" class="section level1">
+<h1>Comments</h1>
+<p>From this plot, it appears that average servings per recipe doesn’t seem to
+change from 1936 to 2006.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+</div>

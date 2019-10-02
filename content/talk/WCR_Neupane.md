@@ -1,6 +1,8 @@
 +++
 title = "Transcriptome analysis of western corn rootworm larvae and eggs"
 date = 2014-04-14
+location = "Chicago, USA"
+event = "The International Working Group on Ostrinia and other Maize Pests (IWGO), 2014"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Achal Neupane", "Seong-il Eyun", "Haichuan Wang", "Blair D. Siegfried", "Etsuko N. Moriyama"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Chicago, USA
-
-Event: The International Working Group on Ostrinia and other Maize Pests (IWGO), 2014
-
 
 
 **Abstract**

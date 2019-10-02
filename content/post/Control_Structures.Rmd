@@ -1,0 +1,653 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Control Structures"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+There are six exercises below. You are required to provide solutions for at least four of the five. You are required to solve at least one exercise in R, and at least one in SAS. You are required to provide five solutions, each solution will be worth 10 points. Thus, you may choose to provide both R and SAS solutions for a single exercise, or you may solve five of the sixth problems, mixing the languages as you wish.
+
+*Warning* I will continue restricting the use of external libraries in R, particularly `tidyverse` libraries. You may choose to use `ggplot2`, but take care that the plots you produce are at least as readable as the equivalent plots in base R. You will be allowed to use whatever libraries tickle your fancy in the midterm and final projects.
+
+#### Experimental
+
+Again, you will be allowed to provide one solution using Python. Elaborate on the similarities and differences between Ptyhon function definitions and R or IML or Macro language.
+
+## Reuse
+
+For many of these exercises, you may be able to reuse functions written in prior homework. Define those functions here. I'm also including data vectors that can be used in some exercises.
+
+```{r}
+CaloriesPerServingMean <- c(268.1, 271.1, 280.9, 294.7, 285.6, 288.6, 384.4)
+CaloriesPerServingSD <- c(124.8, 124.2, 116.2, 117.7, 118.3, 122.0, 168.3)
+```
+
+# Exercise 1
+
+Write a general Cohen $d$ function to be more generally useful, accepting a wider range of arguments. For convenience, name this `general.d`.
+
+The new function should accept two parameters, `m`, `s` 
+
+In your function, check for these condititions:
+
+* If `m` is of length 1 and `s` is length 1, then simply divide `m/s` - that is, proceed with the calculations as if `m = %Diff` and `s = CV`.
+
+* If `m` is of length 2, then calculate the difference and proceed with the calculations.
+* If `m` is of length greater than 2, find the difference between the min and max of `m` and proceed with the calculations.
+
+* If s is of length greater than 1 calculate pooled sd as
+
+$$
+s^2_{pooled} = \sqrt{\frac{\sum_i^k s_i^2}{k}}
+$$
+```{r}
+# Creating the general.d function with all possible combinations for m and s
+# conditions:
+general.d <- function(m, s){
+  if(length(m) == 1 && length(s) == 1){
+    Diff = m
+    CV = s
+    print("EffectSize calculated for length(m) == 1, and length(s) == 1")
+  }else if (length(m) == 2 && length(s) > 1){
+    Diff = abs(m[1]-m[2])
+    CV = sqrt(sum((s^2))/length(s))
+    print("EffectSize calculated for length(m) == 2, and length(s) > 1")
+  }else if (length(m) == 2 && length(s) == 1){
+    Diff = abs(m[1]-m[2])
+    CV = s
+    print("EffectSize calculated for length(m) == 2, and length(s) == 1")
+  }else if (length(m) > 2 && length(s) > 1){
+    Diff = max(m)-min(m)
+    CV = sqrt(sum((s^2))/length(s))
+    print("EffectSize calculated for length(m) > 2, and length(s) > 1")
+  }else if (length(m) > 2 && length(s) == 1){
+  Diff = max(m)-min(m)
+  CV = s
+  print("EffectSize calculated for length(m) > 2, and length(s) == 1")
+}
+  EffectSize <- Diff/CV
+  return(EffectSize)
+}
+```
+
+Test your function with the three cases:
+
+#### 1936 Effect Size
+Use just the mean from 1936 and the associated standard deviation
+
+```{r,eval=TRUE}
+general.d(268.1, 124.8)
+```
+
+#### 1936 versus 2006
+This should duplicate results from prior exercises.
+
+```{r,eval=TRUE}
+general.d(c(268.1,384.4), c(124.8,168.3))
+```
+Yes, it matches the result from Homework 4
+
+#### All of Calories per Serving.
+Use the vectors from the Reuse chunk.
+
+```{r,eval=TRUE}
+general.d(CaloriesPerServingMean,CaloriesPerServingSD)
+```
+
+Are these three scenarios sufficient to test every path through `general.d`?
+
+Yes, these three scenarious are sufficient to test for all conditions mentioned above. 
+
+# Exercise 2
+
+Previously, we've calculated required replicates based on the $z$ distribution. In this exercise, you will calculate required replicates based on the $t$ disttibution. You must implement one of two algorithms given below. For both algorithmss, alculate degrees of freedom as $\nu = n*k-k$ where $n$ is the current estimate for required replicates and let $k=2$
+
+### Algorithm 1 (from Cochran and Cox, \textit{Expermental Design})
+Use the formula:
+
+$$
+n \ge 2\times \left( \frac{CV}{\%Diff} \right)^2 \times \left(t_{\alpha/2,\nu}+ t_{\beta,\nu} \right)^2
+$$
+
+1. Start with a small $n$, say, 2.
+2. Calculate critical $t_\alpha/2$ and $t_\beta$ quantiles with $\nu$ d.f, then calculate required replicates. Label this $n_{current}$.
+3. Update $\nu$ using $n_{current}$, then recalculate critical values and required replicates. 
+Label this $n_{next}$. 
+3. If $n_{current}=n_{next}$ then the algorithm has converged. 
+Otherwise, set $n_{current}$ to $n_{next}$, and repeat 2-3.
+4. If after some sufficiently large number (say, 20), the algorithm hasn't converged, print a message and return the largest of $n_{current}$ and $n_{next}$
+
+```{r}
+required.replicates.t <- function (m1, s1, m2, s2,n = 2, k = 2, alpha = 0.05, beta = 0.20){
+  temp.required.replicates.t <- function(...){
+    sd.pooled <- function(...){
+    sqrt((s1^2 + s2^2)/2)
+    }
+    d <- (sd.pooled(s1,s2))/abs(m1-m2)
+    ceiling(2*d^2*(qt(1-alpha/2, n*k-k) + qt(1-beta, n*k-k))^2)
+  }
+  
+  
+  # n <- 2
+  i <- 1
+  ncurrent.indexed <- {
+  }
+  nnext.indexed <- {
+  }
+  success <- FALSE
+  # while (!success) {
+  while (i < 20 && !success) {
+    ncurrent <- n
+    ncurrent.indexed[i] <- ncurrent # so we can keep track of ncurrent
+    nnext <- temp.required.replicates.t(m1, s1, m2, s2, n = ncurrent)
+    nnext.indexed[i] <- nnext # so we can keep track of nnext
+    success <- nnext == ncurrent
+    if (!success && i == 20) {
+      # if (success ){
+      print("The algorithm DO NOT converge!!!!!")
+      print(paste0("The largest of ncurrent is : ", max(ncurrent.indexed)))
+      print(paste0("The nnext is: ", nnext))
+    } else if (success) {
+      print(paste0("The algorithm DO converge at iteration " , i , " !!!!!"))
+      break
+    }
+    n <- nnext
+    i <- i + 1
+  }
+  values <-
+    list(n.current = ncurrent.indexed, n.next = nnext.indexed)
+  return(values)
+}
+
+# Copying required.replicates function from last homework
+required.replicates <- function (m1,m2, s1,s2, alpha=0.05, beta=0.2){
+  n <- 2* ((((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * (qnorm((1-alpha/2)) + qnorm((1-beta)))^2) 
+  return(round(n,0))
+}
+```
+
+### Algorithm 2
+
+1. Start with a small $n$, say, 2.
+2. Calculate critical $t_\alpha$ quantile using the central $t$ distribution with $\nu$ d.f.
+3. Estimate Type IIShow in New WindowClear OutputExpand/Collapse Output error (p-value) under the alternate hypothesis using the non-central $t$ distribution with $\nu$ d.f, at the critical $t$ from 2. Calculate non-centrality parameter as
+$$
+NCP = \frac{\%Diff}{CV} \sqrt{\frac{n}{2}}
+$$
+4. If the resulting error is less than $1-\beta$, accept the current value of $n$. Otherwise increment $n$ and repeate 2-3.
+5. If desired power is not achieved after a large number of iterations (say, 1000), terminate the calculations and return NA.
+
+```{r}
+
+```
+
+Implement the algorithm as a function or macro named `required.replicates.t`, with parameters `mu`, `sigma` and an optional parameter `k`. Test your function by comoparing with required replicates from prior exercises for calories per serving, 1936 versus 2006, 1936 vs 1997 and 1997 vs 2006.
+
+For either algoorithm, you might consider starting with an initial value of $n$ calculated using the $z$ critical values as before. Can you be certain that the $z$ formula will not estimate more required replicates than the $t$ algorithm?
+
+#### 1936 versus 2006
+
+```{r,eval=TRUE}
+required.replicates(268.1, 124.8, 384.4, 168.3)
+required.replicates.t(268.1, 124.8, 384.4, 168.3)
+```
+
+#### 1936 versus 1997
+
+```{r,eval=TRUE}
+required.replicates(268.1, 124.8, 288.6, 122.0)
+required.replicates.t(268.1, 124.8, 288.6, 122.0)
+```
+
+#### 1997 versus 2006
+
+```{r,eval=TRUE}
+required.replicates(384.4,168.3,288.6,122.0)
+required.replicates.t(384.4,168.3,288.6,122.0)
+```
+
+You might find it useful to reproduce the plots from Homework 4, Ex. 3. Plot the central and non-central $t$ distributions over the range $-3,4$, and produce plots for seledted $n$.
+
+# Exercise 3
+
+Calculate a cumulative probability value from the normal pdf, using the Newton-Cotes formula
+
+$$
+\int _{x_0} ^{x_n} f(x) dx \approx \sum _{i=0} ^n h f(x_i)
+$$
+
+where $x_1, ..., x_n$ are a sequence of evenly spaced numbers from $-2 \dots 2$, with $x_i = x_0 + h i$, $n$ is the number of $x_i$ in the sequence and step size $h = (x_n -x_0)/n$.
+
+We will calculate this integral by calculating successive approximations of $f = L(x;0,1)$ `= norm.pdf` over series of $x$ with increasingly smaller step sizes.
+
+## Part a.
+Calculate $L_0$ by summing over $L(\bf{X_0})$, where $X_0$ is a series from $x_0=-2, \dots, x_n=2$ incremented by $h_0=0.1$. Multiply this sum by $h_0$ for an approximate $\int _{x_0} ^{x_n} L(x) dx$
+
+```{r}
+h0_val <- 0.1
+x0_val<-{}
+x0_val <- seq(-2,2,h0_val)
+result0 <- sum(x0_val)
+result0 
+normal.pdf.0 <- result0 *h0_val
+normal.pdf.0
+```
+
+Think of this as the sum of a series of rectangles, each $h$ wide and a height given by the normal pdf.
+
+## Part b. 
+Create a second series $X_1$ by setting $h_1 = h_0/2$. Compute $L_1$ from this series as in part a. Let $i=1$
+You now have the are of twice as many rectangles as part a, but each is half as wide.
+
+```{r}
+# Now, Create a second series  X_1
+h1_val <- h0_val/2
+x1_val<-{}
+x1_val <- seq(-2,2,h1_val)
+result1 <- sum(x1_val)
+result1 
+normal.pdf.1 <- result1 *h1_val
+normal.pdf.1
+```
+
+## Part c.
+Compute $\delta=|L_i - L_{i-1}|$. If $\delta < 0.0001$, your sequence of iterations has converged on a solution for $L$. Finish with Part d. Otherwise, increment $i$, let $h_i = h_{i-1}/2$. Create the next series $X_i$ and compute the next $L_i$.
+
+Hint: code this first as a for loop of a small number of $i$ until you know your code will converge toward a solution.
+
+```{r}
+h_val<- 0
+seq1<-{}
+seq2<-{}
+for (x in 1:10){
+  
+  if (x == 1 ){
+    hx <- 0.1
+    h_val[x] <- hx
+  }
+  
+  else {
+    hx <- h_val[x]
+  }
+  
+  y <- x +1
+  hy <- hx/2
+  h_val[y] <- hy
+  
+  seq1 <- seq(-2,2,hx)
+  sumSeq1 <- sum(seq1)
+  pdf1 <- sumSeq1*hx
+  seq2 <- seq(-2,2,hy)
+  sumSeq2 <- sum(seq2)
+  pdf2 <- sumSeq2*hy  
+  del <- abs(sumSeq2 - sumSeq1)  
+  if (del < 0.0001){
+    print("The sequence has been converged")
+    break
+  }
+  
+}
+
+```
+
+# Part d
+Report $i$, $n$ and $h$. 
+```{r}
+x
+h_val[y]
+length(seq2)-length(seq1)
+```
+
+To check your results, compare your final $L_i$ to
+```{r}
+pnorm(-2, lower.tail = TRUE)-pnorm(-2, lower.tail = TRUE)
+```
+Is your estimate within $0.0001$ of this value?
+
+
+You might find it useful to produce staircase plots for the first 2-4 iterations (plot $L_i$ vs $X_i$ on one graph). You might also find it interesting to plot $\delta$ or $L$ versus $i$ or $h$. You can create vectors to hold the intermediate steps - 10 iterations should be enough. How many iterations might it take to get within 0.000001 of the expected value from R?
+
+
+
+# Exercise 4
+
+## Part a.
+
+Write a function to compute mean, standard deviation, skewness and kurtosis from a single vector of numeric values. You can use the built-in mean function, but must use one (and only one) for loop to compute the rest. Be sure to include a check for missing values. Note that computationally efficient implementations of moments calculations take advantage of $(Y_i-\bar{Y})^4 = (Y_i-\bar{Y}) \times (Y_i-\bar{Y})^3$, etc.
+
+
+See https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm for formula for skewness and kurtosis. This reference gives several definitions for both skewness and kurtosis, you only need to implement one formula for each. Note that for computing skewness and kurtosis, standard deviation is computed using $N$ as a divisor, not $N-1$.
+
+
+Your function should return a list with `Mean`, `SD`, `Skewness` and `Kurtosis`. If you use IML, you will need to implement this as a subroutie and use call by reference; include these variables in parameter list.
+
+```{r}
+ ss_x=0 
+  temp.kurtosis=0
+  temp.skewness=0
+  i=1
+  k=0
+  # length.x=length(x)
+  # creating a function for calculating mean, sd, skewness and kurtosis
+  kurtskw=function(x){
+    # while (i <= length.x) {
+    for (i in 1:length(x)){
+      if(!is.na(x[i])){
+        meanX=mean(x,na.rm = TRUE)
+        ss_x=ss_x + ((x[i]- meanX)^2)
+        temp.kurtosis= temp.kurtosis + ((x[i] - meanX)^4)
+        temp.skewness=temp.skewness + ((x[i] - meanX)^3)
+        k=k+1
+      }
+      # i=i+1
+    }   
+    meanX=mean(x,na.rm = TRUE)
+    Sd=sqrt(ss_x/k)
+    kurtosis = temp.kurtosis/(k*(Sd^4))
+    skewness =  temp.skewness/((Sd^3)*k)
+    return(list(meanX=meanX,Sd=Sd,kurtosis=kurtosis,skewness=skewness))
+  }
+```
+
+## Part b.
+Test your function by computing moments for `Price` from `pumpkins.csv`, for `ELO` from `elo.csv` or the combine observations from `SiRstvt`. If find that `ELO` shows both skewness and kurtosis,  `Price` is kurtotic but not skewed, while `SiRstvt` are approximately normal.
+
+```{r}
+pumpkins.dat =read.table("https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv", header = T, sep = ",")
+ELO.dat =read.table("https://raw.githubusercontent.com/achalneupane/data/master/elo.csv", header = T, sep = ",")
+SiRstvt.dat <- read.table("https://raw.githubusercontent.com/achalneupane/data/master//SiRstvt.dat", header = FALSE, skip = 59)
+x = pumpkins.dat$Price
+y = ELO.dat$ELO
+# z = vector(SiRstvt.dat)
+library(reshape2)
+SiRstvt.dat <- suppressWarnings(melt(SiRstvt.dat))
+z = SiRstvt.dat$value
+print(kurtskw(x))
+print(kurtskw(y))
+print(kurtskw(z))
+```
+I also found that `ELO` shows both skewness and kurtosis,  `Price` is kurtotic but not skewed, while `SiRstvt` are approximately normal.
+
+Note:
+https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm
+A fundamental task in many statistical analyses is to characterize the location and variability of a data set. A further characterization of the data includes skewness and kurtosis.
+Skewness is a measure of symmetry, or more precisely, the lack of symmetry. A distribution, or data set, is symmetric if it looks the same to the left and right of the center point.
+
+Kurtosis is a measure of whether the data are heavy-tailed or light-tailed relative to a normal distribution. That is, data sets with high kurtosis tend to have heavy tails, or outliers. Data sets with low kurtosis tend to have light tails, or lack of outliers. A uniform distribution would be the extreme case.
+The values for asymmetry and kurtosis between -2 and +2 are considered acceptable in order to prove normal univariate distribution (George & Mallery, 2010). George, D., & Mallery, M. (2010). SPSS for Windows Step by Step: A Simple Guide and Reference, 17.0 update (10a ed.) Boston: Pearson.
+
+Also, 
+If skewness is not close to zero, then your data set is not normally distributed.
+If skewness is less than -1 or greater than 1, the distribution is highly skewed.
+If skewness is between -1 and -0.5 or between 0.5 and 1, the distribution is moderately skewed.
+If skewness is between -0.5 and 0.5, the distribution is approximately symmetric.
+
+
+
+```{r,eval=TRUE}
+library(moments)
+kurtosis(x, na.rm = TRUE)
+skewness(x, na.rm = TRUE)
+
+kurtosis(y, na.rm = TRUE)
+skewness(y, na.rm = TRUE)
+
+kurtosis(z, na.rm = TRUE)
+skewness(z, na.rm = TRUE)
+```
+
+
+# Exercise 5
+
+In this exercise, we will use run-time profiling and timing to compare the speed of execution for different functons or calculations. In the general, the algorithm will be 
+
+1. Write a loop to execute a large number of iterations. 
+I find $10^6$ to be useful; you might start with a smaller number as you develop your code. 
+2.  In this loop, call a function or perform a calculation. 
+You don't need to use or print the results, just assign the result to a local variable.
+3.  Repeat 1 and 2, but with a different function or formula.
+4.  Repeat steps 1-3 10 times, saving the time of execution for each pair of the 10 tests. Calculate mean, standard deviation and effect size for the two methods tested.
+
+If you choose R, I've included framework code using `Rprof`; I've included framework code for IML in the SAS template.
+
+```{r}
+```
+
+Test options
+- In homework 3, you were given two formula for the Poisson pmf,
+
+$$
+\begin{aligned}
+f(x;\lambda) & = \frac{e^{-\lambda} \lambda^x}{x!} \\
+             & = exp(-\lambda)(\frac{1}{x!}) exp[x\times log(\lambda)] \\
+\end{aligned}
+$$
+Compare the computationally efficiency of these two formula.
+
+- Create a sequence `x` of numbers -3 to 3 of length $10^6$ or so. In the first test, detetermine the amoung of time it takes to compute $10^5$ estimates of `norm.pdf` by visiting each element of `x` in a loop. In the second test, simply pass `x` as an argument to `norm.pdf`. Does R or IML optimize vector operations?
+
+```{r}
+# A
+x0 = -2
+xn = 2
+h0 <- 0.1 # spaced by 0.1
+# Xi = x_0+h
+X0 <- seq(x0,xn,h0)
+X0
+L0 <- sum(X0)
+L0
+
+normal_pdf0 <- L0*h0
+normal_pdf0
+
+# B
+
+
+
+h1 <- h0/2
+X1 <- seq(-2,2,h1)
+
+L1 <- sum(X1)
+L1
+
+normal_pdf1 <- L1*h1
+normal_pdf1
+
+# C 
+
+
+
+# Computing delta to meet the condition
+H <- 0
+
+for (i in 1:1){
+  
+  if (i == 1 ){
+    hi <- 0.1
+    H[i] <- hi
+  } else {
+    hi <- H[i]
+  }
+  # Set j as i+1
+  j <- i +1
+  
+  hj <- hi/2
+  H[j] <- hj
+  
+  Xi <- seq(-2,2,hi)
+  Li <- sum(Xi)
+  normal_pdf.i <- Li*hi
+  
+  xj <- seq(-2,2,hj)
+  Lj <- sum(xj)
+  normal_pdf.j <- Lj*hj
+  
+  delta <- abs(Lj - Li)
+  
+  # If converge print
+  if (delta < 0.0001){
+    print(paste0("The sequence has converged at iteration i: ", i, " and iteration j: ", j))
+    break
+  }
+  
+}
+
+```
+- The mathematical statement $\sqrt{x}$ can be coded as either `sqrt(x)` or `x^(1/2)`. Similarly, $e^x$ can be written as $exp(1)^x$ or $exp(x)$. These pairs are mathematically equivalent, but are they computationally equivalent. Write two test loops to compare formula with either $\sqrt{x}$ or $e^x$ of some form (the normal pdf, perhaps).
+
+I find $10^5 - 10^7$ give useful results, and that effect size increases with the number iterations; there is some overhead in the loop itself that contributes relatively less with increasing interations.
+
+```{r,eval=FALSE}
+Rprof("test1")
+## iteration code 1
+Rprof(NULL)
+Rprof("test2")
+## iteration code 2
+Rprof(NULL)
+#execution time for test 1
+summaryRprof("test1")$sampling.time
+#execution time for test 2
+summaryRprof("test2")$sampling.time
+#functions called in test 1
+summaryRprof("test1")$by.self
+#functions called in test 2
+summaryRprof("test2")$by.self
+```
+
+# Exercise 6
+
+Write an improved Poisson pmf function, call this function `smart.pois`, using the same parameters `x` and `lamba` as before, but check $x$ for the following conditions.
+1. If $x$ is negative, return a missing value (`NA`, `.`).
+2. If $x$ is non-integer, truncate $x$ then proceed.
+3. If $x$ is too large for the factorial function, return the smallest possible numeric value for your machine. What $x$ is too large? You could test the return value of `factorial` against `Inf`.
+
+You can reuse previously tested code writing this function as a wrapper for a previously written `pois.pmf` and call that function only after testing the for specified conditions.
+
+Test this function by repeating the plots from Homework 4, Ex 4.  How is the function different than `dpois`?
+
+**Warning** You may not be able to call this new function exactly as in the last exercise (Hint - what are the rules for conditions in `if` statements?). Instead, you might need to create a matrix or data table and use `apply` functions, or write a loop for visit each element in a vector of `x`.
+
+```{r}
+options(warn=-1)
+
+smart.pois <- function(x, lambda){
+  if(x<0){
+    poisson.d <- NA
+    # poisson.d <- "NA check"
+  }else if(class(x) != "integer" & suppressWarnings(factorial(x)) != Inf){
+    x <- trunc(x)
+    poisson.d <- exp(-lambda)*(1/(factorial(round(x,0))))*exp(round(x,0)*(log(lambda)))
+    # poisson.d <- "integer.check"
+  }else if(suppressWarnings(factorial(x)) == Inf){
+    smallest.value <- .Machine
+    poisson.d <- smallest.value$double.xmin
+    # poisson.d <- "factorial.check"
+  }
+  return(poisson.d)
+}
+
+
+
+x_a <- seq(-5, 5, 0.1)
+
+smart.poisson.probability.x_a <- {}
+lambda <- 1
+for(i in 1:length(x_a)){
+out <- smart.pois(x_a[i], lambda)
+smart.poisson.probability.x_a <- c(smart.poisson.probability.x_a, out)
+}
+smart.poisson.probability.x_a
+
+norm.pdf <- function(x,mu=0,sigma=1){
+  l<-1/(sigma*sqrt(pi*2))*exp(-((x-mu)^2)/(2*sigma^2))
+  return(l)
+}
+normal.liklihood.x_a <- norm.pdf(x_a)
+
+
+plot(x_a,normal.liklihood.x_a,type="l",col="black")
+lines(x_a,smart.poisson.probability.x_a,col="red")
+
+
+# using base functions for norm.pdf and poisson probability for x_a
+base.normal.liklihood.x_a <- dnorm(x_a,0, 1)
+base.poiss.x_a <- dpois(x=x_a, lambda = lambda)
+
+plot(x_a,base.normal.liklihood.x_a,type="l",col="black")
+lines(x_a,base.poiss.x_a,col="red")
+
+# Now
+# Using mean and standard deviation for servings per recipe from 1936:
+mu = 12.9; sigma = 13.3
+
+# Now we find the upper and lower bounds as:
+x.lower <- floor(mu-5*sigma)
+x.upper <- ceiling(mu+5*sigma)
+
+# Now taking the length of x_a as a reference, we create the equeally spaced
+# sequence from lower to upper bound as followed:
+spacer <- (x.upper - x.lower)/(length(x_a) - 1)
+
+x_b <- seq(x.lower, x.upper, spacer)
+# To show both x_a and x_b 's lenghts are equal:
+length(x_a)
+length(x_b)
+
+norm.pdf <- function(x, mu = 12.9, sigma = 13.3){
+  l<-1/(sigma*sqrt(pi*2))*exp(-((x-mu)^2)/(2*sigma^2))
+  return(l)
+}
+normal.liklihood.x_b <- norm.pdf(x_b)
+
+
+# Calculate poisson probability for x_b using smart.pois
+#using sigma = 13.3 to compare the difference with the first plot
+
+smart.poisson.probability.x_b <- {}
+lambda <- 12
+for(i in 1:length(x_a)){
+  out <- smart.pois(x_a[i], lambda)
+  smart.poisson.probability.x_b <- c(smart.poisson.probability.x_b, out)
+}
+# # smart.pois output for x_b
+# smart.poisson.probability.x_b
+
+
+# Repeating the plot from homework 4 Ex 4
+plot(x_b,normal.liklihood.x_b,type="l",col="black")
+lines(x_b,smart.poisson.probability.x_b,col="red")
+
+# Using base functions for x_b
+base.normal.liklihood.x_b <- dnorm(x_b,0, 1)
+base.poiss.x_b <- dpois(x=x_b, lambda = 12)
+
+plot(x_b,base.normal.liklihood.x_b,type="l",col="black")
+lines(x_b,base.poiss.x_b,col="red")
+
+
+# FInally, we can also check how smart.pois and dpois functions behave for the following numerical values
+# Testing three conditions with smart.pois
+smart.pois(-1, 12)
+smart.pois(2, 12) 
+smart.pois(2.233, 12)
+smart.pois(300, 12)
+
+#comparing same parameters with dpois
+dpois(-1, 12)
+dpois(2, 12)
+dpois(2.233, 12)
+dpois(300, 12)
+
+```
+
+Smart pois is different from dpois as smart.pois gives NAs for negative values and dpois gives, zero. In other word, we can say that dpois cannot handle non-integer, but smart.pois can.Also, for non-integer, dpois gives zero. Also, I couldn't find any similar pattern in the output of smart.poisson.probability.x_a and base.poiss.x_a

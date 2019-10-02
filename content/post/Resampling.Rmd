@@ -1,0 +1,475 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Resampling"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+# Instructions
+
+There are four exercises below. All are optional. You may solve these, one solution per exercise, and submit them for extra credit. You use R, SAS or Python as you wish.
+
+
+# Exercise 1.
+
+Consider the Hidalgo data set from Homework 9. Load the data, and calculate mean and median.
+
+```{r}
+hidalgo.dat = read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week_9/hidalgo.dat",
+                         header = T,
+                         sep = ","
+)
+
+mean.hidalgo <- mean(hidalgo.dat$X.060)
+mean.hidalgo
+
+median.hidalgo <- median(hidalgo.dat$X.060)
+median.hidalgo
+```
+
+### Part a.
+
+Calculate a jackknife estimate of the mean, and jackknife standard error of the mean, of these data. Are these values what you expect?
+
+```{r}
+y <- hidalgo.dat$X.060
+n <- length(y)
+hat.theta.rep <- {}
+for(i in 1:n){
+  hat.theta.rep[i] = mean(y[-i])
+}
+bar.theta <- mean(hat.theta.rep)
+# jackknife estimate of the mean
+bar.theta
+hat.theta <- mean.hidalgo
+# bias
+print(bias.jack <- (n-1) * (bar.theta - hat.theta))
+
+#jackknife standard error for mean would be 
+jackknife.stderr.mean <- sqrt((n-1) * mean((hat.theta.rep - mean(hat.theta.rep))^2))
+jackknife.stderr.mean
+# which can also be calculated as:
+variance.of.hat.theta.rep <- var(hat.theta.rep)
+jackknife.var = ((n-1)^2/n)*variance.of.hat.theta.rep
+jackknife.stderr.mean = sqrt(jackknife.var)
+jackknife.stderr.mean
+```
+Yes, I think these values are what we should expect. 
+
+
+### Part b. 
+
+Calculate a jackknife estimate of the median, and jackknife standard error of the median, of these data. Are these values what you expect?
+
+```{r}
+print(hat.theta <- median(y))
+  
+  n <- length(y)
+  hat.theta.rep <- {}
+  for(i in 1:n){
+    hat.theta.rep[i] = median(y[-i])
+  }
+  bar.theta <- mean(hat.theta.rep)
+  bar.theta
+  hat.theta <- median.hidalgo
+  # bias
+  print(bias.jack <- (n-1) * (bar.theta - hat.theta))
+
+  #jackknife standard error for median would be 
+  jackknife.stderr.median <- sqrt((n-1) * mean((hat.theta.rep - mean(hat.theta.rep))^2))
+  jackknife.stderr.median
+
+  
+  # # Also can be calculated as
+  # variance.of.ests <- var(hat.theta.rep)
+  # jackknife.var = ((n-1)^2/n)*variance.of.ests
+  # jackknife.stderr = sqrt(jackknife.var)
+  # jackknife.stderr
+  
+  # Or as:
+  
+  # n <-length(y)
+  # theta <- median(y)
+  # jk <- sapply(1:n, function(i) median(y[-i]))
+  # 
+  # thetaBar <- mean(jk)
+  # thetaBar
+  # biasEst <- (n - 1) * (thetaBar - theta)
+  # biasEst
+  # seEst <- sqrt((n - 1) * mean((jk - thetaBar) ^ 2))
+  # seEst
+  
+  
+  
+  # # To check our answer, we can check with the bootstrap package
+  # 
+  # library(bootstrap)
+  # out <- jackknife(y, median)
+  # out$jack.se
+  # out$jack.bias
+```
+
+### Part c. 
+
+Calculate a bootstrap estimate of the mean, and of the median, of the Hidalgo data. Use $B = 1000$ samples.
+
+```{r}
+ B <- 1000
+  star.theta.rep <- rep(0,B)
+  star.theta <- mean(y)
+  for(i in 1:B) {
+    star.theta.rep[i] <- mean(sample(y,replace=TRUE))
+  }
+  # bootstrap estimate of the mean
+  star.bar.theta <- mean (star.theta.rep)
+  star.bar.theta
+  
+  # BS estimate of standard error for mean
+  se.boot.mean <- sd(star.theta.rep - mean(star.theta.rep))
+  se.boot.mean
+```
+
+```{r}
+  bstraps <- c()
+  for (i in 1:1000) {
+    bsample <- sample(y, length(y), replace=T)
+    bstraps <- c(median(bsample), bstraps)}
+  star.hat.theta <- median(bstraps)
+  
+  # bootstrap estimate of median
+  star.hat.theta
+  
+  # BS estimate of standard error for mean
+  se.boot.median <- sd(star.theta.rep - median(star.theta.rep))
+  se.boot.median
+```
+
+### Part d.
+
+When data are normally distributed, and for large samples, the standard error of the median can be approximated by
+$$
+s.e._{med} = 1.253 \times s.e._{mean}
+$$
+where $s.e._{mean} = \sigma /\sqrt{n}$.
+
+How do the jackknife and bootstrap estimates of standard error compare to the parametric estimates?
+
+```{r}
+std <- function(x) sd(x)/sqrt(length(x))
+s.e.mean <- std(hidalgo.dat$X.060)
+s.e.mean
+
+s.e.median <- s.e.mean * 1.253
+s.e.median
+
+
+# compared to 
+jackknife.stderr.mean
+jackknife.stderr.median
+
+se.boot.mean
+se.boot.median
+ 
+```
+
+
+# Exercise 2.
+
+Consider the data from Homework 6.
+
+```{r}
+NATR332.DAT <- data.frame(
+  Y1 = c(146,141,135,142,140,143,138,137,142,136),
+  Y2 = c(141,143,139,139,140,141,138,140,142,138)
+)
+```
+
+Let $\theta$ be the ratio of the two population means:
+
+$$
+\theta = \frac{\mu_{Y1}}{\mu_{Y2}}
+$$
+Calculate jackknife and bootstrap estimates for $\widehat{\theta}$, and for the standard error for $\widehat{\theta}$.
+
+### Part a. Jacknife.
+
+```{r}
+  n <- nrow(NATR332.DAT)
+  y <- NATR332.DAT$Y1
+  z <- NATR332.DAT$Y2
+  theta.hat <- mean(y)/ mean(z)
+  
+  # computing jackknife replicates leaving one-out estimates
+  theta.jack <- numeric(n)
+  
+  for( i in 1:n){
+    theta.jack[i] <- mean(y[-i])/mean(z[-1])
+  }
+  bias <- (n-1) * (mean(theta.jack)- theta.hat)
+  bias
+  
+  # now, we calculate standard error for jackknife
+  se.jack <- sqrt((n-1) * mean((theta.jack - mean(theta.jack))^2))
+  se.jack
+```
+
+### Part b. Bootstrap.
+
+```{r}
+# For Bootstrap
+  
+  # let
+  B = 1000
+  theta.b <- numeric(B)
+  theta.hat <- mean(NATR332.DAT$Y1)/mean(NATR332.DAT$Y2)
+  
+  n <- nrow(NATR332.DAT)
+  
+  for(b in 1:B){
+    i <- sample (1:n, size = n, replace = TRUE)
+    y <- NATR332.DAT$Y1[i]
+    z <- NATR332.DAT$Y2[i]
+    theta.b[b] <- mean(y)/mean(z)
+  }
+  
+  bias <- mean(theta.b) - theta.hat
+  se.boot <- sd(theta.b)
+  
+  print(list(est = theta.hat, bias = bias, cv  = bias/se.boot, standard_error_bootstrap = se.boot))
+```
+
+# Exercise 3
+
+### Part a.
+
+Consider the ELO data. Subset the data to exclude non-qualifiers - `NQ` - then create a factor `AA`. This will indicate if the wrestler that as All-American (top 8 places), or did not place in the tournament.  Use `ActualFinish` equals `AA`. Next, calculate an effect size $d$ for the difference in ELO scores between All-American and non-All-American wrestlers; you will need to calculate means and standard deviations as necessary. Since the populations are unbalanced, you will need to use a pooled sd of the form
+
+$$
+s_{pooled} = \sqrt{\frac{(n_1-1) s_1^2 + (n_2-1) s_2^2} {n_1 + n_2 -2}}
+$$
+
+```{r}
+elo.dat <- read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/elo.csv", header = TRUE, row.names = 1, sep = ",")
+head(elo.dat)
+elo.exNQ <- elo.dat[!grepl("NQ", elo.dat$ExpectedFinish),]
+# elo.exNQ$ActualFinish <- as.factor(elo.exNQ$ActualFinish[grepl("AA", elo.exNQ$ActualFinish)])
+
+# Creating a new column with AA and other
+elo.exNQ$AA.Other <- as.factor(ifelse(grepl('AA', elo.exNQ$ActualFinish), 'AA',
+                            ifelse(!grepl('AA', elo.exNQ$ActualFinish), 'Other', NA)))
+
+# # meand AA
+# mean.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$AA.Other), mean), c("group", "mean"))
+# sd.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$AA.Other), sd), c("group", "SD"))
+# count.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$AA.Other), length), c("group", "Count"))
+
+mean.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$ExpectedFinish), mean), c("group1", "mean"))
+sd.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$ExpectedFinish), sd), c("group1", "SD"))
+count.dat <- setNames(aggregate(elo.exNQ$ELO, list(elo.exNQ$ExpectedFinish), length), c("group1", "Count"))
+
+
+
+Mean_SD_Count.dat <- Reduce(function(...)
+  merge(..., by = c("group1"), all.x = TRUE),
+  lapply(
+    list(mean.dat, sd.dat, count.dat),
+    transform
+    # grp = ave(seq_along(group), group, FUN = seq_along)
+  ))
+
+# Here as well, we will relabel our groups as 'AA' and 'Other'
+Mean_SD_Count.dat$group <- as.factor(ifelse(grepl('AA', Mean_SD_Count.dat$group1), 'AA',
+                       ifelse(!grepl('AA', Mean_SD_Count.dat$group1), 'Other', NA)))
+
+sd_pooled  <- lapply( split(Mean_SD_Count.dat, Mean_SD_Count.dat$group),
+                                  function(dd) sqrt( sum( dd$SD^2 * (dd$Count-1) )/(sum(dd$Count-1)-nrow(dd)) ) )
+sd_pooled
+
+# Now we get the mean of mean
+Mean <- lapply(split(Mean_SD_Count.dat, Mean_SD_Count.dat$group), function(dd) mean(dd$mean))
+
+# Now  for Counts
+Count <- lapply(split(Mean_SD_Count.dat, Mean_SD_Count.dat$group), function(dd) sum(dd$Count))
+# combine two lists as a dataframe
+table.mean.sd <- do.call(rbind, Map(data.frame, Mean = Mean, sd_pooled = sd_pooled, Count = Count))
+
+
+cohen.d <- function(m1, s1, m2, s2){
+  cohens_d <-(abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+  return(cohens_d)
+}
+
+required.replicates <- function (m1, s1, m2, s2, alpha=0.05, beta=0.2){
+  n <- 2* ((((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * (qnorm((1-alpha/2)) + qnorm((1-beta)))^2) 
+  return(round(n,0))
+}
+
+
+effect_size <- cohen.d(
+  m1 = table.mean.sd$Mean[1],
+  s1 = table.mean.sd$sd_pooled[1],
+  m2 = table.mean.sd$Mean[2],
+  s2 = table.mean.sd$sd_pooled[2]
+)
+effect_size
+
+Req.Replicates <- required.replicates(
+  m1 = table.mean.sd$Mean[1],
+  s1 = table.mean.sd$sd_pooled[1],
+  m2 = table.mean.sd$Mean[2],
+  s2 = table.mean.sd$sd_pooled[2]
+)
+Req.Replicates
+
+
+```
+
+### Part b. 
+
+Calculate jackknife and bootstrap estimates of the error of $d$. Since ELO is determined by a wrestlers success within a weight class, you will need to honor this grouping (or sampling) of the data. Calculate the jackknife by excluding one `Weight` at a time from the data, and recalculating $d$; since there are 10 weight classes there should be 10 jackknife replicates. 
+
+For the bootstrap, sample from the 10 weight classes (use `unique` or `levels`). Note that you will not be able simply subset the data on something like `Weight %in% samples`, since the bootstrap will require duplicate samples. Instead, iterate over weight class samples and merge subsets of the original data.
+
+```{r}
+
+```
+
+
+### Part c. 
+
+Compare your estimates of standard error to the parametric estimate, approximated by
+
+$$
+s.e._d ~ \sqrt{\frac{n_1 + n_2}{n_1 n_2} + \frac{d^2} {2(n_1 + n_2)}}
+$$
+
+```{r}
+n1 = table.mean.sd$Count[1]
+n2 = table.mean.sd$Count[2]
+d = effect_size
+
+# parametric estimate of standard error
+s.e_d <- sqrt((((n1 + n2)/(n1*n2))) + ((d^2)/(2*(n1+n2))))
+s.e_d
+```
+
+
+# Exercise 4
+
+Consider the data for U.S. Wholesale price for pumpkins 2018 in `pumpkins.csv`.
+
+### Part a. 
+
+Load the data, and calculate the $F$ test and the parametric $P(>F)$ using the code below. (set `eval=TRUE`).
+
+```{r}
+pumpkins.dat <- read.csv("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/pumpkins.csv", header = TRUE, sep = ",")
+attach(pumpkins.dat)
+# print(summary(pumpkins.dat))
+```
+
+```{r,eval=TRUE}
+summary(aov(Price ~ Class, data=pumpkins.dat))
+
+tt <- summary(aov(Price ~ Class, data = pumpkins.dat))
+# p value
+tt[[1]][["Pr(>F)"]][1]
+# F test
+tt[[1]][["F value"]][1]
+```
+
+### Part b.
+
+Permute `Price` over `Class` - that assume create a new data set on the assumption that `Class` has not influence on `Price`. Do this 1000 times, and calculate the $F$ ratio for each. Plot the distribution of $F$, and calculate how many $F$ are greater than the $F$ from part a. How does this compare with the parametric estimate for $P(>F$? Do you need to increase the number of permutations?
+
+Answer: I do not see any of the calculated F-statistics greater then the F-statistics calculated from part a. Perhaps I need to increase the number of permutations. 
+
+```{r}
+B <- 1000
+perm.theta.rep <- rep(0,B)
+F_ratio <- {}
+for(i in 1:B) {
+  y.s <- sample(Price)
+  gg <- aov(y.s ~ Class)
+  # summary(tt)[[1]][["Pr(>F)"]]
+  F_ratio.tmp <- summary(gg)[[1]][["F value"]][1]
+  F_ratio <- c(F_ratio, F_ratio.tmp)
+}
+
+F_ratio[1:10]
+# Distribution of F-ratio
+hist(F_ratio)
+# how many $F$ are greater than the $F$ from part a
+sum(F_ratio > tt[[1]][["F value"]][1])
+```
+
+### Part c.
+
+Repeat part b, but this time, honor the `Week` grouping. That is, permute `Price` over `Class` only within observations grouped by `Week`. Compare this to
+
+```{r,eval=TRUE}
+summary(aov(Price ~ Class + as.factor(Week), data=pumpkins.dat))
+```
+
+```{r}
+B <- 1000
+perm.theta.rep <- rep(0,B)
+F_ratio <- {}
+for(i in 1:B) {
+  y.s <- sample(Price)
+  gg <- aov(y.s ~ Class + as.factor(Week))
+  # summary(tt)[[1]][["Pr(>F)"]]
+  F_ratio.tmp <- summary(gg)[[1]][["F value"]][1]
+  F_ratio <- c(F_ratio, F_ratio.tmp)
+}
+
+F_ratio[1:10]
+# Distribution of F-ratio
+hist(F_ratio)
+
+tt <- summary(aov(Price ~ Class + as.factor(Week), data = pumpkins.dat))
+sum(F_ratio > tt[[1]][["F value"]][1])
+
+```
+
+Which are more appropriate for these data?
+
+I think having more number of permutations help in getting better statistics for these data.
+
+
+Comments:
+Ex 3. For the bootstrap, something like
+
+
+weights <- unique(elo.dat$Weight)
+for (i in 1:samples) {
+weight.samples <- sample(weights,replace=TRUE)
+elo.sub <- c()
+for(w in weight.samples) {
+elo.sub <- elo.dat[(elo.dat$Weight == w),]
+}
+
+It is a harder exercise, because we need to respect the sampling method of the original data, and for these data, wrestlers are grouped by weight class, so we need to sample weight classes. Similarly, for Ex 4, we want to sample Price observations within Week groups, so
+
+weeks <- unique(pumpkins.dat$Week)
+for(i in 1:10000) {
+  for(week in weeks) {
+    mask <- pumpkins.dat$Week==week
+    pumpkins.dat$Price[mask] <- sample(pumpkins.dat$Price[mask])
+}
+    pumpkins.dat$Price[mask] <-sample(pumpkins.dat$Price[mask])
+  }
+
+Consider if Ex 4 had been executed as a randomized complete block design, with Week as block. You would have independently randomized and applied treatment (Class) to each experimental unit within the block. We need to do the same thing with the bootstrap.
+
+

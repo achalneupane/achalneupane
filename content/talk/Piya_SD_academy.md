@@ -1,6 +1,8 @@
 +++
 title = "Introduction history and spread of Falcaria vulgaris Bernh. (Apiaceae) in the United States based on herbarium records"
 date = 2012-04-13
+location = "Vermillion, SD, USA"
+event = "South Dakota Academy of Science, 2012"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Sarbottam Piya", "**Achal Neupane**", "Jack Butler", "Gary Larson", "Madhav Nepal"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Vermillion, SD, USA
-
-Event: South Dakota Academy of Science, 2012
-
 
 
 **Abstract**

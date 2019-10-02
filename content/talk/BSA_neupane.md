@@ -1,6 +1,8 @@
 +++
 title = "Identification of Mitogen Activated Protein Kinase Family Members in Soybean"
 date = 2012-07-11
+location = "Ohio, USA"
+event = "Botanical Society of America Conference, 2012"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["**Achal Neupane**", "Sarbottam Piya", "Neil Reese", "Jai Rohila", "Senthil Subramanian", "Madhav P. Nepal"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Ohio, USA
-
-Event: Botanical Society of America Conference, 2012
-
 
 
 **Abstract**

@@ -1,7 +1,8 @@
 +++
 title = "MEK inhibitor resistance in acute myeloid leukaemia"
 date = 2016-03-16
-
+location = "Peppers Noosa, Australia"
+event = "New Direction in Leukaemia Research, 2016"
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Amanda M. Smith", "**Achal Neupane**","Sadia Afrin", "Rachel Burow", "Caedyn L. Stinson", "Andrew S. Moore"]
 
@@ -56,9 +57,8 @@ image = ""
 caption = ""
 
 +++
-Location: Peppers Noosa, Australia
 
-Event: New Direction in Leukaemia Research, 2016
+
 
 
 

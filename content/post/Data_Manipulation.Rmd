@@ -1,0 +1,424 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Data manipulation"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+There are six exercises below. You are required to provide solutions for at least four of the five. You are required to solve at least one exercise in R, and at least one in SAS. You are required to provide five solutions, each solution will be worth 10 points. Thus, you may choose to provide both R and SAS solutions for a single exercise, or you may solve five of the sixth problems, mixing the languages as you wish.
+
+If you choose SAS for an exercise, you may use `IML`, `DATA` operations or `PROC SQL` at your discretion.
+
+*Warning* I will continue restricting the use of external libraries in R, particularly `tidyverse` libraries. You may choose to use `ggplot2`, but take care that the plots you produce are at least as readable as the equivalent plots in base R. You will be allowed to use whatever libraries tickle your fancy in the midterm and final projects.
+
+## Reuse
+
+For many of these exercises, you may be able to reuse functions written in prior homework. Define those functions here.
+
+```{r}
+```
+
+# Exercise 1. 
+
+### Part a.
+
+Repeat the table from Homework 5, Exercise 2. The table will contain 30 rows, each corresponding to a unique combination of CV from $8, 12, ..., 28$ and Diff from $5,10, ... , 25$. However, for this exercise you only need to calculate one column for required replicates ($\alpha=0.05$ and $\beta=0.2$)
+
+Define the table in the space below. *Do not print this table*.
+
+```{r}
+newdata.dat <- data.frame(CV = rep(seq(8,28,4), each = 5), Diff = rep(seq(5,25,5),6))
+newdata.dat
+
+combined <- function (cv, percent.diff, alpha = 0.05, beta = 0.2){
+  cv <- cv
+  percent.diff <- percent.diff
+  n <- 2*(((cv/percent.diff)^2)*(qnorm((1-alpha/2)) + qnorm((1-beta)))^2) 
+  n <- round(n,0)
+  value <- list(CV = cv, PercentDiff= percent.diff, RequiredReplicates = round(n,0))
+  return(value)
+}
+value <- combined(cv = newdata.dat$CV, percent.diff = newdata.dat$Diff)
+
+# Adding RequiredReplicates column
+newdata.dat$RequiredReplicates <- value$RequiredReplicates
+# Print the table
+# newdata.dat
+```
+
+### Part b.
+
+Create two subset tables, one that contains the combinations of CV and Diff that require the five largest number of replicates and one the contains the combinations of CV and Diff the five smallest number of replicates. You can determine the subset by ranking or sorting by required replicates. You can add a rank column to your table if you wish. Call one table `LargestFive` and one table `SmallestFive`.
+
+```{r}
+# Sort the table by decreasing Replicate values
+ordered.new.dat <- newdata.dat[order(newdata.dat$RequiredReplicates,decreasing = TRUE),]
+
+# Creating the required subset tables
+LargestFive <- head(ordered.new.dat, 5)
+
+
+# Now for smallest
+SmallestFive <- tail(ordered.new.dat, 5)
+
+```
+
+### Part c.
+
+Print `LargestFive` sorted by required replicates in descending order, and print `SmallestFive` in ascending order.
+
+```{r}
+# adding rank for LargestFive table. Largest value gets rank 1
+LargestFive$Rank <- rank(order(LargestFive$RequiredReplicates, decreasing = TRUE))
+# printing larget five in descending order, Largest value gets the first rank
+LargestFive
+
+# adding rank for SmallestFive table. Smallest value gets rank 1
+SmallestFive <- SmallestFive[order(SmallestFive$RequiredReplicates, decreasing = FALSE),]
+SmallestFive$Rank <- rank((SmallestFive$RequiredReplicates),ties.method="min")
+# printing smallest five in ascending order, smallest value gets the first rank
+SmallestFive
+```
+
+
+# Exercise 2
+
+### Part a
+
+Go to http://www.itl.nist.gov/div898/strd/anova/SiRstv.html and use the data listed under `Data File in Table Format` (https://www.itl.nist.gov/div898/strd/anova/SiRstvt.dat). You may reuse the file from Homework 6. Load the data into a table below.
+
+```{r}
+SiRstvt.dat <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/SiRstvt.dat",
+                          header = FALSE, skip = 59)
+SiRstvt.dat
+```
+
+### Part b
+
+Reshape or transpose this table from the wide format to the long format. Make sure the resulting table has two columns - `Resistance` and `Instrument`.
+
+```{r}
+long.SiRstvt.dat <- with(reshape(SiRstvt.dat, idvar = "id", varying = list(1:5),
+             v.names = "Resistance", timevar = "Instrument", direction = "long"), 
+             data.frame(Instrument, Resistance))
+
+# the desired table in two column format:
+long.SiRstvt.dat
+```
+
+### Part c
+
+To confirm that the table was reshaped correctly, use `aggregate` or `tapply` to calculate mean `Resistance` grouped by `Instrument` from the long table, and use `apply` or `colMeans` to calculate column means from the wide table. Print and compare the results.
+
+```{r}
+# Resistance mean grouped by Instrument from long format
+tapply(long.SiRstvt.dat$Resistance, long.SiRstvt.dat$Instrument, mean)
+# aggregate(long.SiRstvt.dat$Resistance, by = list(long.SiRstvt.dat$Instrument), mean)
+
+# Resistance mean from wide format
+colMeans(SiRstvt.dat)
+```
+
+Note that the reshaped table should be equivalent to the file linked under 'Data File in Two-Column Format'.
+
+Yes, the reshaped table is equivalent to the linked data file in Two-column format
+
+# Exercise 3
+
+Create an ordered treatment pairs table from the `pumpkin.csv`. In the submitted work print the table only once at the end of the exercise.
+
+### Part a.
+
+Read the pumpkin data and compute mean $m_i$, standard deviation $s_i$ and count $n_i$ for each level $i$ of `Class`.
+
+```{r}
+pumpkins.dat =read.table("https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv",
+                         header = T, sep = ",")
+# pumpkin.table <- aggregate(pumpkins.dat$Price, by = list(pumpkins.dat$Class),
+# FUN = function(x) c(Mean = mean(x), SD = sd(x), Count.n = length(x)))
+
+pumpkin.mean <- setNames(aggregate(pumpkins.dat$Price, 
+       by = list(pumpkins.dat$Class), FUN =  mean), c("Class", "Mean"))
+pumpkin.sd <- setNames(aggregate(pumpkins.dat$Price, 
+       by = list(pumpkins.dat$Class), FUN =  sd), c("Class", "SD"))
+pumpkin.count <- setNames(aggregate(pumpkins.dat$Price, 
+       by = list(pumpkins.dat$Class), FUN =  length), c("Class", "Counts"))
+
+
+merged.class <- Reduce(function(x, y) merge(x, y, all=TRUE), 
+                 list(pumpkin.mean, pumpkin.sd, pumpkin.count))
+
+# This table includes mean, sd and counts for all Class
+merged.class
+
+```
+
+### Part b
+
+Create a table over all possible pairs $i,j$ of $k$ Classes from these data. Let one table column be $i$ and another column be $j$. Let $i = 1, 2, \dots (k-1)$ and $j = i+1, i+2, \dots k$. There will be $(k \times (k-1))/2$ rows in this table. I usually create an empty table, then fill the table using a pair of nested loops, the outer loop over $i$ and the inner loop over $j$. Use a counter variable to keep track of the current row and increment the counter in each step of the inner loop. 
+
+```{r}
+# There are 4 classes, 4 choose 2:
+class.level <- levels(pumpkins.dat$Class)
+comb.matrix <- as.data.frame(t(combn(4,2)))
+# This is how the combination matrix would look like
+comb.matrix
+# Creating an empty matrix so we could fill in with the required values
+collect <- data.frame(col1 = numeric(6), col2 = numeric(6))
+for (i in 1:length(comb.matrix$V1)){
+collect$col1[i] <-   class.level[comb.matrix$V1[i]]
+collect$col2[i] <-   class.level[comb.matrix$V2[i]]
+}
+# The possible pairs table
+collect
+
+# Now we merge the possible pairs (collect) table with the merged.class table with mean,
+# sd and counts values we created above
+collect <- merge(collect, merged.class, by.x = "col1", by.y = "Class" )
+collect <- merge(collect, merged.class, by.x = "col2", by.y = "Class" )
+collect
+```
+
+### Part c.
+
+Calculate Cohen's $d$ for each Class pair in this table. Use a pooled standard deviation given by
+
+$$
+s_{pooled} = \sqrt{\frac{\sum_i (n_i-1)s_i^2}{N-k}}
+$$
+
+You may add Class means to the table if you wish. Sort the table by $d$ in descending order and print the table.
+
+```{r}
+cohen.d <- function(m1,s1,m2,s2){
+  cohens_d <-(abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+return(cohens_d)
+}
+
+
+for(i in 1:nrow(collect)) {
+  collect$cohens_d[i] <-
+  cohen.d(
+  m1 = collect$Mean.x[i],
+  s1 = collect$SD.x[i],
+  m2 = collect$Mean.y[i],
+  s2 = collect$SD.y[i]
+  )
+}
+
+collect <- collect[order(collect$cohens_d, decreasing = TRUE),]
+# This  is the final table we need
+collect
+```
+
+
+# Exercise 4.
+
+### Part a.
+
+Download the two files from D2L `ncaa2018.csv` and `ncaa2019.csv`, and read into data frames or tables. `ncaa2018.csv` comes from the same source as `elo.csv` from Homework 5, while `ncaa2019.csv` is the corresponding more recent data. These tables do not contain identical sets of columns, but we will be able to merge `Finish` by individual wrestlers. *Do not print these tables*.
+
+```{r}
+ncaa2018.dat =read.table("https://raw.githubusercontent.com/achalneupane/data/master/ncaa2018.csv",
+                         header = T, sep = ",")
+head(ncaa2018.dat)
+
+ncaa2019.dat =read.table("https://raw.githubusercontent.com/achalneupane/data/master/ncaa2019.csv",
+                         header = T, sep = ",")
+head(ncaa2019.dat)
+
+merged.ncaa <- merge(ncaa2018.dat, ncaa2019.dat, by = c("Last", "First"), all = FALSE)
+```
+
+### Part b.
+
+The tables list the wrestlers qualifying for the NCAA 2018 and 2019 National Champions, respectively. Merge the tables into a single table that contains only those wrestlers who qualified for both tournaments. Use the columns `Last` and `First` to merge on; neither is unique for all wrestlers. 
+
+The merged table should have columns corresponding to `Finish` 2018 and `Finish` 2019 - you can leave the column names as the defaults produced by R or SAS. To check the merge, print the number of rows in the table, and determine if there are any missing values in either `Finish` column (`sum` or `any` are sufficient. *Do not print the table*.
+
+```{r}
+merged.common.players <- merge(ncaa2018.dat, ncaa2019.dat, by=c("Last","First"), all = FALSE) 
+# numer of rows
+print(nrow(merged.common.players))
+sum(is.na(merged.common.players$Finish.x))
+```
+
+### Part c.
+
+Print a contingency table comparing `Weight` for 2018 and `Weight` for 2019. The sum of all cells in this table will be equal to the total number of wrestlers that competed in both tournaments; the sum of the main diagonal will be the number of wrestlers that competed in the same weight class for both. How many wrestlers changed weight classes?
+
+```{r}
+weight_contingency <-
+  table(
+  merged.common.players$Weight.x,
+  merged.common.players$Weight.y,
+  dnn = c("Weight for 2018", "Weight for 2019")
+  )
+
+weight_contingency
+
+# The sum of all cells in this table will be equal to the total number of
+# wrestlers that competed in both tournaments
+sum(weight_contingency)
+
+# Diagonal sum
+sum(diag(weight_contingency))
+
+# How many wrestlers changed weight classes? This gives:
+sum(weight_contingency)-sum(diag(weight_contingency))
+```
+The sum of all cells in this table will be equal to the total number of wrestlers that competed in both tournaments: which is 198
+
+
+# Exercise 5
+
+### Background
+
+I'm working on software that produces a repeated measures analysis. To test my code, I use published data and compare results. For one analysis, I used data from **Contemporary Statistical Models for the Plant and Soil Sciences**, Oliver Schabenberger and Francis J. Pierce, 2001. These data are measurements of the diameter of individual apples from selected apple trees. 
+
+## Part a.
+Download the `AppleData.csv` if you choose R, the SAS data is included in the SAS template. Note the file include comments for the data; you may need to specify comment character in import. *Do not print this table*.
+
+To simplify this exercise, create a subset of the `AppleData` including only trees number 3, 7 and 10.
+
+```{r}
+AppleData=read.csv("https://raw.githubusercontent.com/achalneupane/data/master/AppleData.csv", 
+                   header = TRUE, comment.char = '#')
+
+#subsetting data to include tree 3, 7 and 10
+AppleData<- AppleData[AppleData$tree %in% c(3,7,10),]
+AppleData
+```
+
+## Part b.
+Reshape or transpose this data from the long form to the wide form. Call this data `AppleWide`. This table should have one column for `Tree`, one column for `Apple` and six columns, `diam.1` - `diam.6`. The values in the time columns come from `diam` in `AppleData`.
+
+```{r}
+AppleData1<- as.data.frame(AppleData)
+
+AppleWide<- reshape(AppleData1, direction = "wide", idvar = c("apple","tree"), timevar = "time")
+AppleWide
+```
+
+## Part c.
+To confirm that you've reshaped correctly, print column means for the wide data set and use an aggregate or apply function to compute `time` means for the long format.
+
+```{r}
+meanWide= colMeans(AppleWide, na.rm = T)
+meanWide
+meanLong = tapply(AppleData1$diam, AppleData1$time, mean, na.rm=T)
+meanLong
+```
+
+## Part d.
+I choose this example for a test case because it shows a case where the best repeated measures model is an auto-regressive model - each measure is correlated with the preceding measure. We can estimate the degree of using the following R code. You don't need to evaluate this code for this exercise; it's provided as a motivation for reshaping the data. 
+
+```{r,eval=FALSE}
+mult.lm <- lm(cbind(diam.1, diam.2, diam.3, diam.4, diam.5, diam.6) ~ tree, data=AppleWide)
+mult.manova <- manova(mult.lm)
+print(cov2cor(estVar(mult.lm)))
+```
+
+# Exercise 6
+
+This is an exercise in computing the Wilcoxon Signed Rank test. We will be using an example from NIST (`NATR332.DAT`). See https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/signrank.htm .
+
+The data are provided:
+```{r}
+NATR332.DAT <- data.frame(
+  Y1 = c(146,141,135,142,140,143,138,137,142,136),
+  Y2 = c(141,143,139,139,140,141,138,140,142,138)
+)
+```
+
+## Part a.
+Add a column `Difference` that is the difference between `Y1` and `Y2`. For further analysis, exclude any rows where the difference is 0.
+
+Next add add the column `Rank`, which will be the rank of the absolute value of `Difference`.
+```{r}
+#adding column Difference in the data frame 
+NATR332.DAT$Difference <- NATR332.DAT$Y1-NATR332.DAT$Y2
+NATR332.DAT<- NATR332.DAT[NATR332.DAT$Difference != 0,]
+NATR332.DAT
+
+#Next, we rank and add a column in the data frame 
+NATR332.DAT$Rank <- rank(abs(NATR332.DAT$Difference))
+NATR332.DAT
+```
+
+## Part c.
+Add the column `SignedRank` by applying the sign (+ or -) of `Difference`, to to `Rank` (that is, if `Difference` is < 0, then `SignedRank` is `-Rank`, otherwise `SignedRank` is `Rank`).
+
+```{r}
+SignedRank <- ifelse(NATR332.DAT$Difference < 0, - NATR332.DAT$Rank, + NATR332.DAT$Rank)
+ 
+NATR332.DAT$SignedRank<- round(SignedRank, 0)
+NATR332.DAT
+```
+
+## Part d.
+Compute the sum of the positive ranks, and the absolute value of the sum of the negative ranks. Let $W$ be the minimum of these two sums. Print $W$.
+
+```{r}
+positive.sum = sum(NATR332.DAT$SignedRank[NATR332.DAT$SignedRank > 0])
+positive.sum
+abs.negative.sum = abs(sum(NATR332.DAT$SignedRank[NATR332.DAT$SignedRank < 0]))
+abs.negative.sum
+# Let $W$ be the minimum of these two sums.
+W = min(abs.negative.sum, positive.sum)
+W
+```
+
+The expected mean of $W$ is calculated by 
+
+$$\mu_W = N_r*(N_r+1)/4$$ 
+with a standard deviation of
+
+$$
+\sigma_W = \sqrt{\frac{N_r(N_r+1)(2N_r+1)}{6}}
+$$
+
+where $N_r$ is the number of ranked values (excluding differences of 0). Calculate a $z$ score by
+
+$$z_W = (W - \mu_W)/\sigma_W$$
+Print both $\mu_W$ and $z_W$.
+
+```{r}
+mu_W = (7*(7+1))/4
+mu_W
+sigma_W = sqrt((7*(7+1)*(2*7+1))/6)
+sigma_W
+z_W = (W - mu_W)/sigma_W
+z_W
+p<- pnorm(z_W, lower.tail = TRUE)
+p
+```
+
+The p-value matches with the value calculated using Wilcoxon test below.
+
+The NIST page gives a p-values based on the continuity correction. We are not computing this correction. You can compute the $P(z>z_W)$ of your $z_W$ (using the normal distribution) and compare it to
+
+```{r,eval=TRUE}
+wilcox.test(NATR332.DAT$Y1, NATR332.DAT$Y2, paired = TRUE, correct = FALSE, alternative = "less")
+```
+
+while the corrected p-values are given by
+
+```{r,eval=TRUE}
+wilcox.test(NATR332.DAT$Y1, NATR332.DAT$Y2, paired = TRUE, correct = TRUE, alternative = "less")
+wilcox.test(NATR332.DAT$Y1, NATR332.DAT$Y2, paired = TRUE, correct = TRUE, alternative = "greater")
+```
+
+
+
+

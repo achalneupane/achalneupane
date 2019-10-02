@@ -1,0 +1,339 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Calculations"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+# General instructions.
+
+There are 5 exercises below. You are required to provide solutions for at least four of the five. You are required to solve at least one exercise in R, and at least one in SAS. You are required to provide five solutions, each solution will be worth 10 points. Thus, you may choose to provide both R and SAS solutions for a single exercise, or you may solve all five problems, mixing the languages as you wish. Warning - we will be reusing the formulas from the first three exercises in later homework, so if you implement them now later exercises will be easier.
+
+#### Experimental
+
+I've been arguing that this course should also include Python. To explore this idea, I'll allow one solution (10 of your 50 points) to be implemented in Python. To get full credit for a Python solution :
+
+* Solve one of the first three exercises.
+
+* Explain how the Python solution differs from the corresonding R or SAS solution. Note the differences in the languages. For example, does Python use the same assignment operator? Are all math operators the same as R or SAS? Are the math or statistics functions loaded by default? For the first exercise, I've found three important differences between R and Python.
+
+* You can include Python in RMarkdown by replacing `r` with `python` in the code chunk prefix.
+
+* I won't be teaching Python this summer, but if you're familiar with Python, this may help understand the inner workings of R or SAS.
+
+# Exercise 1
+
+
+Cohen gives a formula for effect size, $d$, for the difference between two means $m_1$ and $m_2$, as
+
+$$
+d = \frac{|m_1-m_2|}{s_{pooled}}
+$$
+where $s_{pooled}$ is a pooled standard deviation. Use the formula $s_{pooled} = \sqrt{(s_1^2 + s_2^2)/2}$. 
+
+Calculate the effect size $d$ for the differences among calories per serving, 1936 versus 2006, 1936 vs 1997 and 1997 vs 2006. Use the values from Wansink, Table 1 as given in Homework 1 or in the course outline.
+
+## Answer
+
+Enter the R code in the chunks below. If you choose SAS for this exercise, use the marked portion in the SAS homework template. 
+
+#### 1936 versus 2006
+```{r}
+#calories per serving
+#for this calcuation, m1 and m2 are mean for calories per serving for 1936 and 2006 respectively. s1 and s2 are standard deviation for 1936 vs 2006.
+m1=268.1
+m2=384.4
+s1=124.8
+s2=168.3
+d_1936_2006 <- (abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+d_1936_2006
+```
+#### 1936 versus 1997
+```{r}
+#calories per serving
+#for this calcuation, m1 and m2 are mean for calories per serving for 1936 and 1997 respectively. s1 and s2 are standard deviation for 1936 and 1997.
+m1=268.1
+m2=288.6
+s1=124.8
+s2=122.0
+d_1936_1997 <- (abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+d_1936_1997
+```
+#### 1997 versus 2006
+```{r}
+#calories per serving
+#for this calcuation, m1 and m2 are mean for calories per serving for 1997 and 2006 respectively. s1 and s2 are standard deviation for 1997 vs 2006.
+m1=288.6
+m2=384.4
+s1=122.0
+s2=168.3
+d_1997_2006 <- (abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+d_1997_2006
+```
+
+To check your work, consider that Cohen recommends that $d=0.2$ be considered a small effect, $d=0.5$ a medium effect and $d=0.8$ a large effect. I don't find any of these to be fully large effects.
+
+Here, I also found none of these to be of larger effect.
+
+# Exercise 2.
+
+Suppose you are planning an experiment and you want to determine how many observations you should make for each experimental condition. One simple formula (see Kuehl, "Design of Experiments : Statistical Principles of Research Design and Analysis") for the required replicates $n$ is given by
+
+$$
+n \ge 2\times \left( \frac{CV}{\%Diff} \right)^2 \times \left(z_{\alpha/2}+ z_\beta \right)^2
+$$
+where $\%Diff = \frac{m_1 - m_2}{(m_1 + m_2)/2}$ and $CV = \frac{sd_{pooled}}{(m_1 + m_2)/2}$.
+
+Use this formula to calculate the number of replicates required to detect differences between calories per serving, 1936 versus 2006, 1936 vs 1997 and 1997 vs 2006. You will need to research how to use the normal distribution functions (`*norm` in R, ). Use $\alpha=0.05$ and $\beta = 0.8$ for probabilities, and let `mean = 0` and `sd = 1` (both $z$ should be positive). 
+
+Since $n$ must be an integer, you will need to round up. Look up the built in functions for this.
+
+## Answer
+
+Enter the R code in the chunks below. If you choose SAS for this exercise, use the marked portion in the SAS homework template. 
+
+#### 1936 versus 2006
+
+```{r}
+alpha = 0.05
+beta = 0.8
+m1=268.1
+m2=384.4
+s1=124.8
+s2=168.3
+z.half.alpha=abs(qnorm(alpha/2, 0, 1 ))
+z.half.alpha
+z.beta=abs(qnorm(beta, 0, 1))
+z.beta
+
+n <- 2* (((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * ((z.half.alpha + z.beta)^2)
+
+```
+```
+
+#### 1936 versus 1997
+
+```{r}
+m1=268.1
+m2=288.6
+s1=124.8
+s2=122.0
+z.half.alpha=abs(qnorm(alpha/2, 0, 1 ))
+z.half.alpha
+z.beta=abs(qnorm(beta, 0, 1))
+z.beta
+
+n <- 2* (((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * ((z.half.alpha + z.beta)^2)
+```
+
+#### 1997 versus 2006
+
+```{r}
+m1=288.6
+m2=384.4
+s1=122.0
+s2=168.3
+z.half.alpha=abs(qnorm(alpha/2, 0, 1 ))
+z.half.alpha
+z.beta=abs(qnorm(beta, 0, 1))
+z.beta
+
+n <- 2* (((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * ((z.half.alpha + z.beta)^2)
+```
+
+To check your work, use the rule of thumb suggested by van Belle ("Statistical Rules of Thumb"), where
+
+$$
+n= \frac{16}{\Delta^2}
+$$
+
+with $\Delta = \frac{\mu_1 - \mu_2}{\sigma}$. How does this compare with your results? Why does this rule of thumb work? How good is this rule of thumb?
+
+```{r}
+# rule of thumb
+sigma=1
+# Here, use either s1 or s2 or pooled sd for the sake of estimating. Comment from the instructor: Can we agree that the formula given in to check your work will be an approximation, and not an exact answer? If so, then does it matter if the approximate answer is based on the larger of two sd, the smaller of two sd, or some pooled value?
+Delta=(m1 - m2)/s2
+
+n= 16/Delta^2
+n
+```
+
+# Exercise 3
+
+The probablity of an observation $x$, when taken from a normal population with mean $\mu$ and variance $\sigma^2$ is calculated by
+
+$$
+L (x ; \mu, \sigma^2) = \frac{1}{\sigma \sqrt{2 \pi}^{}} e^{- \frac{(x - \mu)^2}{2 \sigma^2}}
+$$
+For values of $x = \{-0.1, 0.0, 0.1 \}$, write code to calculate $L (x ; \mu = 0, \sigma = 1)$. 
+  
+## Answer
+
+Enter the R code in the chunks below. If you choose SAS for this exercise, use the marked portion in the SAS homework template. 
+
+#### $x=-0.1$
+
+```{r}
+# to calcuate the values for l_1 from above equation, first we define the values for sigma, mu and x as below and the code for the formula is shown. 
+sigma=1
+mu=0
+x=-0.1
+l_1 <- 1/ (sigma*sqrt(2*pi))*exp(-(x-mu)^2/2*sigma^2)
+l_1
+```
+
+#### $x=0.0$
+
+```{r}
+# to calcuate the values for l_2 from above equation, first we define the values for sigma, mu and x as below and the code for the formula is shown. 
+sigma=1
+mu=0
+x=0.0
+l_2 <- 1/ (sigma*sqrt(2*pi))*exp(-(x-mu)^2/2*sigma^2)
+l_2
+```
+
+#### $x=0.1$
+
+```{r}
+# to calcuate the values for l_3 from above equation, first we define the values for sigma, mu and x as below and the code for the formula is shown. 
+sigma=1
+mu=0
+x=0.1
+l_3 <- 1/ (sigma*sqrt(2*pi))*exp(-(x-mu)^2/2*sigma^2)
+l_3
+```
+
+You can confirm your results using the built in normal distribution function. Look up `dnorm` in R help and use the same values for `x`, `mean` and `sigma` as above. You should get matching results to at least 12 decimal places.
+
+
+```{r}
+if(abs(l_1 -dnorm(-0.1,0, 1))<1e-12) {
+  print("likelihood for x = -0.1 correct")
+}else{
+  print("likelihood for x = -0.1 incorrect")
+}
+if(abs(l_2 -dnorm(0,0, 1))<1e-12) {
+  print("likelihood for x = 0.0 correct")
+}else{
+  print("likelihood for x = 0.0 incorrect")
+}
+if(abs(l_3 -dnorm(0.1,0, 1))<1e-12) {
+  print("likelihood for x = 0.1 correct")
+} else {
+  print("likelihood for x = 0.1 incorrect")
+}
+```
+Thus, this shows that the matching resuls are less than 12 decimal places.
+
+
+# Exercise 4
+
+## Part a
+
+Write code to compute
+  
+  $$7 - 1 \times 0 + 3 \div 3$$
+  
+Type this in verbatim, using only numbers, `-`,`*` and `/`, with no parenthesis. Do you agree with the result? Explain why, one or two sentences.
+
+#### Answer
+
+```{r}
+a=7-1*0+3/3
+a
+```
+Yes I agree with the results because it follows BODMAS rule. The order of calculation should be brackets, Order, Division/Multiplication, Addition/Subtraction.
+
+## Part b
+
+  According to "Why Did 74% of Facebook Users Get This Wrong?" (<https://profpete.com/blog/2012/11/04/why-did-74-of-facebook-users-get-this-wrong/>), most people would compute the result as 1. 
+  Use parenthesis `( )` to produce this result.
+
+#### Answer
+
+```{r}
+#For this, we can get 1 if we do the substraction at first and then the multiplication later by addition and division. Therefore, the value would be wrong as it doesnot follow the rule of calculations (BODMAS). 
+a=(7-1)*0+3/3
+a
+```
+
+## Part c
+
+Several respondents to the survey cited in Part 2 gave the answer 6. Add *one* set of parenthesis to produce this result.
+
+#### Answer
+
+```{r}
+a=7-1*(0+3/3)
+a
+```
+
+# Exercise 5.
+
+### Part a
+
+Quoting from Wansink and Payne
+
+> Because of changes in ingredients, the mean average calories in a recipe increased by 928.1 (from
+2123.8 calories ... to 3051.9 calories ... ), representing a 43.7% increase.
+
+Show how 43.7% is calculated from 2123.8 and 3051.9, and confirm W&P result.
+
+#### Answer
+
+```{r}
+#here we define the variable m1 and m2 as mean for total caloires for 1936 and 2006 respectively
+m1=2123.8
+m2=3051.9
+percentchange=(m2-m1)/m1*100
+round(percentchange, 2)
+# 43.7
+```
+
+
+> The resulting increase of 168.8 calories (from 268.1 calories ... to 436.9 calories ...) represents a 63.0% increase ... in calories per serving.
+
+### Part b
+
+Repeat the calculations from above and confirm the reported 63.0% increase in calories per serving. Why is there such a difference between the change in calories per recipe and in calories per serving? 
+
+#### Answer
+
+```{r}
+#let m1 and m2 be the mean for calories per serving for 1936 and 2006 respectively. 
+m1=268.1
+m2=436.9
+percentchange=abs(m1-m2)/m1*100
+round(percentchange, 1)
+# 63.0
+```
+The value for the percentage change in average calories per recipe from 1936 to 2006 is 43.7% which is lower than the percent change in average calories per serving (63.0 %) because the percent change for the year 1936 to 2006 is higher for average calories per serving compared to average calories per recipe.
+
+### Part c
+
+Calculate an average calories per serving by dividing average calories per recipe by average servings per recipe, for years 1936 and 2006, then calculate a percent increase. Which of the two reported increases (a or b) are consistent with this result?
+
+#### Answer
+
+```{r}
+#Here, we divide average calories per recipe by average servings per recipe to get m1 and m2 (average calories per serving for year 1936 and 2006, respectively).
+m1=2123.8/12.9
+m2=3051.9/12.7
+percentchange=abs(m1-m2)/m1*100
+round(percentchange, 2)
+```
+The reported percent change here (45.96%) is somewhat consistent with 43.7 %. So it is somewhat consistent with a.
+
+
+Finally, I choose to work on exercise 1, 3, 4 and 5 using R and also excercise 1 using SAS.

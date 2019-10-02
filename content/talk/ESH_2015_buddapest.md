@@ -1,6 +1,8 @@
 +++
 title = "Sensitivity of Whole Exome Sequencing for the Detection of FLT3-ITD and NPM1 Mutations in Acute Myeloid Leukaemia"
 date = 2015-09-10
+location = "Buddapest, Hungary"
+event = "European School of Hematology (ESH), 2015"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["Andrew S. Moore", "Russell Saal", "Lisa Anderson1", "Gregory Boxal", "Amanda M. Smith", "Achal Neupane", "Mhairi S. Marshall", "Felicity Newell", "Megan Ellis", "Nik Cummings", "Anna L. Brown", "Ian D. Lewis", "Bik To", "Paula Marlton", "Andrew H. Wei", "Richard J. D'Andrea", "Thomas J. Gonda", "Matthew A. Brown", "Paul J. Leo"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Buddapest, Hungary
-
-Event: European School of Hematology (ESH), 2015
-
 
 
 **Abstract**

@@ -1,6 +1,8 @@
 +++
 title = "Anticancer Activity of Novel Ionic Triorganotin Derivatives against MDA-MB 231 Breast Cancer Cells"
 date = 2009-10-29
+location = "Washington DC, USA"
+event = "HBCU-UP National Research Conference, 2009"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
 authors = ["**Achal Neupane**", "Chezaray Anjorin", "Xueqing Song", "Deepak Kumar"]
@@ -56,10 +58,6 @@ image = ""
 caption = ""
 
 +++
-Location: Washington DC, USA
-
-Event: HBCU-UP National Research Conference, 2009
-
 
 
 **Abstract**

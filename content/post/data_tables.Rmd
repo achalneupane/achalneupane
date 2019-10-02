@@ -7,6 +7,7 @@ output: html_document
 tags:
 - R
 - Statistics
+- Statistical_programming
 summary: Statistics series
 ---
 
@@ -186,7 +187,7 @@ You'll work with data from U.S. Wholesale price for pumpkins 2018 (https://www.e
 Download the file `pumpkins.csv` from D2L and read the file into a data frame. Print a summary of the table.
 
 ```{r}
-pumpkins <- read.csv("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/pumpkins.csv", header = TRUE, sep = ",")
+pumpkins <- read.csv("https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv", header = TRUE, sep = ",")
 pumpkins <- data.frame(pumpkins)
 attach(pumpkins)
 print(summary(pumpkins))
@@ -230,7 +231,7 @@ Let $y$ be the `Price`. Let the $k$ treatments be `Class`. Let $T_i$ be the `Pri
 Find the treatment totals $\mathbf{T} = T_1 \dots T_k$ and replicates per treatment $\mathbf{r} = r_1 \dots r_k$ from the pumpkin data, using group summary functions and compute a grand total $G$ for `Price`. Print $\mathbf{T}$, $\mathbf{r}$ and $G$ below. In SAS, you can use `proc summary` or `proc means` to compute $T$ adn $r$ and output a summary table. I find the rest is easier in IML (see `use` to access data tables in IML).
 
 ```{r}
-pumpkins.dat <- read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/pumpkins.csv", header = TRUE, sep = ",")
+pumpkins.dat <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv", header = TRUE, sep = ",")
 head(pumpkins.dat)
 class(pumpkins.dat)
 k <- length(levels(pumpkins.dat$Class))
@@ -343,7 +344,7 @@ Edit this into a file that can be read into R or SAS, or find an appropriate fun
 
 ```{r}
 # Here we read the .dat file first skipping the 59 lines as indicated in SiRstvt.dat file.
-df <- read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/SiRstvt.dat", header = FALSE, skip = 59)
+df <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/SiRstvt.dat", header = FALSE, skip = 59)
 # read file as dataframe
 df <- as.data.frame(df)
 # We need to change the column names as alpha-numeric to work with ease
@@ -415,7 +416,7 @@ There is a web site (https://www.wrestlestat.com/rankings/starters) that ranks c
 Read the dzta below and print a summary. The dzta were created by writing a data frame from R to csv (`write.csv`), so the first column is row number and does not have a header entry (the header name is an empty string).
 
 ```{r}
-elo.dat <- read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/elo.csv", header = TRUE, row.names = 1, sep = ",")
+elo.dat <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/elo.csv", header = TRUE, row.names = 1, sep = ",")
 # elo.dat
 print(summary(elo.dat))
 ```

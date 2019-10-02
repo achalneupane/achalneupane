@@ -1,0 +1,387 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Processing text"
+date: 2019-08-15T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+There are six exercises below. You are required to provide solutions for at least four of the six. You are required to solve at least one exercise in R, and at least one in SAS. You are required to provide five solutions, each solution will be worth 10 points. Thus, you may choose to provide both R and SAS solutions for a single exercise, or you may solve five of the sixth problems, mixing the languages as you wish.
+
+If you choose SAS for an exercise, you may use `IML`, `DATA` operations or `PROC SQL` at your discretion.
+
+*Warning* I will continue restricting the use of external libraries in R, particularly `tidyverse` libraries. You may choose to use `ggplot2`, but take care that the plots you produce are at least as readable as the equivalent plots in base R. You will be allowed to use whatever libraries tickle your fancy in the midterm and final projects.
+
+## Reuse
+
+For many of these exercises, you may be able to reuse functions written in prior homework. Define those functions here.
+
+```{r}
+# Functions:
+# Ex 1
+collapse_df <- function(x) {
+createPattern <- function(n) {
+sprintf("(%s[^,]+),", strrep("[^,]+,", n - 1))
+}
+
+mystring <-
+do.call(paste, c(as.list(colnames(x)), sep = ",", do.call(paste, c(x, sep =
+","))))
+my_pattern <- createPattern(ncol(x))
+gsub(my_pattern, "\\1\n", paste(mystring, collapse = ","))
+}
+
+# Exercise 4
+reformat <- function(x) {
+x <-  unlist(strsplit(x, split = '|', fixed = TRUE))
+x <- gsub(" ", "", x)[-1]
+return(as.numeric(x))
+}
+
+# Exercise 5
+# Function to calculate R-square
+lm_eqn <- function(df) {
+m <- lm(Weight2019 ~ Weight2015, df)
+
+eq <-
+substitute(
+italic(Weight2019) == a + b %.% italic(Weight2015) * "," ~  ~ italic(r) ^
+2 ~ "=" ~ r2,
+list(
+a = format(unname(coef(m)[1]), digits = 2),
+b = format(unname(coef(m)[2]), digits = 2),
+r2 = format(summary(m)$r.squared, digits = 3)
+)
+)
+as.character(as.expression(eq))
+
+}
+```
+
+
+# Exercise 1.
+
+Write a loop or a function to convert a matrix to a `CSV` compatible string. Given a matrix of the form
+
+C1   | C2   | C3
+-----|------|----
+a    | b    | c 
+d    | e    | f
+g    | h    | i
+
+produce a string of the form
+
+```a,b,c\nd,e,f\ng,h,i``` 
+
+where `\n` is the newline character.
+
+```{r}
+my.dat <-
+  setNames(as.data.frame(matrix(
+  letters[1:9], ncol = 3, byrow = TRUE
+  )), c("C1", "C2", "C3"))
+
+  collapse_df(my.dat)
+```
+
+You are only required to convert a matrix to CSV format, but you may choose to write code to convert data tables to CSV; in this case, include column names in the output string. Use `NATR332.DAT` as a test case.
+
+```{r}
+NATR332.DAT <- data.frame(
+  Y1 = c(146,141,135,142,140,143,138,137,142,136),
+  Y2 = c(141,143,139,139,140,141,138,140,142,138)
+)
+
+# Test our function
+collapse_df(NATR332.DAT)
+```
+
+If you choose SAS, I've include the NATR332 data table and framework code for IML in the template. I used the `CATX` function in IML. I found I could do this in one line in R, with judicious use of `apply`, but I haven't found the equivalent in IML. Instead, I used a pair of nested loops to "accumulate" an increasingly longer string.
+
+# Exercise 2.
+
+Create an ordered treatment pairs table from the pumpkin data, as described in Homework 7. Before printing the table, iterate over each row to create a vector of row names that are more descriptive. First, use `levels` to get the text associated with each `Class`, then combine the `Class` text to create a row name of the form:
+
+```Blue vs Cinderella```
+
+(where `Blue` is the Class description for class 1, `Cinderella` is the description for class 2. This text should be the row name in the row corresponding to $i=1$ and $j=2$). You may choose to add a column with the specified descriptions, if you wish, but this must be the first column of the printed table.
+
+
+```{r}
+pumpkins.dat = read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv",
+  header = T,
+  sep = ","
+)
+
+
+# There are 4 classes, so 4 choose 2:
+class.level <- levels(pumpkins.dat$Class)
+comb.matrix <- setNames(as.data.frame(t(combn(4,2))), c("CLASSi", "CLASSj"))
+
+# Now we loop over the class level indices to get the row names
+for (i in 1:nrow(comb.matrix)) {
+  rownames(comb.matrix)[i] <-
+    paste(class.level[comb.matrix$CLASSi[i]], class.level[comb.matrix$CLASSj[i]], sep = " Vs ")
+}
+
+# This is how the combination matrix would look like
+comb.matrix
+
+# In addition to this, if we also want to see actual class levels on the same matrix:
+for (i in 1:length(comb.matrix$V1)) {
+comb.matrix$CLASSi.Names[i] <-   class.level[comb.matrix$CLASSi[i]]
+comb.matrix$col2j.Names[i] <-   class.level[comb.matrix$CLASSj[i]]
+}
+
+comb.matrix
+```
+
+
+# Exercise 3.
+
+Calculate MSW, MSB, $F$ and $p$ for the data from Wansink Table 1 (Homework 4, Exercise 6) where
+
+$$
+MSB = \frac{\sum_i n_i(x_i-\bar{x})^2}{k-1}
+$$
+
+$$
+MSW =  \frac{\sum_i (n_i-1)s_i^2}{N-k}
+$$
+
+Start with the strings:
+
+```{r}
+Means <- "268.1 271.1 280.9 294.7 285.6 288.6 384.4"
+StandardDeviations <- "124.8 124.2 116.2 117.7 118.3 122.0 168.3"
+SampleSizes <- "18 18 18 18 18 18 18"
+```
+
+Tokenize the strings, then convert the tokens to a create vectors of numeric values. Use these vectors to compute and print $MSW$, $MSB$, $F$ and $p$.
+
+```{r}
+Means<-strsplit(Means, split = " ")
+x<-as.numeric(Means[[1]])
+Sd<- strsplit(StandardDeviations, split = " ")
+s<-as.numeric(Sd[[1]])
+n<-strsplit(SampleSizes, split= " ")
+n<-as.numeric(n[[1]])
+k<-length(n)
+N<-18*k
+
+## MSB iteration  
+sum.x=0
+for (i in 1:k) {
+  sum.x=sum.x + x[i]
+}
+x_mean=sum.x/k
+
+ss.x=0 
+for (i in 1:k){
+    ss.x=ss.x + n[i]*(x[i] - x_mean)^2
+}
+MSB=ss.x/(k-1)
+MSB
+## MSW iteration  
+ss.w=0 
+for (i in 1:k){
+  ss.w=ss.w + ((n[i]-1)*(s[i])^2)
+}
+MSW=ss.w/(N-k)
+MSW
+
+F_ratio = MSB/MSW
+F_ratio
+
+P_value = pf(F_ratio, df1=k-1, df2=N-k, lower.tail=FALSE)
+P_value
+```
+
+If you use SAS, I've provided macro variables that can be tokenized in either macro language or using SAS functions. You can mix and match macro, DATA, IML or SQL processing as you wish, but you must write code to convert the text into numeric tokens before processing.
+
+Compare your results from previous homework, or to the resource given in previous homework, to confirm that the text was correctly converted to numeric values.
+
+
+# Exercise 4.
+
+Repeat the regression analysis from Homework 4, Exercise 5, but start with the text
+
+```{r}
+Rate <- "Rate   | 23000   | 24000   | 25000   | 26000    | 27000   | 28000   | 29000"
+Yield <- "Yield  | 111.4216 | 155.0326 | 181.1176 | 227.5800 | 233.4623 | 242.1753 | 231.3890"
+Rate <- reformat(Rate)
+Yield <- reformat(Yield)
+
+```
+
+Note that by default, `strsplit` in R will read `split` as a regular expression, and `|` is a special character in regular expressions. You will need to change one of the default parameters for this exercise.
+
+Tokenize these strings and convert to numeric vectors, then use these vectors to define
+
+$$
+y =\left( \begin{array}{c}
+111.4216 \\
+155.0326 \\
+\vdots \\
+231.3890 
+ \end{array}\right) 
+ =
+ \left(\begin{array}{rr}
+ 1 & 23000 \\
+ 1 & 24000  \\
+\vdots & \vdots \\
+ 1 & 29000
+ \end{array}\right) 
+ \left(\begin{array}{c}
+ \beta_1 \\
+ \beta_2
+ \end{array}\right)^t = \mathbf{X} \mathbf{\beta}
+$$
+
+Solve for and print $\hat{\beta}$. 
+
+If you use SAS, I've provided macro variables that can be tokenized in either macro language or using SAS functions. You can mix and match macro, DATA, IML or SQL processing as you wish, but you must write code to convert the text into numeric tokens before processing.
+
+```{r}
+y <- as.vector( Yield)
+y
+#creating a matrix for bias term
+bias=rep(1:1, length.out=length(y))
+bias
+
+cx <- Rate
+X=matrix(c(bias,cx), ncol = 2)
+X
+#multplication of transpose of x and x
+tX=t(X)
+tX
+
+Xm=tX%*%X
+Xm
+
+A=solve(Xm)
+
+hat.beta=A%*%(tX%*%y)
+hat.beta
+
+```
+
+Compare your results from previous homework, or to the resource given in previous homework, to confirm that the text was correctly converted to numeric values.
+
+
+# Exercise 5.
+
+Use the file `openmat2015.csv` from D2L. These data are from https://news.theopenmat.com/high-school-wrestling/high-school-wrestling-rankings/final-2015-clinch-gear-national-high-school-wrestling-individual-rankings/57136. This is a list of top-ranked high school wrestlers in 2015, their high `School`, `Weight` class and in some cases the `College` where they expected to enroll and compete after high school. 
+
+We wish to know how many went on to compete in the national championship in 2019, so we will merge this table with the data from Homework 7, `ncaa2019.csv`.  The `openmat2015.csv` data contains only a single column, `Name`. You will need to split the text in this column to create the columns `First` and `Last` required to merge with `ncaa2019.csv`. 
+
+**Do not print these tables in the submitted work** Instead, print a contingency table comparing `Weight` for 2015 and `Weight` for 2019. What is the relationship between high school and college weight classes? You may instead produce a scatter plot or box-whisker plot, using high school weight class as the independent variable.
+
+If you do this in SAS, use the `openmat2015SAS.csv` file, it will import `College` correctly.
+
+```{r}
+openmat2015 <-
+  read.delim2(
+    "https://raw.githubusercontent.com/achalneupane/data/master/openmat2015.csv",
+    header = T,
+    sep = ","
+  )
+openmat2015$Weight2015 <- openmat2015$Weight
+
+openmat2015$First <- sapply(strsplit(as.character(openmat2015$Name),' '), "[", 1)
+# sapply(strsplit(as.character(openmat2015$Name),' '), function(x){x[1]})
+openmat2015$Last <- sapply(strsplit(as.character(openmat2015$Name),' '), "[", 2)
+# sapply(strsplit(as.character(openmat2015$Name),' '), function(x){x[2]})
+head(openmat2015)
+
+
+ncaa2019.dat = read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/ncaa2019.csv",
+  header = T,
+  sep = ","
+)
+ncaa2019.dat$Weight2019 <- ncaa2019.dat$Weight
+
+head(ncaa2019.dat)
+
+
+
+merged.dat <- merge(x = openmat2015, y = ncaa2019.dat, by = c("First", "Last"), all = TRUE)
+head(merged.dat)
+
+merged.dat <- merged.dat[!is.na(merged.dat$Weight2015) & !is.na(merged.dat$Weight2019),]
+
+
+weight_contingency <-
+  table(
+    merged.dat$Weight2015,
+    merged.dat$Weight2019,
+    dnn = c("Weight for 2015", "Weight for 2019")
+  )
+
+weight_contingency
+
+library(ggplot2)
+p <- ggplot(merged.dat, aes(x=Weight2015, y=Weight2019)) +
+  geom_point( size=1, shape=21, fill="white") 
+  # geom_abline()
+
+
+# Now we paste the R-square value to our relationship plot
+p + geom_text(x = 150, y = 300, label = lm_eqn(merged.dat), parse = TRUE) +
+  xlab("HighSchool Weight") +
+  ylab("College Weight") + 
+  geom_smooth(method = 'lm')
+```
+
+The relationship between highschool weight and college weight is almost linear.
+# Exercise 6
+
+Use file `openmat2015.csv` from Exercise 6, and use partial text matching to answer these questions. To show your results, print only the rows from the table that match the described text patterns, but to save space, print only `Name`, `School` and `College`. Each of these can be answered in a single step.
+
+```{r}
+openmat2015 <-
+  read.delim2(
+  "https://raw.githubusercontent.com/achalneupane/data/master/openmat2015.csv",
+  header = T,
+  sep = ","
+  )
+
+# head(openmat2015)
+```
+
+- Which wrestlers come from a `School` with a name starting with `St.`?
+
+```{r}
+openmat2015[grepl("St.", openmat2015$School), c("Name", "School", "College")]
+```
+
+- Which wrestlers were intending to attend an Iowa `College`?
+
+```{r}
+openmat2015[grepl("Iowa", openmat2015$College), c("Name", "School", "College")]
+```
+
+- Which wrestlers were intending to start `College` in 2016 or 2017 (`College` will end with 16 or 17)?
+
+```{r}
+openmat2015[grepl("16$|17$", openmat2015$College), c("Name", "School", "College")]
+```
+
+- Which wrestlers are intending compete in a sport other than wrestling? (look for a sport in parenthesis in the `College` column. Note - `(` is a special character in regular expressions, so to match the exact character, it needs to be preceded by the escape character `\`. However, `\` in strings is a special character, so itself must be preceded by the escape character. 
+
+```{r}
+# all.sports.brackets <-
+#   openmat2015[grepl("\\(", openmat2015$College), ]
+
+openmat2015[grepl("\\(", openmat2015$College), ][!grepl("Wrestling", openmat2015[grepl("\\(", openmat2015$College), ]$College, ignore.case = TRUE), c("Name", "School", "College")]
+```
