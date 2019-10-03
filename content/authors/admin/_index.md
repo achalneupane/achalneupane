@@ -57,7 +57,7 @@ I have been working on bioinformatics and statistical genetics focused projects.
 
 Recently, I have studied the effects of hypovirulence-associated DNA virus 1(SsHADV-1) and Sclerotinia sclerotiorum hypovirus 2 Lactuca (SsHV2L) on white mold fungus pathogen *Sclerotinia sclerotiorum* using small RNAseq and RNAseq data. Over the years, I have worked on human (Cancer), plants, insects, fungal and viral genome datasets.
 
-During my graduate studies, I had taken several "data-heavy" courses in Statistics and Computer science (besides Biological science) which fueled my interest in Data Science. I am interested in big data analysis, algorithm development, scientific computing, including analysis of biological (NGS)/non-biological datasets.
+Since the beginning my graduate program, I have taken several “data-heavy” graduate level courses from Statistics and Computer Science departments in order to develop my skills for big-data analysis, algorithm development, and scientific computing, including analysis of biological data. Additionally, I have been writing computer programs in R, python, Perl, JavaScript, and also have been working on Linux/Unix system with extensive use of shell (bash) and PBS scripts for nearly 10 years of my research career. I am interested in big data analysis, algorithm development, scientific computing, including analysis of biological (NGS)/non-biological datasets.
 
 **Graduate level courses in Statistics and Computer science:**
 [View](<pdf_html/CS_and_Stat.html>)
