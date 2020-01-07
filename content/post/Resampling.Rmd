@@ -349,13 +349,9 @@ For the bootstrap, sample from the 10 weight classes (use `unique` or `levels`).
 
 Compare your estimates of standard error to the parametric estimate, approximated by
 
-
-
 $$
 s.e._d ~ \sqrt{\frac{n_1 + n_2}{n_1 n_2} + \frac{d^2} {2(n_1 + n_2)}}
 $$
-
-
 
 ```{r}
 n1 = table.mean.sd$Count[1]
@@ -454,25 +450,28 @@ I think having more number of permutations help in getting better statistics for
 Comments:
 Ex 3. For the bootstrap, something like
 
-
-weights <- unique(elo.dat$Weight)
-for (i in 1:samples) {
-weight.samples <- sample(weights,replace=TRUE)
-elo.sub <- c()
-for(w in weight.samples) {
-elo.sub <- elo.dat[(elo.dat$Weight == w),]
-}
+```{r}
+# weights <- unique(elo.dat$Weight)
+# for (i in 1:samples) {
+# weight.samples <- sample(weights,replace=TRUE)
+# elo.sub <- c()
+# for(w in weight.samples) {
+# elo.sub <- elo.dat[(elo.dat$Weight == w),]
+# }
+```
 
 It is a harder exercise, because we need to respect the sampling method of the original data, and for these data, wrestlers are grouped by weight class, so we need to sample weight classes. Similarly, for Ex 4, we want to sample Price observations within Week groups, so
 
-weeks <- unique(pumpkins.dat$Week)
-for(i in 1:10000) {
-  for(week in weeks) {
-    mask <- pumpkins.dat$Week==week
-    pumpkins.dat$Price[mask] <- sample(pumpkins.dat$Price[mask])
-}
-    pumpkins.dat$Price[mask] <-sample(pumpkins.dat$Price[mask])
-  }
+```{r}
+# weeks <- unique(pumpkins.dat$Week)
+# for(i in 1:10000) {
+#   for(week in weeks) {
+#     mask <- pumpkins.dat$Week==week
+#     pumpkins.dat$Price[mask] <- sample(pumpkins.dat$Price[mask])
+# }
+#     pumpkins.dat$Price[mask] <-sample(pumpkins.dat$Price[mask])
+#   }
+```
 
 Consider if Ex 4 had been executed as a randomized complete block design, with Week as block. You would have independently randomized and applied treatment (Class) to each experimental unit within the block. We need to do the same thing with the bootstrap.
 
