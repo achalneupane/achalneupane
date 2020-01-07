@@ -1,7 +1,7 @@
 ---
 Authors: ["**Achal Neupane**"]
 title: "Functions"
-date: 2019-08-15T17:26:23-05:00
+date: 2019-05-30T17:26:23-05:00
 draft: false
 output: html_document
 tags:
@@ -235,12 +235,9 @@ mbm &lt;- microbenchmark(&quot;Using first formula&quot; = pois.pmf.first(x=x, l
                       &quot;Using second formula&quot; = pois.pmf(x=x, lambda = lambda))
 mbm</code></pre>
 <pre><code>## Unit: microseconds
-##                  expr   min     lq     mean median     uq      max neval
-##   Using first formula 2.521 2.6185 61.32704  2.672 2.7975 5849.435   100
-##  Using second formula 2.296 2.7520  3.02134  2.808 2.8800   18.444   100
-##  cld
-##    a
-##    a</code></pre>
+##                  expr   min     lq     mean median    uq      max neval cld
+##   Using first formula 1.889 1.9730 65.01413 2.0045 2.050 6287.776   100   a
+##  Using second formula 1.845 1.9295  2.34223 1.9940 2.048   30.670   100   a</code></pre>
 <pre class="r"><code>library(ggplot2)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>

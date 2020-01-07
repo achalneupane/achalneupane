@@ -1,7 +1,7 @@
 ---
 Authors: ["**Achal Neupane**"]
 title: "Additional graphs"
-date: 2019-08-15T17:26:23-05:00
+date: 2019-07-15T17:26:23-05:00
 draft: false
 output: html_document
 tags:
@@ -30,7 +30,7 @@ Load the `ncaa2018.csv` data set and create histograms, QQ-norm and box-whisker 
 
 ```{r}
 ncaa2018.dat = read.table(
-  "/Users/owner1/Box/sdsu/statistical_programming_course/Week_7/ncaa2018.csv",
+  "https://raw.githubusercontent.com/achalneupane/data/master/ncaa2018.csv",
   header = T,
   sep = ","
 )
@@ -260,7 +260,7 @@ plot.histograms <- function(dat, vec, main, xlab){
 }
 
 # now read the file
-hidalgo.dat = read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week_9/hidalgo.dat",
+hidalgo.dat = read.table("https://raw.githubusercontent.com/achalneupane/data/master/hidalgo.dat",
                    header = T,
                    sep = ","
 )

@@ -1,7 +1,7 @@
 ---
 Authors: ["**Achal Neupane**"]
 title: "Processing text"
-date: 2019-08-15T17:26:23-05:00
+date: 2019-06-15T17:26:23-05:00
 draft: false
 output: html_document
 tags:
@@ -298,20 +298,20 @@ openmat2015$First &lt;- sapply(strsplit(as.character(openmat2015$Name),&#39; &#3
 openmat2015$Last &lt;- sapply(strsplit(as.character(openmat2015$Name),&#39; &#39;), &quot;[&quot;, 2)
 # sapply(strsplit(as.character(openmat2015$Name),&#39; &#39;), function(x){x[2]})
 head(openmat2015)</code></pre>
-<pre><code>##   Weight Rank              Name Year           School State College
-## 1    106    1       Cade Olivas  Fr.   St. John Bosco    CA        
-## 2    106    2 Roman Bravo-Young  Fr.        Sunnyside    AZ        
-## 3    106    3    Gavin Teasdale  Fr. Jefferson-Morgan    PA        
-## 4    106    4       Drew Mattin  So.            Delta    OH        
-## 5    106    5        Real Woods  Fr. Montini Catholic    IL        
-## 6    106    6     Jacori Teemer  Fr.       Long Beach    NY        
-##   Previous Weight2015  First        Last
-## 1        1        106   Cade      Olivas
-## 2        2        106  Roman Bravo-Young
-## 3        3        106  Gavin    Teasdale
-## 4        5        106   Drew      Mattin
-## 5        6        106   Real       Woods
-## 6        7        106 Jacori      Teemer</code></pre>
+<pre><code>##   Weight Rank              Name Year           School State College Previous
+## 1    106    1       Cade Olivas  Fr.   St. John Bosco    CA                1
+## 2    106    2 Roman Bravo-Young  Fr.        Sunnyside    AZ                2
+## 3    106    3    Gavin Teasdale  Fr. Jefferson-Morgan    PA                3
+## 4    106    4       Drew Mattin  So.            Delta    OH                5
+## 5    106    5        Real Woods  Fr. Montini Catholic    IL                6
+## 6    106    6     Jacori Teemer  Fr.       Long Beach    NY                7
+##   Weight2015  First        Last
+## 1        106   Cade      Olivas
+## 2        106  Roman Bravo-Young
+## 3        106  Gavin    Teasdale
+## 4        106   Drew      Mattin
+## 5        106   Real       Woods
+## 6        106 Jacori      Teemer</code></pre>
 <pre class="r"><code>ncaa2019.dat = read.table(
   &quot;https://raw.githubusercontent.com/achalneupane/data/master/ncaa2019.csv&quot;,
   header = T,

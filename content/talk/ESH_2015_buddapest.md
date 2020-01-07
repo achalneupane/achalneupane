@@ -5,7 +5,7 @@ location = "Buddapest, Hungary"
 event = "European School of Hematology (ESH), 2015"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors = ["Andrew S. Moore", "Russell Saal", "Lisa Anderson1", "Gregory Boxal", "Amanda M. Smith", "Achal Neupane", "Mhairi S. Marshall", "Felicity Newell", "Megan Ellis", "Nik Cummings", "Anna L. Brown", "Ian D. Lewis", "Bik To", "Paula Marlton", "Andrew H. Wei", "Richard J. D'Andrea", "Thomas J. Gonda", "Matthew A. Brown", "Paul J. Leo"]
+authors = ["Andrew S. Moore", "Russell Saal", "Lisa Anderson1", "Gregory Boxal", "Amanda M. Smith", "**Achal Neupane**", "Mhairi S. Marshall", "Felicity Newell", "Megan Ellis", "Nik Cummings", "Anna L. Brown", "Ian D. Lewis", "Bik To", "Paula Marlton", "Andrew H. Wei", "Richard J. D'Andrea", "Thomas J. Gonda", "Matthew A. Brown", "Paul J. Leo"]
 
 # Publication type.
 # Legend:
@@ -16,7 +16,7 @@ authors = ["Andrew S. Moore", "Russell Saal", "Lisa Anderson1", "Gregory Boxal",
 # 4 = Technical report
 # 5 = Book
 # 6 = Book chapter
-publication_types = ["2"]
+publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
 

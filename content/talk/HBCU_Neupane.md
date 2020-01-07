@@ -16,7 +16,7 @@ authors = ["**Achal Neupane**", "Chezaray Anjorin", "Xueqing Song", "Deepak Kuma
 # 4 = Technical report
 # 5 = Book
 # 6 = Book chapter
-publication_types = ["2"]
+publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
 

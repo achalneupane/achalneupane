@@ -5,7 +5,7 @@ location = "Chicago, USA"
 event = "The International Working Group on Ostrinia and other Maize Pests (IWGO), 2014"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors = ["Achal Neupane", "Seong-il Eyun", "Haichuan Wang", "Blair D. Siegfried", "Etsuko N. Moriyama"]
+authors = ["**Achal Neupane**", "Seong-il Eyun", "Haichuan Wang", "Blair D. Siegfried", "Etsuko N. Moriyama"]
 
 # Publication type.
 # Legend:
@@ -16,7 +16,7 @@ authors = ["Achal Neupane", "Seong-il Eyun", "Haichuan Wang", "Blair D. Siegfrie
 # 4 = Technical report
 # 5 = Book
 # 6 = Book chapter
-publication_types = ["2"]
+publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
 

@@ -1,0 +1,406 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Generalized Additive Models and Spline Models"
+date: 2019-10-01T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Modern Applied Statistics I
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+Answer all questions specified on the problem and include a discussion on how your results answered/addressed the question.
+
+Submit your \textbf{.rmd} file with the knitted \textbf{PDF} (or knitted Word Document saved as a PDF). If you are having trouble with .rmd, let us know and we will help you, but both the .rmd and the PDF are required.
+
+This file can be used as a skeleton document for your code/write up. Please follow the instructions found under Content for Formatting and Guidelines. No code should be in your PDF write-up unless stated otherwise.
+
+For any question asking for plots/graphs, please do as the question asks as well as do the same but using the respective commands in the GGPLOT2 library. (So if the question asks for one plot, your results should have two plots. One produced using the given R-function and one produced from the GGPLOT2 equivalent). This doesn't apply to questions that don't specifically ask for a plot, however I still would encourage you to produce both.
+
+You do not need to include the above statements.
+
+Please do the following problems from the text book R Handbook and stated.
+
+1. Consider the body fat data introduced in Chapter 9 (\textbf{ bodyfat} data from \textbf{TH.data}  package).  
+
+    a) Explore the data graphically. What variables do you think need to be included for predicting bodyfat? (Hint: Are        there correlated predictors).
+    
+    b) Fit a generalised additive model assuming normal errors using the following code. 
+
+       \begin{verbatim}
+         bodyfat_gam <- gam(DEXfat~ s(age) + s(waistcirc) + s(hipcirc) + 
+                  s(elbowbreadth) + s(kneebreadth)+ s(anthro3a) +
+                  s(anthro3c), data = bodyfat)
+       \end{verbatim}
+      
+        - Assess the \textbf{summary()} and \textbf{plot()} of the model (don't need GGPLOT). Are all covariates informative? Should all covariates be smoothed or should some be included as a linear effect? 
+        
+        - Report GCV, AIC, adj-R$^2$, and total model degrees of freedom. 
+        
+        - Use \textbf{gam.check()} function to look at the diagnostic plot. Does it appear that the normality assumption is violated? 
+        
+        - Write a discussion on all of the above points.
+    
+    c) Now remove insignificant variables and remove smoothing for some variables. Report the summary, plot, GCV, AIC,         adj-R$^2$.
+      
+      \begin{verbatim}
+        bodyfat_gam2 <- gam(DEXfat~ waistcirc + s(hipcirc) + 
+                     s(kneebreadth)+ anthro3a +
+                     s(anthro3c), data = bodyfat)
+      \end{verbatim}
+    
+    d) Again fit an additive model to the body fat data, but this time for a log-transformed response. Compare the three        models, which one is more appropriate? (Hint: use Adj-R$^2$, residual plots, etc. to compare models).
+    
+    e) Fit a generalised additive model that underwent AIC-based variable selection (fitted using function \textbf{             gamboost()} function). What variable was removed by using AIC? 
+      \begin{verbatim}
+       bodyfat_boost <- gamboost(DEXfat~., data = bodyfat)
+       bodyfat_aic <- AIC(bodyfat_boost)
+       bf_gam <- bodyfat_boost[mstop(bodyfat_aic)]
+      \end{verbatim}
+      
+```{r}
+library(ggplot2)
+library(mgcv)
+library(mboost)
+library(caret)
+library(gamclass)
+library (TH.data)
+data ("bodyfat")
+head(bodyfat)
+NROW(bodyfat) # 71
+library(DescTools)
+names(bodyfat)
+
+
+#
+cat("# 1A")
+#
+
+# plot the variables to see which variables are correlated with which
+library(ggplot2)
+# base plot
+pairs(bodyfat, main = "base R: plots showing correlation of variables")
+
+#ggplot
+library(GGally)
+library(knitr)
+p <- ggpairs(bodyfat)
+p + labs(title = "ggplot: plots showing correlation of variables")
+
+cat("all of the anthros correlate with each other")
+
+
+body_f <- glm(DEXfat ~ ., data=bodyfat)
+bf_step <- step(body_f, trace = 0)
+
+cat("step recommends: waistcirc, hipcirc, kneebreadth and anthro3b")
+bf_step
+kable(summary(bf_step)$coefficients, caption = "Coefficients from step function")
+    
+
+#
+cat("# 1B")
+#
+
+bodyfat_gam <- gam(DEXfat ~ s(age) + s(waistcirc) + s(hipcirc) +
+                     s(elbowbreadth) + s(kneebreadth) + s(anthro3a) + s(anthro3c),      
+                   data = bodyfat)
+
+# Assess Summary
+summary(bodyfat_gam)
+
+
+# Assess plot
+cat ("Plot of a generalized additive model for question 1b:")
+layout(matrix(1:9, ncol = 3))
+plot(bodyfat_gam)
+
+# plot looks like we don't need to smooth all variables. These appear linear:
+# age, waistcirc, elbowbreadth & anthro3a don't need smoothing
+
+
+# Question: How do we evaluate a covariate's 'informative'-ness?
+# Annwer: Look at the p-values of the covariates.
+
+
+# Report model attributes
+cat("GCV")
+bodyfat_gam$gcv.ubre            # GCV
+cat("AIC")
+bodyfat_gam$aic                 # AIC
+cat("Adjusted R-squared")
+summary(bodyfat_gam)$r.sq       # Adjusted r-squared
+cat("Total degrees of Freedom")
+sum(bodyfat_gam$edf)            # Total degrees of freedom
+
+cat("Some diagnostics for a fitted gam model using cam.check")
+gam.check(bodyfat_gam)  # Response Vs Fitted values
+
+# Additionally we can also check for the train() method. Please note that
+# train() won't allow for smoothing the variables; it evidently decides which to
+# smooth on its own.
+bf_train_gam <- train(DEXfat ~ age +  waistcirc + hipcirc + elbowbreadth + 
+                        kneebreadth + anthro3a + anthro3c,      
+                      data = bodyfat, method = "gam")
+summary(bf_train_gam)
+
+# It looks like train() decided to smooth all the variables.
+# This resulted in a less effective model.
+
+#
+cat("# 1C")
+#
+# Removing insignificant elbowbreadth including age variables
+bodyfat_gam2 <- gam(DEXfat ~ waistcirc + s(hipcirc) +
+                      s(kneebreadth) + s(anthro3a) + s(anthro3c),      
+                    data = bodyfat)
+# Assess Summary
+summary(bodyfat_gam2)
+# wastcirc and anthro3a are no longer the most signifcant parameter.
+
+# Assess plot
+cat("Plots for the model after removing insignificant variables")
+layout(matrix(1:4, ncol = 2))
+plot(bodyfat_gam2)
+
+# plot looks like we don't need to smooth all variables.  These appear linear:
+# anthro3a and (possibly) hipcirc
+
+
+# Report model attributes
+cat("GCV of bodyfat_gam2")
+bodyfat_gam2$gcv.ubre            # GCV
+cat("AIC of bodyfat_gam2")
+bodyfat_gam2$aic                 # AIC
+cat("Adjusted r-squared of bodyfat_gam2")
+summary(bodyfat_gam2)$r.sq       # Adjusted r-squared
+cat("Total Degrees of freedom of bodyfat_gam2")
+sum(bodyfat_gam2$edf)            # Total degrees of freedom
+
+# run gam.check: is the normality assumption violated?
+gam.check(bodyfat_gam2)
+
+
+#
+cat("# 1D")
+#
+
+log_transferred_DEX <- log(bodyfat$DEXfat)
+df <- cbind (bodyfat, log_transferred_DEX)
+
+bodyfat_gam3 <- gam(log_transferred_DEX ~ waistcirc + s(hipcirc) +
+                      s(kneebreadth) + s(anthro3a) + s(anthro3c),      
+                    data = df)
+# Assess Summary
+summary(bodyfat_gam3)
+# Hipcirc, anthro3a and anthro3c are the most significant smoothed terms and
+# Kneebreadth is not significant here. Similarly, waistcirc is barely signifcant
+# parameter (<0.005).
+
+# Assess plot
+#layout(matrix(1:4, ncol = 2))
+#plot(bodyfat_gam3)
+
+# plot looks like we don't need to smooth all variables.  These appear linear:
+# anthro3a.  Hipcirc is prominantly NOT linear in this light.
+
+
+# Report model attributes
+cat("GCV of bodyfat_gam3")
+bodyfat_gam3$gcv.ubre            # GCV
+cat("AIC of bodyfat_gam3")
+bodyfat_gam3$aic                 # AIC
+cat("Adjusted R-square of bodyfat_gam3")
+summary(bodyfat_gam3)$r.sq       # Adjusted r-squared
+cat("Total degrees of freedom of bodyfat_gam3")
+sum(bodyfat_gam3$edf)            # Total degrees of freedom
+
+# run gam.check: is the normality assumption violated?
+gam.check(bodyfat_gam3)
+
+
+cat("Plots for the model with log transferred response")
+par(mfrow=c(1,4))
+plot(bodyfat_gam3)
+# plot(bodyfat_gam,select=1)
+# plot(bodyfat_gam2,select=1)
+# plot(bodyfat_gam3,select=1)
+# plot(bodyfat_gam3,select=4)
+# #compare with plots
+# ggplot(bodyfat) + geom_line(aes(x=seq(1:nrow(bodyfat)), y=DEXfat), lty=1, col=1) +
+#   geom_line(aes(x=seq(1:nrow(bodyfat)), y=bodyfat_gam$fitted.values), lty=2, col=2) +
+#   geom_line(aes(x=seq(1:nrow(bodyfat)), y=bodyfat_gam2$fitted.values), lty=3, col=3) +
+#   geom_line(aes(x=seq(1:nrow(bodyfat)), y=exp(bodyfat_gam2$fitted.values)), lty=4, col=4)
+# 
+# ggplot(bodyfat, aes(x=seq(1:nrow(bodyfat)), y=bodyfat_gam$fitted.values)) + geom_line(lty=2, col=6)
+#
+cat("# 1E")
+#
+
+bodyfat_boost <- gamboost(DEXfat ~ ., data=bodyfat)
+bodyfat_aic <- AIC(bodyfat_boost)
+cat("printing AIC")
+bodyfat_aic
+bf_gam <- bodyfat_boost[mstop(bodyfat_aic)]
+
+cat("plots for model fitted using gamboost:")
+layout(matrix(1:9, ncol = 3))
+plot(bf_gam)
+
+cat("extract variable names")
+extract(bf_gam,what='variable.names')
+cat("Here, variable 'age' was removed")
+```
+
+**Discussions:**
+
+#1a
+
+From the plot, it appears that age and elbowbreadth  don’t correlate with DEXfat. 
+However, waistcirc, hipcirc, and all four anthro variables appear to correlate with DEXfat. Based on the plot, I would select waistcirc, hipcirc, anthro3a and anthro3c.  However, I would also test the model using anthro3b rather than anthro3a to see which yields a better model. 
+Additionally, stepwise regression using step() function recommended: kneebreadth, waistcirc, hipcirc and anthro3b. This also confirm that the anthro variables are sufficiently correlated to be represented by one variable which in this case is anthro3b.
+
+#1b. 
+
+Not all covariates should be smoothed. Looking at the plot, the covariates that appear linear are: age, elbowbreadth, waistcirc and anthro3a. That leaves anthro3c, kneebreadth and hipcirc to be smoothed.
+
+Report model attributes:
+GCV
+8.435412 
+AIC
+345.708
+Adjusted R-squared
+0.9528156
+Total degrees of Freedom
+22.57091
+
+
+gam.check:
+While the residuals plot appears random, the histogram makes the data appear skewed to the left, so the assumption of normality doesn’t entirely hold.
+
+This summary shows that age, elbowbreadth, and anthro3c are not significant at
+the significance level of 0.05. The variables age, waistcirc, elbowbreadth and
+anthro3a all have linear relationships as shown in the plots. The model seems
+to give a moderate GCV and high AIC which could possibily be adjusted by
+variable selection and using smoothing functions on the variables mentioned
+above. The adjusted R2 does indicate that the model explains most of the
+variance, but as stated previously the model can improve.
+
+# 1c.
+GCV of bodyfat_gam2:
+7.946447 
+AIC of bodyfat_gam2:
+343.2562
+Adjusted r-squared of bodyfat_gam2:
+0.9536683
+Total Degrees of freedom of bodyfat_gam2:
+20.52
+
+# 1d.
+
+In this case, the log-transformed model is slightly better in that it accounts for slightly more of the deviation.
+Report GCV, AIC, adj-R2, and the total model degrees of freedom.
+GCV:		   0.0088
+AIC:		-136.4700
+adj-R2:	   0.9523
+Total DF:	  15.5927
+
+# 1e.
+
+Age variable was removed by gamboost() function.
+
+
+2. Fit a logistic additive model to the glaucoma data. (Here use family = "binomial"). Which covariates should enter the model and how is their influence on the probability of suffering from glaucoma? (Hint: since there are many covariates, use \textbf{gamboost()} to fit the GAM model.)
+
+```{r}
+library("TH.data")
+data("GlaucomaM")
+# cat("head(GlaucomaM)")
+# head(GlaucomaM)
+# nrow(GlaucomaM) # 196
+# names(GlaucomaM)
+
+glau_gamb <- gamboost(Class ~., data = GlaucomaM, family = Binomial())
+
+summary(glau_gamb)
+layout(matrix(1:9, ncol = 3))
+plot(glau_gamb)
+
+cat("Covariates that should enter the model as determined by gamboost:")
+# extract(glau_gamb,what='variable.names')
+var_names  <- unname(extract(glau_gamb,what='variable.names'))
+var_names
+
+#Using the variables indicated by gamboost, run a gam model to get summary data
+# phcg and phci seem smooth already
+glau_gam <- gam(Class ~ s(as) + s(abrs)   + s(hic)  + s(mhcg)  + s(mhcn) + s(mhci)             +   phcg +  s(phcn)  + phci + s(hvc) + s(vass) + s(vars) + s(vari) +                   s(mdn) + s(mdi) + s(tms) +  s(tmi) + s(mv), 
+                data=GlaucomaM, family=binomial)
+
+summary(glau_gam)
+```
+
+Discussions:
+
+Covariates indicated by gamboost() were used to generate a gam model. The names are listed in the summary printed above. The summary also shows the probability of their influence (somewhat high) for suffering from glaucoma. I think with 100 percent of the deviance explained, there should be a concern that this model is extremely over-fitting.
+
+
+
+
+3. Investigate the use of different types of scatterplot smoothers on the Hubble data from Chapter 6. (Hint: follow the example on men1500m data scattersmoothers page 199 of Handbook).
+
+```{r}
+## GAM model
+library("HSAUR3")
+library("mgcv")
+library("GGally")
+library("mboost")
+library("rpart")
+library("wordcloud")
+# data("bodyfat", package = "TH.data")
+data("hubble", package = "gamair")
+head(hubble)
+sorted_value<-hubble[order(hubble$x),]
+x <- sorted_value$x
+y <- sorted_value$y
+
+lowess_value <- lowess(x, y)
+plot(y~x, data = sorted_value, xlab = "x", ylab = "y",main="base R: Lowess scatterplot smoother")
+lines(lowess_value, lty = 2)
+
+ggplot() + aes(x=x, y=y) + 
+  geom_point()+
+  geom_line(aes(x = lowess_value$x, y = lowess_value$y)) +
+    labs(title = "ggplot: Lowess scatterplot smoother")
+
+
+plot(y~x, data = sorted_value, xlab = "x", ylab = "y",main="base R: Cubic scatterplot smoother")
+cubic_value = gam(y ~ s(x, bs = "cr"), data = sorted_value)
+lines(sorted_value$x, predict(cubic_value), lty=6)
+
+ggplot() + aes(x=x, y=y) + 
+  geom_point()+
+  geom_line(aes(x = sorted_value$x, y = predict(cubic_value))) +
+    labs(title = "ggplot: Cubic scatterplot smoother")
+
+summary(cubic_value)
+
+plot(y~x, data = sorted_value, xlab = "x", ylab = "y",main="base R: Quadratic model scatterplot smoother")
+lm_value = lm(y~x+I(x^2), data = sorted_value)
+lines(sorted_value$x, predict(lm_value))
+
+ggplot() + aes(x=x, y=y) + 
+  geom_point()+
+  geom_line(aes(x = sorted_value$x, y = predict(lm_value))) +
+    labs(title = "ggplot: Quadratic scatterplot smoother")
+
+```
+
+
+Discussions:
+
+The 3 different smoothers line shows that quadratic is higher than cubic and lowess, while cubic is higher than lowess. However, I am not sure if it would be logical to explain the smoother one fits better or not.

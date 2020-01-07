@@ -5,7 +5,7 @@ location = "Melbourne, Australia"
 event = "International Congress of Immunology, 2016"
 
 # Authors. Comma separated list, e.g. `["Bob Smith", "David Jones"]`.
-authors = ["Paul Leo", "Achal Neupane", "Mahmoud Bassal", "Zeya Kyaw Maung", "Felicity Newell", "Megan Ellis", "Gregory Boxall", "Amanda Smith", "Paula Marlton", "Richard D'Andrea", "Thomas Gonda", "Matthew Brown", "Russell Saal", "Andrew Moore"]
+authors = ["Paul Leo", "**Achal Neupane**", "Mahmoud Bassal", "Zeya Kyaw Maung", "Felicity Newell", "Megan Ellis", "Gregory Boxall", "Amanda Smith", "Paula Marlton", "Richard D'Andrea", "Thomas Gonda", "Matthew Brown", "Russell Saal", "Andrew Moore"]
 
 # Publication type.
 # Legend:
@@ -16,7 +16,7 @@ authors = ["Paul Leo", "Achal Neupane", "Mahmoud Bassal", "Zeya Kyaw Maung", "Fe
 # 4 = Technical report
 # 5 = Book
 # 6 = Book chapter
-publication_types = ["2"]
+publication_types = ["1"]
 
 # Publication name and optional abbreviated version.
 

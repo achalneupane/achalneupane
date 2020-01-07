@@ -1,0 +1,262 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Longitudinal Data Analysis and Mixed Models II"
+date: 2019-11-08T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Modern Applied Statistics I
+summary: Statistics series
+---
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+Answer all questions specified on the problem and include a discussion on how your results answered/addressed the question.
+
+Submit your \textbf{.rmd} file with the knitted \textbf{PDF} (or knitted Word Document saved as a PDF). If you are having trouble with .rmd, let us know and we will help you, but both the .rmd and the PDF are required.
+
+This file can be used as a skeleton document for your code/write up. Please follow the instructions found under Content for Formatting and Guidelines. No code should be in your PDF write-up unless stated otherwise.
+
+For any question asking for plots/graphs, please do as the question asks as well as do the same but using the respective commands in the GGPLOT2 library. (So if the question asks for one plot, your results should have two plots. One produced using the given R-function and one produced from the GGPLOT2 equivalent). This doesn't apply to questions that don't specifically ask for a plot, however I still would encourage you to produce both.
+
+You do not need to include the above statements.
+
+Please do the following problems from the text book R Handbook and stated.
+
+1. Consider the \textbf{respiratory} data from the \textbf{HSAUR3} package.
+
+    a. Investigate the use of other correlational structures than the independence and exchangeable structures used in the text for the respiratory data.
+   
+    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). Justify your answer. (Hint: use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method, be sure to state your method)
+    
+    1a.
+    
+```{r}
+library(HSAUR3)
+library(gee)
+library(geepack)
+library(lme4)
+library(MuMIn)
+library(multcomp)
+
+cat("1a")
+
+data("respiratory", package="HSAUR3")
+head(respiratory)
+dim(respiratory)
+
+resp_sub <- subset(respiratory, month > "0")
+resp_sub$baseline <- rep(subset(respiratory, month == "0")$status,rep(4, 111))
+
+resp_sub$nstat <- as.numeric(resp_sub$status == "good")
+resp_sub$month <- resp_sub$month[, drop = TRUE]
+head(resp_sub, n = 3)
+
+
+names(resp_sub)[names(resp_sub) == "treatment"] <- "trt"
+levels(resp_sub$trt)[2] <- "trt"
+
+cat("Now, fitting the models")
+resp_sub_glm <- glm(status ~ centre + trt + gender + baseline + age, data = resp_sub, family = "binomial")
+
+resp_sub_gee1 <- gee(nstat ~ centre + trt+ gender + baseline + age, data = resp_sub, family = "binomial", id = subject, corstr = "independence", scale.fix = TRUE, scale.value = 1)
+
+resp_sub_gee2 <- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "exchangeable", scale.fix = TRUE, scale.value = 1)
+
+resp_sub_gee3 <- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "unstructured", scale.fix = TRUE, scale.value = 1)
+
+resp_sub_gee4 <- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "AR-M", scale.fix = TRUE, scale.value = 1)
+
+cat(" Summary")
+knitr::kable(summary(resp_sub_glm)$coeff, caption = "Summary coeff of GLM binomial")
+
+knitr::kable(summary(resp_sub_gee1)$coef, caption = "Summary coeff of GEE binomial independent")
+
+knitr::kable(summary(resp_sub_gee2)$coef, caption = "Summary coeff of GEE binomial exchangeable")
+
+knitr::kable(summary(resp_sub_gee3)$coef, caption = "Summary coeff of GEE binomial unstructured")
+
+knitr::kable(summary(resp_sub_gee4)$coef, caption = "Summary coeff of GEE binomial AR-M")
+
+```
+
+Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.
+
+
+    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). Justify your answer. (Hint: use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method, be sure to state your method)
+    
+```{r,echo=FALSE}
+
+library(MESS)
+cat("Fitting GEE Independent")
+resp_sub_gee1 <- geeglm(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "independence")
+
+knitr::kable(QIC(resp_sub_gee1), caption = "QIC from GGE independent")
+
+cat("Fitting GEE Exchangeable")
+resp_sub_gee2 <- geeglm(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "exchangeable")
+knitr::kable(QIC(resp_sub_gee2), caption = "QIC from GGE exchangeable")
+
+cat("Fitting GEE Unstructured")
+resp_sub_gee3 <- geeglm(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "unstructured")
+knitr::kable(QIC(resp_sub_gee3), caption = "QIC from GGE Unstructured")
+
+cat("Fitting GEE ar1")
+resp_sub_gee4 <- geeglm(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = "binomial", id = subject, corstr = "ar1")
+knitr::kable(QIC(resp_sub_gee4), caption = "QIC from GGE ar1")
+
+```
+
+As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. I used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.7418 than the other three models. So, the model with a corr unstructured. So, the model with unstructured correlation structure is the best among four.
+
+2. The data set \textbf{schizophrenia2} from \textbf{HSAUR3} package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder'' (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above). The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2)
+Investigate this question using 
+
+    a. plots and summary statistics
+    
+    b. the GEE approach
+    
+    c. mixed effects model (lmer) from previous chapter
+    
+    d. Is there a difference? What model(s) work best? Describe your results.
+    
+2a.
+
+```{r,echo=FALSE}
+
+library("vcd")
+library("gee")
+library(printr)
+library(dplyr)
+
+#2.a.
+
+data("schizophrenia2", package = "HSAUR3")
+
+cat("Calculating percentage data")
+younger_percentage <- c( nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 0 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 0))),
+                  nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 2 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 2))),
+                  nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 6 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 6))),
+                  nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 8 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 8))),
+                  nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 10 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 10))))
+
+older_percentage <- c( nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 0 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 0))),
+                  nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 2 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 2))),
+                  nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 6 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "< 20 yrs" & month == 6))),
+                  nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 8 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 8))),
+                  nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 10 & disorder == "present"))) / 
+                    nrow(subset(schizophrenia2, (onset == "> 20 yrs" & month == 10))))
+
+younger_percentage %>% summary() %>% as.matrix() %>% t() %>% knitr::kable(caption = "Summary statistics for presence of younger onset data")
+
+older_percentage %>% summary() %>% as.matrix() %>% t() %>% knitr::kable(caption = "Summary statistics for presence of older onset data")
+
+
+plot(x = seq(1:5), y=younger_percentage, type="l", col=1, xaxt="n", ylim=c(0,0.8),
+     xlab="Months", ylab="Percent present", main = "Percent present by age at Onset")
+lines(older_percentage, col=4)
+legend("topright", legend=c("Percent present at Onset < 20 years", "Percent Present at Onset > 20 years"), 
+       col=   c("1", "4"), lty = c(1, 1))
+axis(side=1, at=seq(1:5), labels = c(0, 2, 6, 8, 10))
+axis(side=2, at=seq(1:11), labels = c(0, 0.1, .2, .3, .4, .5, .6, .7, .8, .9, 1))
+
+```
+
+Discussion:
+
+For the older-onset population, the mean and the median of the percentage of' presence of schizophrenia' are lower. Looking at the percentage plot, it appears that at each sample date (in months) the percentage is lower in the older-onset population. 
+
+2b. the GEE approach
+
+```{r,echo=FALSE}
+schiz <- subset(schizophrenia2, month > "0")
+schiz$baseline <- rep(subset(schizophrenia2, month =="0")$disorder, rep(4,44))
+schiz$ndisorder <- as.numeric(schiz$disorder == "present")
+schiz$month <- schiz$month[, drop = TRUE]
+
+
+resp_sub_gee1 <- geeglm(ndisorder ~ onset + month + baseline,
+                 data = schiz, family = "binomial", id = subject,
+                 corstr = "independence")
+                 
+
+
+resp_sub_gee2 <- geeglm(ndisorder ~ onset + month + baseline,
+                 data = schiz, family = "binomial", id = subject,
+                 corstr = "exchangeable")
+                 
+
+
+resp_sub_gee3 <- geeglm(ndisorder ~ onset + month + baseline,
+                 data = schiz, family = "binomial", id = subject,
+                 corstr = "unstructured")
+                 
+knitr::kable(QIC(resp_sub_gee1), caption = "QIC from GEE Independent (identity)")
+
+knitr::kable(QIC(resp_sub_gee2), caption = "QIC from GEE Exchangeable")
+knitr::kable(QIC(resp_sub_gee3), caption = "QIC from GEE Unstructured")
+
+```
+
+Discussions:
+
+In exchangeable and unstructured model, the QIC score is the lowest. So for the selection of model, either model can be a good choice. However, comparing parameters such as CIC, QICu and QICC, I think the exchangeable model seems better.
+
+
+2c. mixed effects model (lmer) from previous chapter
+
+```{r,echo=FALSE}
+
+schiz_glm <- glm(ndisorder ~ onset + baseline + month, data = schiz, family = "binomial")
+
+# LMER
+schiz_lmer1 <- lmer(ndisorder ~ onset + month + baseline +                (1 | subject), data = schiz,  REML = FALSE, na.action = na.omit)
+schiz_lmer2 <- lmer(ndisorder ~ onset + month + baseline +                (month | subject), data = schiz,  REML = FALSE, na.action = na.omit)
+schiz_lmer3 <- lmer(ndisorder ~ onset + month + baseline + month*onset +  (1 | subject), data = schiz,  REML = FALSE, na.action = na.omit)
+schiz_lmer4 <- lmer(ndisorder ~ onset + month + baseline + month*onset +  (month | subject), data = schiz,  REML = FALSE, na.action = na.omit)
+print("Without interaction term:")
+print(paste("BIC: Fixed Slope : ", BIC(schiz_lmer1)))
+print(paste("BIC: Random Slope: ", BIC(schiz_lmer2)))
+print("With interaction term: month v. onset:")
+print(paste("BIC: Fixed Slope : ", BIC(schiz_lmer3)))
+print(paste("BIC: Random Slope: ", BIC(schiz_lmer4)))
+```
+
+
+Answer: Please see the outputs from lmer
+
+
+2d
+**Answer to 2d: Model comparison with ANOVA**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+cat("Fixed Slope v. Random Slope (no intaction term)")
+anova(schiz_lmer1, schiz_lmer2) # .
+cat("Interaction Term v. No Interaction Term (fixed slope)")
+anova(schiz_lmer1, schiz_lmer3) # 
+cat("Fixed Slope, No interaction Term v. Random Slope, With interaction term")
+anova(schiz_lmer1, schiz_lmer4) # 
+cat("Random Slope, No interaction term v. Fixed Slope, With interaction term")
+anova(schiz_lmer2, schiz_lmer3) # *
+cat("No interaction term v. Interaction term (random slope)")
+anova(schiz_lmer2, schiz_lmer4) # 
+cat("Fixed Slope v. Random Slope (with intaction term)")
+anova(schiz_lmer3, schiz_lmer4) # .
+```   
+  
+  
+  Discussions:
+  
+The model with a fixed effect and no interaction term has the lowest BIC score. This would be an indicator that the concept of contact is not likely to add much to the template if anything. The most significant difference based on ANOVA analysis is between random slope, no interaction term and fixed slope, with interaction term (fourth table). This is indicated with a p-score of 0.025 i.e., [P<0.05].

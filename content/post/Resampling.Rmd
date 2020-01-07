@@ -1,7 +1,7 @@
 ---
 Authors: ["**Achal Neupane**"]
 title: "Resampling"
-date: 2019-08-15T17:26:23-05:00
+date: 2019-08-18T17:26:23-05:00
 draft: false
 output: html_document
 tags:
@@ -25,7 +25,7 @@ There are four exercises below. All are optional. You may solve these, one solut
 Consider the Hidalgo data set from Homework 9. Load the data, and calculate mean and median.
 
 ```{r}
-hidalgo.dat = read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week_9/hidalgo.dat",
+hidalgo.dat = read.table("https://raw.githubusercontent.com/achalneupane/data/master/hidalgo.dat",
                          header = T,
                          sep = ","
 )
@@ -259,7 +259,7 @@ s_{pooled} = \sqrt{\frac{(n_1-1) s_1^2 + (n_2-1) s_2^2} {n_1 + n_2 -2}}
 $$
 
 ```{r}
-elo.dat <- read.table("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/elo.csv", header = TRUE, row.names = 1, sep = ",")
+elo.dat <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/elo.csv", header = TRUE, row.names = 1, sep = ",")
 head(elo.dat)
 elo.exNQ <- elo.dat[!grepl("NQ", elo.dat$ExpectedFinish),]
 # elo.exNQ$ActualFinish <- as.factor(elo.exNQ$ActualFinish[grepl("AA", elo.exNQ$ActualFinish)])
@@ -349,9 +349,13 @@ For the bootstrap, sample from the 10 weight classes (use `unique` or `levels`).
 
 Compare your estimates of standard error to the parametric estimate, approximated by
 
+
+
 $$
 s.e._d ~ \sqrt{\frac{n_1 + n_2}{n_1 n_2} + \frac{d^2} {2(n_1 + n_2)}}
 $$
+
+
 
 ```{r}
 n1 = table.mean.sd$Count[1]
@@ -373,7 +377,7 @@ Consider the data for U.S. Wholesale price for pumpkins 2018 in `pumpkins.csv`.
 Load the data, and calculate the $F$ test and the parametric $P(>F)$ using the code below. (set `eval=TRUE`).
 
 ```{r}
-pumpkins.dat <- read.csv("/Users/owner1/Box/sdsu/statistical_programming_course/Week5/pumpkins.csv", header = TRUE, sep = ",")
+pumpkins.dat <- read.csv("https://raw.githubusercontent.com/achalneupane/data/master/pumpkins.csv", header = TRUE, sep = ",")
 attach(pumpkins.dat)
 # print(summary(pumpkins.dat))
 ```
