@@ -55,7 +55,16 @@ feature:
 - description:
   icon:
   icon_pack: NGS
-  name: -Sequencing Data analysis
+  name: -Sequencing data analysis
+- description:
+  icon:
+  icon_pack: Linux
+  name: -Linux
+- description:
+  icon:
+  icon_pack: Blockchain
+  name: -Blockchain
+  
 
 
 
