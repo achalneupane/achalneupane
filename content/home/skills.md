@@ -2,6 +2,7 @@
 # An instance of the Featurette widget.
 # Documentation: https://wowchemy.com/docs/page-builder/
 widget: featurette
+# widget: blank
 
 # This file represents a page section.
 headless: true
@@ -64,7 +65,9 @@ feature:
   icon:
   icon_pack: Blockchain
   name: -Blockchain
-  
+
+
+
 
 
 
@@ -82,4 +85,12 @@ feature:
 #  icon_pack: custom
 #  name: Surfing
 #  description: 90%
+
+
+# example
+# - icon: 'test'
+#   icon_pack: custom
+#   name: datascience
+#   description: 100%
+
 ---
