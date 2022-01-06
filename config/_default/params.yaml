@@ -148,7 +148,7 @@ map:
   zoom: 15
 marketing:
   google_analytics: 'UA-216473421-1'
-  google_tag_manager: ''
+  google_tag_manager: 'GTM-P5MZQCB'
   google_site_verification: '3FteQdfETbfEGW1lx532sCIcwesjzsrCglrcetww_4A'
   baidu_site_verification: ''
   baidu_tongji: ''
