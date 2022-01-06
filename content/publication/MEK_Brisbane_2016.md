@@ -34,7 +34,7 @@ selected = false
 #projects = [" "]
 
 # Links (optional).
-url_pdf = "pdf_html/NDLR2016.pdf"
+url_pdf = "uploads/NDLR2016.pdf"
 url_source = ""
 url_preprint = ""
 url_code = ""

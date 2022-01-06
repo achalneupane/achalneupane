@@ -35,7 +35,7 @@ selected = false
 #projects = [" "]
 
 # Links (optional).
-url_pdf = "pdf_html/WCR_slides.pdf"
+url_pdf = "uploads/WCR_slides.pdf"
 url_source = "http://www.iwgo.org/downloads/IWGO2014_Chicago_Scientific-Programme.pdf"
 url_preprint = ""
 url_code = ""
