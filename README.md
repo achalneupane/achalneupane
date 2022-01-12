@@ -1,5 +1,5 @@
 ### Hi there 👋
-Codes for www.achalneupane.com
+www.achalneupane.com
 
 <!--
 **achalneupane/achalneupane** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
