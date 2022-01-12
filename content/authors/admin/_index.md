@@ -30,7 +30,7 @@ highlight_name: true
 organizations:
 - name: Washington University in St. Louis
   url: https://www.wustl.edu/
-role: Data scientist
+role: Bioinformatics Scientist | Data scientist
 social:
 # - icon: envelope
 #   icon_pack: fas
