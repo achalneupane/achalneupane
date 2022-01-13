@@ -10,19 +10,7 @@ tags: ["R Markdown", "plot"]
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
-# General Instructions
-
-There are 5 exercises, each is worth 10 points. You are required to solve at least one exercise in R, and at least one in SAS. You are required to provide five solutions, each solution will be worth 10 points.
-
-For this exercise, you may use whatever graphics library you desire.
-
-#### Experimental
-
-Again, you will be allowed to provide one solution using Python. Elaborate on the similarities and differences between Python function definitions and R or IML or Macro language.
-
-# Exercise 1.
-
-Load the `ncaa2018.csv` data set and create histograms, QQ-norm and box-whisker plots for `ELO`. Add a title to each plot, identifying the data.
+We will start by loading the `ncaa2018.csv` data set and create histograms, QQ-norm and box-whisker plots for `ELO`. 
 
 ```{r}
 library("moments")
@@ -41,11 +29,10 @@ qqnorm(ncaa2018.dat$ELO, main = "Normal QQ plot")
 boxplot(ncaa2018.dat$ELO, main = "Box-whisker of ELO", ylab = "ELO")
 ```
 
-### Part b
 
 A common recommendation to address issues of non-normality is to transform data to correct for skewness. One common transformation is the log transform. 
 
-Transform `ELO` to `log(ELO)` and produce histograms, box-whisker and qqnorm plots of the transformed values. Are the transformed values more or less skewed than the original? (Note - the log transform is used to correct skewness, it is less useful for correcting kurtosis).
+We will transform `ELO` to `log(ELO)` and produce histograms, box-whisker and qqnorm plots of the transformed values. Are the transformed values more or less skewed than the original? (Note - the log transform is used to correct skewness, it is less useful for correcting kurtosis).
 
 ```{r}
 hist(log(ncaa2018.dat$ELO), xlab = "ELO", main = "Histogram of log transformed ELO")
@@ -56,22 +43,18 @@ qqnorm(log(ncaa2018.dat$ELO), main = "Normal QQ plot of log transformed ELO")
 boxplot(log(ncaa2018.dat$ELO), main = "Box-whisker of log transformed ELO", ylab = "ELO")
 ```
 The values are less skewed now. Log transformation is a good way to display plot with skewedness in data. 
-# Exercise 2.
 
-Review Exercise 4, Homework 6, where you calculated skewness and kurtosis. The reference for this exercise, https://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm, gives four example statistical distributions. We will reproduce the histograms, and add qqnorm and box-whisker plots.
+Now, we will reproduce the histograms, and add qqnorm and box-whisker plots.
 
-## Part a
-
-Use the code below from lecture to draw 1000 samples from the normal distribution.
 
 ```{r}
 norm.sample <- rnorm(1000, mean=0, sd=1)
 ```
 
 
-Look up the corresponding `r*` functions in R for the Cauchy distribution (use location=0, scale=1), and the Weibull distribution (use shape = 1.5). For the double exponential, use you can use the `*laplace` functions from the `rmutil` library, or you can use `rexp(1000) - rexp(1000)`
+We will look up the corresponding `r*` functions in R for the Cauchy distribution (use location=0, scale=1), and the Weibull distribution (use shape = 1.5). For the double exponential, use you can use the `*laplace` functions from the `rmutil` library, or you can use `rexp(1000) - rexp(1000)`
 
-Draw 1000 samples from each of these distributions. Calculate skewness and kurtosis for each sample. You may use your own function, or use the `moments` library.
+Here, we draw 1000 samples from each of these distributions. Then calculate skewness and kurtosis for each sample.
 
 ```{r}
 dcauchy.1000 <- rcauchy(1:1000, location = 0, scale = 1)
@@ -102,9 +85,8 @@ rexp.1000.skew <- skewness(rexp.1000, na.rm = TRUE)
 rexp.1000.skew
 ```
 
-## Part b
 
-Plot the histograms for each distribution. Use `par(mfrow=c(2,2))` in your code chunk to combine the four histogram in a single plot. Add titles to the histograms indicating the distribution. Set the x-axis label to show the calculated skewness and kurtosis, i.e. `skewness = ####, kurtosis = ####`
+Now, we will plot the histograms for each distribution. We will use `par(mfrow=c(2,2))` in our code chunk to combine the four histogram in a single plot. We add titles to the histograms indicating the distribution. Set the x-axis label to show the calculated skewness and kurtosis, i.e. `skewness = ####, kurtosis = ####`
 
 ```{r}
 par(mfrow=c(2,2))
@@ -114,8 +96,7 @@ hist(dweibull.1000, xlab = paste0("skewness = ", dweibull.1000.kurt , ", kurtosi
 hist(rexp.1000, xlab = paste0("skewness = ", rexp.1000.skew , ", kurtosis = ", rexp.1000.kurt), main = "Histogram of double Exponential Distribution")
 ```
 
-## Part c
-Repeat Part b, but with QQ-norm plots.
+We now repeat the analysis, but with QQ-norm plots.
 
 ```{r}
 par(mfrow=c(2,2))
@@ -126,9 +107,7 @@ qqnorm(rexp.1000, xlab = paste0("skewness = ", rexp.1000.skew , ", kurtosis = ",
 ```
 
 
-## Part d
-
-Repeat Part b, but with box-whisker plots.
+Then repeat with box-whisker plots.
 
 ```{r}
 par(mfrow=c(2,2))
@@ -139,56 +118,11 @@ boxplot(rexp.1000, xlab = paste0("skewness = ", rexp.1000.skew , ", kurtosis = "
 ```
 
 
-Hints for SAS. If you create the samples in IML, use 
-```
-Normal = j(1, 1000, .);
-call randgen(Normal, "NORMAL", 0, `);
-```
-
-You can generate samples in the data step using
-```
-do i = 1 to 1000;
-  Normal = rand('NORMAL',0,1);
-  output;
-end;
-```
-
-RAND doesn't provide a Laplace option, but you can create samples from this distribution by
-```
-rand('EXPONENTIAL')-rand('EXPONENTIAL');
-```
-
-To group multiple plots, use
-```
-ods graphics / width=8cm height=8cm;
-ods layout gridded columns=2;
-ods region;
- ... first plot
-
-ods region;
- ... second plot
-
-ods layout end;
-```
-
-You might need to include
-```
-ods graphics off;
-
-ods graphics on;
-ODS GRAPHICS / reset=All;
-```
-to return the SAS graphics output to normal.
-
-## Exercise 3.
-
 We will create a series of graphs illustrating how the Poisson distribution approaches the normal distribution with large $\lambda$. We will iterate over a sequence of `lambda`, from 2 to 64, doubling `lambda` each time. For each 'lambda' draw 1000 samples from the Poisson distribution. 
 
-Calculate the skewness of each set of samples, and produce  histograms, QQ-norm and box-whisker plots. You can use `par(mfrow=c(1,3))` to display all three for one `lambda` in one line. Add `lambda=##` to the title of the histogram, and `skewness=##` to the title of the box-whisker plot.
+Then we calculate the skewness of each set of samples, and produce  histograms, QQ-norm and box-whisker plots. You can use `par(mfrow=c(1,3))` to display all three for one `lambda` in one line. Add `lambda=##` to the title of the histogram, and `skewness=##` to the title of the box-whisker plot.
 
-## Part b. 
-
-Remember that `lambda` represents the mean of a discrete (counting) variable. At what size mean is Poisson data no longer skewed, relative to normally distributed data? You might run this 2 or 3 times, with different seeds; this number varies in my experience.
+Note that the `lambda` represents the mean of a discrete (counting) variable. We will see at what size mean is Poisson data no longer skewed, relative to normally distributed data. We might run this 2 or 3 times, with different seeds; this number varies in my experience.
 
 ```{r,fig.width=12}
 library(moments)
@@ -220,29 +154,13 @@ plot(rpois_skew_collect)
 
 It looks like the skewness starts to diminish significantly after mean size 32 (lambda) for poisson data.
 
-If you do this in SAS, create a data table with data columns each representing a different $\mu$. You can see combined histogram, box-whisker and QQ-norm, for all columns, by calling
-
-```
-proc univariate data=Distributions plot;
-run;
-```
-
-At what $\mu$ is skewness of the Poisson distribution small enough to be considered normal?
-It looks like after mu 60, skewness is small enough to be considered normal. 
-
-# Exercise 4
-
-## Part a
-Write a function that accepts a vector `vec`, a vector of integers, a main axis label and an x axis label. This function should 
+Now, we write a function that accepts a vector `vec`, a vector of integers, a main axis label and an x axis label. This function will
 1. iterate over each element $i$ in the vector of integers 
 2. produce a histogram for `vec` setting the number of bins in the histogram to $i$
 3. label main and x-axis with the specified parameters. 
 4. label the y-axis to read `Frequency, bins =` and the number of bins.
 
-Hint:
-You can simplify this function by using the parameter `...` - see `?plot` or ?`hist`
-
-Writing the asked function
+Writing the said function
 ```{r}
 # vec <- c(12,36,60)
 # dat <- hidalgo.dat[,1]
@@ -263,27 +181,11 @@ hidalgo.dat = read.table("https://raw.githubusercontent.com/achalneupane/data/ma
 )
 ```
 
-## Part b
-Test your function with the `hidalgo` data set (see below), using bin numbers 12, 36, and 60. You should be able to call your function with something like
+Here, we test our function with the `hidalgo` data set (see below), using bin numbers 12, 36, and 60. We should be able to call our function with something like
 ```{r}
 plot.histograms(hidalgo.dat[,1],c(12,36,60), main="1872 Hidalgo issue",xlab= "Thickness (mm)")
 ```
 to plot three different histograms of the `hidalgo` data set.
-
-
-If you do this in SAS, write a macro that accepts a table name, a column name, a list of integers, a main axis label and an x axis label. This macro should scan over each element in the list of integers and produce a histogram for each integer value, setting the bin count to the element in the input list, and labeling main and x-axis with the specified parameters. You should label the y-axis to read `Frequency, bins =` and the number of bins.
-
-Test your macro with the `hidalgo` data set (see below), using bin numbers 12, 36, and 60. You should be able to call your macro with something like
-```
-%plot_histograms(hidalgo, y, 12 36 60, main="1872 Hidalgo issue", xlabel="Thickness (mm)");
-```
-to plot three different histograms of the `hidalgo` data set.
-
-Hint:
-Assume `12 36 60` resolve to a single macro parameter and use `%scan`. Your macro definition can look something like
-```
-%macro plot_histograms(table_name, column_name, number_of_bins, main="Main", xlabel="X Label")
-```
 
 ## Data
 The `hidalgo` data set is in the file `hidalgo.dat` These data consist of paper thickness measurements of stamps from the 1872 Hidalgo issue of Mexico. This data set is commonly used to illustrate methods of determining the number of components in a mixture (in this case, different batches of paper). See https://www.jstor.org/stable/2290118,  
@@ -292,12 +194,10 @@ https://books.google.com/books?id=1CuznRORa3EC&lpg=PA95&pg=PA94#v=onepage&q&f=fa
 
 Some analysis suggest there are three different mixtures of paper used to produce the 1872 Hidalgo issue; other analysis suggest seven. Why do you think there might be disagreement about the number of mixtures?
 
-That is perhaps because of the uncontrollable variation
- in paper thickness people used to have from sheet to sheet, we would expect more than three or seven mixtures, but in case of hidalgo, thickness was not that high. We can see in the histogram that the thickness was maintianed below 0.07 mm with highest frequency.
+That is perhaps because of the uncontrollable variation in paper thickness people used to have from sheet to sheet, we would expect more than three or seven mixtures, but in case of hidalgo, thickness was not that high. We can see in the histogram that the thickness was maintianed below 0.07 mm with highest frequency.
 
-# Exercise 5.
 
-We've been working with data from Wansink and Payne, Table 1:
+This is the data from Wansink and Payne, Table 1:
 
 ### Reproducing part of Wansink Table 1
 
@@ -309,13 +209,13 @@ calories per serving (SD) | 268.1 (124.8) | 271.1 (124.2) | 280.9 (116.2)  | 294
 servings per recipe (SD) | 12.9 (13.3) | 12.9 (13.3) | 13.0 (14.5) | 12.7 (14.6) | 12.4 (14.3) | 12.4 (14.3) | 12.7 (13.0)
 
 
-However, in Homework 2, we also considered the value given in the text
+However, we also considered the value given in the text
 
 > The resulting increase of 168.8 calories (from 268.1 calories ... to **436.9** calories ...) represents a 63.0% increase ... in calories per serving.
 
 There is a discrepancy between two values reported for calories per serving, 2006. We will use graphs to attempt to determine which value is most consistent.
 
-First, consider the relationship between Calories per Serving and Calories per Recipe:
+First, we consider the relationship between Calories per Serving and Calories per Recipe:
 
 ```
 Calories per Serving = Calories per Recipe / Servings per Recipe
@@ -350,9 +250,7 @@ summary(Assumption1.lm)
 summary(Assumption2.lm)
 ```
 
-### Part a.
-
-Plot the regression. Use points to plot `Assumption1` vs `CaloriesPerRecipe`, and `Assumption2` vs `CaloriesPerRecipe`, on the same graph. Add lines (i.e. `abline`) to show the fit from the regression. Use different colors for the two assumptions.  Which of the two lines appears to best explain the data? 
+Plot the regression. We will use points to plot `Assumption1` vs `CaloriesPerRecipe`, and `Assumption2` vs `CaloriesPerRecipe`, on the same graph. Add lines (i.e. `abline`) to show the fit from the regression. Use different colors for the two assumptions. We will check which of the two lines appears to best explain the data.
 
 ```{r}
 attach(Assumptions.dat)
@@ -363,11 +261,9 @@ points(Assumption2~CaloriesPerRecipe, cex = 1.5, col = 'blue')
 abline(Assumption2.lm)
 ```
 
-### Part b.
+We now produce diagnostic plots plots of the residuals from both linear models (in R, use `residuals(Assumption1.lm)`). qqnorm or box-whisker plots will probably be the most effective; there are too few points for a histogram. 
 
-Produce diagnostic plots plots of the residuals from both linear models (in R, use `residuals(Assumption1.lm)`). qqnorm or box-whisker plots will probably be the most effective; there are too few points for a histogram. 
-
-Use the code below to place two plots, side by side. You can produce more than one pair of plots, if you wise.
+We will use the code below to place two plots, side by side. We can produce more than one pair of plots.
 
 ```{r,fig.width=8,fig.height=5}
 par(mfrow=c(1,2))
@@ -383,9 +279,6 @@ qqnorm(residuals(Assumption2.lm), main = "QQplot for Assumption2" )
 qqline(residuals(Assumption2.lm))
 ```
 
-From these plots, which assumption is most likely correct. That is, which assumption produces a linear model that least violates assumptions of normality of the residual errors? Which assumption produces outliers in the residuals?
-
-
-Answer: Based on the plots, assumption1 produces a more linear model that least violates assumption of normality of the residuals errors. Assumption2 produces the outlier/s. 
+Based on the plots, assumption1 produces a more linear model that least violates assumption of normality of the residuals errors. Assumption2 produces the outlier/s. 
 
 I've included similar data and linear models for SAS in the SAS template. If you choose SAS, you will need to modify the PROC GLM code to produce the appropriate diagnostic plots.
