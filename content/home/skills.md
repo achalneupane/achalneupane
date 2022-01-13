@@ -64,7 +64,7 @@ feature:
 - description:
   icon:
   icon_pack: Blockchain
-  name: -Blockchain
+  name: -Blockchain/Solidity
 
 
 
