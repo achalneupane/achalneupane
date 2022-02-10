@@ -81,12 +81,12 @@ project)](#appendix-d--bam-to-fastq-processing-specific-to-the-adni-project)
 
 Here, I summarize all the details involved in the
 processing and QC (Figure 1) of whole exome and whole genome sequence data for
-Alzheimers Disesease projects at the Cruchaga Lab at Washington University in St
+Alzheimer projects in Cruchaga lab at Washington University in St
 Louis. This report also provides brief summary of pipelines required to process
 sequencing data. Our latest datafreeze, Bloomfield, was completed in October
 2021.
 
-![image001](https://user-images.githubusercontent.com/10935581/147440389-c8e2c764-95a0-490b-bc47-561882bf54e6.png)
+![Figure 1](https://user-images.githubusercontent.com/10935581/147440389-c8e2c764-95a0-490b-bc47-561882bf54e6.png)
 
 Figure 1. Summary of next generation sequence (NGS) data processing and quality
 control (QC) pipeline.
@@ -231,7 +231,7 @@ future collaborations/in case of “easier” recalling needed.
     in FASTQ format that were processed using the pipeline E (see, Figure 1;
     Appendix E).
 
-![image002](https://user-images.githubusercontent.com/10935581/147440990-03874293-f756-4987-a275-c45c80b7f8e9.png)
+![Figure 2](https://user-images.githubusercontent.com/10935581/147440990-03874293-f756-4987-a275-c45c80b7f8e9.png)
 
 Figure 2 Summary of pipelines according to starting raw file format, and
 integration into the main pipeline. These pipeline are shown in Appendices A-E.
@@ -321,7 +321,7 @@ performing all these steps is here:
 ```
 ${DIR}/01-Bloomfield-preQC/
 ```
-![image003](https://user-images.githubusercontent.com/10935581/147441761-50221321-3310-4736-b588-8dbde783c743.png)
+![Figure 3](https://user-images.githubusercontent.com/10935581/147441761-50221321-3310-4736-b588-8dbde783c743.png)
 
 Figure 3. Shcematic view of the quality control steps performed through GATK.
 
@@ -379,7 +379,7 @@ plot, so we get a distribution as “normal” as possible.
 
 | QD plot – Number of variants = 243,382                                                | QD plot \>= 10 – Number of Variants = 191,174                                                                                                                |
 |---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![image004](https://user-images.githubusercontent.com/10935581/147441891-e1895ecd-efad-4caf-9b3f-fab75479e918.jpg) | ![image005](https://user-images.githubusercontent.com/10935581/147441928-208223a8-9b02-43af-bf95-c417e97ae35f.jpg)
+| ![Figure 4](https://user-images.githubusercontent.com/10935581/147441891-e1895ecd-efad-4caf-9b3f-fab75479e918.jpg) | ![Figure 5](https://user-images.githubusercontent.com/10935581/147441928-208223a8-9b02-43af-bf95-c417e97ae35f.jpg)
  |
 
 Hard filtering scripts for hard filtering including 03a_HQC_WXS_SNVs.sh and
@@ -392,7 +392,7 @@ Hard filtering scripts for hard filtering including 03a_HQC_WXS_SNVs.sh and
 This is the general overview of the QC performed for PLINK. Next, there is a
 detail specification of each step and criteria for threshold when needed.
 
-![image006](https://user-images.githubusercontent.com/10935581/147441999-fed263ee-e144-4d74-8399-22dea5c114af.png)
+![Figure 6](https://user-images.githubusercontent.com/10935581/147441999-fed263ee-e144-4d74-8399-22dea5c114af.png)
 
 The QC on plink was done using these serial steps that will remove variants and
 samples that do not meet quality criteria:
@@ -472,11 +472,11 @@ filtering
 
 | SNPs | Pre-HWE Pre hwe filter – 10e-6                                    | Post – HWE Filtered using 10e-8                                             |
 |------|-------------------------------------------------------------------|-----------------------------------------------------------------------------|
-|      | ![image007](https://user-images.githubusercontent.com/10935581/147442038-d7f67a55-ff16-4272-a707-b5860484e064.jpg) | ![image008](https://user-images.githubusercontent.com/10935581/147442063-4d324cb3-c865-42fe-b89e-c1140baf585d.jpg) |
+|      | ![Figure 7](https://user-images.githubusercontent.com/10935581/147442038-d7f67a55-ff16-4272-a707-b5860484e064.jpg) | ![Figure 8](https://user-images.githubusercontent.com/10935581/147442063-4d324cb3-c865-42fe-b89e-c1140baf585d.jpg) |
 
 | INDELs | Pre-HWE mark for 10e-6                                              | Post – HWE Filtered using 10e-30                                               |
 |--------|---------------------------------------------------------------------|--------------------------------------------------------------------------------|
-|        | ![image009](https://user-images.githubusercontent.com/10935581/147442090-7b9d590c-3356-42e5-8fb7-57e23b623445.jpg) | ![image010](https://user-images.githubusercontent.com/10935581/147442110-f22a82e8-5d11-485c-bcc3-24dde3ea117c.jpg) |
+|        | ![Figure 9](https://user-images.githubusercontent.com/10935581/147442090-7b9d590c-3356-42e5-8fb7-57e23b623445.jpg) | ![Figure 10](https://user-images.githubusercontent.com/10935581/147442110-f22a82e8-5d11-485c-bcc3-24dde3ea117c.jpg) |
 
 ### Genotyping Rate
 
@@ -717,7 +717,7 @@ write.table(het_fail, "fail-het-qc.txt", row.names=FALSE, quote=F, sep="\\t")
 
 Here is a plot of the heterozygosity rates for each sample:
 
-![image011](https://user-images.githubusercontent.com/10935581/147443278-aed9bce4-55d7-4233-8d18-b1c62dc346af.png)
+![Figure 11](https://user-images.githubusercontent.com/10935581/147443278-aed9bce4-55d7-4233-8d18-b1c62dc346af.png)
 
 All samples that were more than 3 standard deviations from the mean were added
 to fail-het-qc.txt.
@@ -770,7 +770,7 @@ ggtitle("Bloomfield-9694-PCA")
 ggsave("Bloomfield-PCA.jpg", plot = last_plot(), device = NULL, scale = 1, width
 = 16, height = 9, dpi = 300, limitsize = TRUE)
 ```
-![image012](https://user-images.githubusercontent.com/10935581/147443425-92f67ffa-71f0-4979-8861-204deae1fb5e.jpg)
+![Figure 12](https://user-images.githubusercontent.com/10935581/147443425-92f67ffa-71f0-4979-8861-204deae1fb5e.jpg)
 
 Similarly, the PCA color coded by project was created by adding the column that
 holds the project to the data variable as the Color:
@@ -779,7 +779,7 @@ ggplot(PCA2, aes(x=PC1, y=PC2, color=Project)) + geom_point() + xlab("PC1") +
 ylab("PC2") + ggtitle("Bloomfield-9694-PCA-project-color-coded")
 ```
 
-![image013](https://user-images.githubusercontent.com/10935581/147443474-c73a5c35-b8fb-4dfd-aad7-3ab0bd9bbc59.jpg)
+![Figure 13](https://user-images.githubusercontent.com/10935581/147443474-c73a5c35-b8fb-4dfd-aad7-3ab0bd9bbc59.jpg)
 
 ### PCA with Hapmap
 
@@ -839,7 +839,7 @@ It is also important to note that you should take the mind flag out of the
 hapmap plink command. I caused the Hapmap data to de-anchor from the Bloomfield
 data. Here is the PCA plot with Hapmap:
 
-![image013](https://user-images.githubusercontent.com/10935581/147443547-b13812ae-3469-43af-8b2e-408c22b2796d.jpg)
+![Figure 14](https://user-images.githubusercontent.com/10935581/147443547-b13812ae-3469-43af-8b2e-408c22b2796d.jpg)
 
 # Duplicates - IBD
 
@@ -865,7 +865,7 @@ ggsave("Bloomfield-IBD.jpg", plot = last_plot(), device = NULL, scale = 1, width
 = 16, height = 9, dpi = 300, limitsize = TRUE)
 ```
 
-![image014](https://user-images.githubusercontent.com/10935581/147443591-da9e00f6-8b83-4912-b32a-1fe5dd9833b9.jpg)
+![Figure 15](https://user-images.githubusercontent.com/10935581/147443591-da9e00f6-8b83-4912-b32a-1fe5dd9833b9.jpg)
 
 ## Appendices
 

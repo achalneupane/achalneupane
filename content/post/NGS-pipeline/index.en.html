@@ -52,13 +52,13 @@ project)</a></p>
 <h1>Summary</h1>
 <p>Here, I summarize all the details involved in the
 processing and QC (Figure 1) of whole exome and whole genome sequence data for
-Alzheimers Disesease projects at the Cruchaga Lab at Washington University in St
+Alzheimer projects in Cruchaga lab at Washington University in St
 Louis. This report also provides brief summary of pipelines required to process
 sequencing data. Our latest datafreeze, Bloomfield, was completed in October
 2021.</p>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147440389-c8e2c764-95a0-490b-bc47-561882bf54e6.png" alt="" />
-<p class="caption">image001</p>
+<p class="caption">Figure 1</p>
 </div>
 <p>Figure 1. Summary of next generation sequence (NGS) data processing and quality
 control (QC) pipeline.</p>
@@ -184,7 +184,7 @@ Appendix E).</p></li>
 </ol>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147440990-03874293-f756-4987-a275-c45c80b7f8e9.png" alt="" />
-<p class="caption">image002</p>
+<p class="caption">Figure 2</p>
 </div>
 <p>Figure 2 Summary of pipelines according to starting raw file format, and
 integration into the main pipeline. These pipeline are shown in Appendices A-E.</p>
@@ -583,7 +583,7 @@ performing all these steps is here:</p>
 <pre><code>${DIR}/01-Bloomfield-preQC/</code></pre>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147441761-50221321-3310-4736-b588-8dbde783c743.png" alt="" />
-<p class="caption">image003</p>
+<p class="caption">Figure 3</p>
 </div>
 <p>Figure 3. Shcematic view of the quality control steps performed through GATK.</p>
 <p>Details of each of these steps are given next</p>
@@ -640,8 +640,8 @@ plot, so we get a distribution as “normal” as possible.</p>
 </thead>
 <tbody>
 <tr class="odd">
-<td><img src="https://user-images.githubusercontent.com/10935581/147441891-e1895ecd-efad-4caf-9b3f-fab75479e918.jpg" alt="image004" /></td>
-<td><img src="https://user-images.githubusercontent.com/10935581/147441928-208223a8-9b02-43af-bf95-c417e97ae35f.jpg" alt="image005" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147441891-e1895ecd-efad-4caf-9b3f-fab75479e918.jpg" alt="Figure 4" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147441928-208223a8-9b02-43af-bf95-c417e97ae35f.jpg" alt="Figure 5" /></td>
 </tr>
 <tr class="even">
 <td></td>
@@ -659,7 +659,7 @@ plot, so we get a distribution as “normal” as possible.</p>
 detail specification of each step and criteria for threshold when needed.</p>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147441999-fed263ee-e144-4d74-8399-22dea5c114af.png" alt="" />
-<p class="caption">image006</p>
+<p class="caption">Figure 6</p>
 </div>
 <p>The QC on plink was done using these serial steps that will remove variants and
 samples that do not meet quality criteria:</p>
@@ -761,8 +761,8 @@ filtering</p>
 <tbody>
 <tr class="odd">
 <td></td>
-<td><img src="https://user-images.githubusercontent.com/10935581/147442038-d7f67a55-ff16-4272-a707-b5860484e064.jpg" alt="image007" /></td>
-<td><img src="https://user-images.githubusercontent.com/10935581/147442063-4d324cb3-c865-42fe-b89e-c1140baf585d.jpg" alt="image008" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147442038-d7f67a55-ff16-4272-a707-b5860484e064.jpg" alt="Figure 7" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147442063-4d324cb3-c865-42fe-b89e-c1140baf585d.jpg" alt="Figure 8" /></td>
 </tr>
 </tbody>
 </table>
@@ -777,8 +777,8 @@ filtering</p>
 <tbody>
 <tr class="odd">
 <td></td>
-<td><img src="https://user-images.githubusercontent.com/10935581/147442090-7b9d590c-3356-42e5-8fb7-57e23b623445.jpg" alt="image009" /></td>
-<td><img src="https://user-images.githubusercontent.com/10935581/147442110-f22a82e8-5d11-485c-bcc3-24dde3ea117c.jpg" alt="image010" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147442090-7b9d590c-3356-42e5-8fb7-57e23b623445.jpg" alt="Figure 9" /></td>
+<td><img src="https://user-images.githubusercontent.com/10935581/147442110-f22a82e8-5d11-485c-bcc3-24dde3ea117c.jpg" alt="Figure 10" /></td>
 </tr>
 </tbody>
 </table>
@@ -1299,7 +1299,7 @@ write.table(het_fail, &quot;fail-het-qc.txt&quot;, row.names=FALSE, quote=F, sep
 <p>Here is a plot of the heterozygosity rates for each sample:</p>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147443278-aed9bce4-55d7-4233-8d18-b1c62dc346af.png" alt="" />
-<p class="caption">image011</p>
+<p class="caption">Figure 11</p>
 </div>
 <p>All samples that were more than 3 standard deviations from the mean were added
 to fail-het-qc.txt.</p>
@@ -1344,7 +1344,7 @@ ggsave(&quot;Bloomfield-PCA.jpg&quot;, plot = last_plot(), device = NULL, scale 
 = 16, height = 9, dpi = 300, limitsize = TRUE)</code></pre>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147443425-92f67ffa-71f0-4979-8861-204deae1fb5e.jpg" alt="" />
-<p class="caption">image012</p>
+<p class="caption">Figure 12</p>
 </div>
 <p>Similarly, the PCA color coded by project was created by adding the column that
 holds the project to the data variable as the Color:</p>
@@ -1352,7 +1352,7 @@ holds the project to the data variable as the Color:</p>
 ylab(&quot;PC2&quot;) + ggtitle(&quot;Bloomfield-9694-PCA-project-color-coded&quot;)</code></pre>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147443474-c73a5c35-b8fb-4dfd-aad7-3ab0bd9bbc59.jpg" alt="" />
-<p class="caption">image013</p>
+<p class="caption">Figure 13</p>
 </div>
 </div>
 <div id="pca-with-hapmap" class="section level3">
@@ -1411,7 +1411,7 @@ hapmap plink command. I caused the Hapmap data to de-anchor from the Bloomfield
 data. Here is the PCA plot with Hapmap:</p>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147443547-b13812ae-3469-43af-8b2e-408c22b2796d.jpg" alt="" />
-<p class="caption">image013</p>
+<p class="caption">Figure 14</p>
 </div>
 </div>
 </div>
@@ -1439,7 +1439,7 @@ ggsave(&quot;Bloomfield-IBD.jpg&quot;, plot = last_plot(), device = NULL, scale 
 = 16, height = 9, dpi = 300, limitsize = TRUE)</code></pre>
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/10935581/147443591-da9e00f6-8b83-4912-b32a-1fe5dd9833b9.jpg" alt="" />
-<p class="caption">image014</p>
+<p class="caption">Figure 15</p>
 </div>
 </div>
 <div id="appendices" class="section level2">
