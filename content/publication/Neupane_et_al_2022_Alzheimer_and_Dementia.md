@@ -17,8 +17,8 @@ authors = ["**Achal Neupane**"]
 publication_types = ["2"]
 
 # Publication name and optional abbreviated version.
-publication = "*Plants*"
-publication_short = "Plants"
+publication = "*Alzheimer and Dementia*"
+publication_short = "Alzheimer and Dementia"
 
 # Abstract and optional shortened version.
 abstract = ""
