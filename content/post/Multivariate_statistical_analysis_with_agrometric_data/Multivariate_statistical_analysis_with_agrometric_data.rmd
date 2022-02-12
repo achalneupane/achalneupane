@@ -233,7 +233,7 @@ if (Single.Field.Analysis > 0) {
 ```
 
 
-Now, we read four fields data:
+Now, we read datasets from four fields:
 
 ```{r}
 fieldA <-
