@@ -12,7 +12,9 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 #### 
 
-# Docker images for NGS data analysis on my dockerhub: https://hub.docker.com/u/achalneupane
+# Docker images for NGS data analysis 
+
+These docker images are publicly available on my dockerhub: https://hub.docker.com/u/achalneupane
 
 ## Achal Neupane, PhD
 
