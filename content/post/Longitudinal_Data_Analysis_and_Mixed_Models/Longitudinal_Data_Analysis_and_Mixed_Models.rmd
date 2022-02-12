@@ -1,6 +1,6 @@
 ---
 Authors: ["**Achal Neupane**"]
-title: "Longitudinal Data Analysis and Mixed Models"
+title: "Longitudinal data analysis and mixed models"
 date: 2019-10-28T17:26:23-05:00
 draft: false
 output: html_document
@@ -12,7 +12,7 @@ summary: Statistics series
 
 ## Part 1 ##
 
-To examine the data, Beat the Blues data (package HSAUR3), we will do the following
+To examine the data `Beat the Blues` from package `HSAUR3`, we will do the following:
 
       a. Construct boxplots to compare the factor variable \textbf{drug} in an analogous way to how we constructed boxplots in the video for the treatment variable. Discuss the results. 
 
