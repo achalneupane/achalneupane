@@ -1,6 +1,6 @@
 ---
 Authors: ["**Achal Neupane**"]
-title: "Survival Analysis"
+title: "Survival analysis"
 date: 2019-10-11T17:26:23-05:00
 draft: false
 output: html_document
