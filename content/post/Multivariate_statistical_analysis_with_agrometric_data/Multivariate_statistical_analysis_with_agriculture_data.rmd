@@ -1,7 +1,7 @@
 ---
 Authors: ["**Achal Neupane**"]
 title: "Multivariate statistical analysis with agrometric data"
-date: 2019-06-21T17:26:23-05:00
+date: 2020-06-21T17:26:23-05:00
 draft: false
 output: html_document
 tags:
@@ -17,7 +17,7 @@ summary: Statistics series
 In this exercise, I will be analyzing four fields as a
 statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yeild.
 
-The table summarizes data from four corn fields. The top row are target seeding rates, in seeds per acre, the bottom row are
+The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
 This table summarizes all four fields at the Control Rate interval of 1000 which was also reproduced below in my anaysis. More importantly, we are interested in exploring the EffectSize and Required Replicates for properly examining any statistical evidence for the yield and variable seeding rates relationships. 
 
@@ -36,7 +36,7 @@ The algorithm to do this analysis is divided into several steps as described bel
 5. Lastly, I have plotted EffectSize Vs RequiredReplicates for each field and also for combined data from four fields.
 
 
-Here, we first install ond load some of the packages  ("multcompView", "ggplot2", "scales", "data.table") I will be using for this exercise.
+Here, we first install and load some of the packages  ("multcompView", "ggplot2", "scales", "data.table") I will be using for this exercise.
 ```{r}
 # First, install missing packages and load them
 myPackages <- c("multcompView", "ggplot2", "scales", "data.table")
