@@ -10,8 +10,6 @@ tags: ["NGS", "pipeline"]
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
-#### 
-
 ## Docker images for NGS data analysis 
 ### Author: Achal Neupane, PhD
 
