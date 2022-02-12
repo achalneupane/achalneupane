@@ -1,0 +1,1960 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Multivariate statistical analysis with agrometric data"
+date: 2020-06-21T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Statistical_programming
+summary: Statistics series
+---
+
+## Part 1 ##
+
+In this exercise, I will be analyzing four fields as a
+statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
+
+The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
+corn yields in bushels per acre.
+This table summarizes all four fields at the Control Rate interval of 1000 which was also reproduced below in my anaysis. More importantly, we are interested in exploring the EffectSize and Required Replicates for properly examining any statistical evidence for the yield and variable seeding rates relationships. 
+
+
+Rate   |    23000 |    24000 |    25000 |    26000 |    27000 |    28000 |29000
+-------|----------|----------|----------|----------|----------|----------|---------
+Yield  | 111.4216 | 155.0326 | 181.1176 | 227.5800 | 233.4623 | 242.1753 | 231.3890
+
+
+The algorithm to do this analysis is divided into several steps as described below:
+
+1. I have used some external packages like ggplot2 to make the plots.
+2. I have written several functions to analyze each individual field as well as merged field statistics that calculates cohens effect size, required replicates, and does ANOVA analysis on individual field as well as on merged data from all fields. 
+3. Function `calculate_field_mean_SD_and_get_RR_EffSize` also uses mean, sd, and counts from each field to calculate cohens d and Required replicates. It also uses pooled standard deviations and Mean (mean of Means) calculated from all four fields for different control Rates to calculate cohens d and required replicates of combined field data. I have tested this function on all four fields at ControlRate level of 500, 1000, 2000 and 3000 intervals, then based on the results (also merged the output of all four intervals to get the effectSize and Required Replicates compared), I have decided to choose 1000 intervals of ControlRates for further analysis for combined data from all four fields.
+4. I have also shown ANOVA analysis followed by TUKEY HSD test to show which ControlRates of seeding have significant effect on Yield for each field and then for all fields (combined all four fields).
+5. Lastly, I have plotted EffectSize Vs RequiredReplicates for each field and also for combined data from four fields.
+
+
+Here, we first install and load some of the packages  ("multcompView", "ggplot2", "scales", "data.table") I will be using for this exercise.
+```{r}
+# First, install missing packages and load them
+myPackages <- c("multcompView", "ggplot2", "scales", "data.table")
+my.installed.packages<- installed.packages()
+available.packages <- myPackages %in% my.installed.packages
+if (sum(!available.packages) > 0){
+  install.packages(myPackages[!available.packages])
+}
+# Load all required packages 
+lapply(myPackages, require, character.only = TRUE)
+```
+
+We will first write and describe our function here. We will be using these function to manipulate our data, calculate Cohen's d, required replicates and also do ANOVA and TukeyHSD paired test, then finally to plot our data. 
+We can calculate EffectSize and RequiredReplicates for these data using functions from previous homework `cohen.d` and 
+`required.replicates`. These two functions are then called within another function `calculate_field_mean_SD_and_get_RR_EffSize` that analyzes each individual field and also merged data from all four fields to calculate Effect Size, Required Replictaes and then plot the results. 
+
+```{r}
+cohen.d <- function(m1, s1, m2, s2){
+  cohens_d <-(abs(m1-m2)/sqrt((s1^2+s2^2)/2))
+  return(cohens_d)
+}
+required.replicates <- function (m1, s1, m2, s2, alpha=0.05, beta=0.2){
+  n <- 2* ((((sqrt((s1^2 + s2^2)/2))/(m1-m2))^2) * (qnorm((1-alpha/2)) + qnorm((1-beta)))^2) 
+  return(round(n,0))
+}
+```
+
+
+We willl also perform ANOVA analysis with Tukey Test for paired comparision of mean for each field data as well as merged data at different ControlRate intervals. This function does Tukey HSD test and generates label for significant outcomes.
+
+```{r}
+# Create function to get the labels for Tukey HSD:
+generate_label_df <- function(TUKEY, variable){
+  
+  # Extract labels and factor levels from Tukey post-hoc 
+  Tukey.levels <- TUKEY[[variable]][,4]
+  Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
+  
+  #I need to put the labels in the same order as in the boxplot :
+  Tukey.labels$treatment=rownames(Tukey.labels)
+  Tukey.labels=Tukey.labels[order(Tukey.labels$treatment) , ]
+  return(Tukey.labels)
+}
+```
+This function does ANOVA and makes boxplots with Tukey statistics for comparing Mean yield.
+
+```{r}
+get_my_box_plot <- function (field, plot_name = "the Field") {
+  model = lm(field$Yield ~ field$ControlRate.Levels)
+  ANOVA = aov(model)
+  
+  # Tukey test to study each pair of treatment :
+  TUKEY <- TukeyHSD(x = ANOVA, 'field$ControlRate.Levels', conf.level = 0.95)
+  
+  # generate labels using function
+  labels <- generate_label_df(TUKEY , "field$ControlRate.Levels")
+  
+  # rename columns for merging
+  names(labels) <- c('Letters', 'ControlRate.Levels')
+  
+  # Obtain letter positions for y axis using means
+  yvalue <- aggregate(. ~ ControlRate.Levels, data = field, mean)
+  
+  part2 <- merge(labels, yvalue) #merge dataframes
+  
+  p <- ggplot(field, aes(x = ControlRate.Levels, y = Yield)) +
+  geom_blank() +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank()) +
+  labs(x = 'Control Rates', y = 'Mean Yield') +
+  ggtitle(paste0("ControlRates Vs Mean yield for ", plot_name),
+  expression(atop(italic("(Anova:TukeyHSD)"), ""))) +
+  theme(plot.title = element_text(hjust = 0.5, face = 'bold')) +
+  geom_boxplot(fill = 'grey', stat = "boxplot") +
+  geom_text(
+  data = part2,
+  aes(x = ControlRate.Levels, y = Yield, label = Letters),
+  vjust = -3.5,
+  hjust = -.5
+  ) +
+  geom_vline(aes(xintercept = 4.5), linetype = "dashed") +
+  theme(plot.title = element_text(vjust = -0.6))
+  print(p)
+  # print(TUKEY)
+}
+```
+
+Function to calculate mean and sd for each field for a given interval of
+ControlRate and then calculate Required Replicates and EffectSize. I have made
+one function to do all that so I can just use this function to analyze all
+four fields. To analyze single field set `Single.Field.Analysis = TRUE`, and to analyze all four field together, set `Single.Field.Analysis = FALSE`,
+
+```{r}
+calculate_field_mean_SD_and_get_RR_EffSize <- 
+  function(
+    field, intervals, Single.Field.Analysis = TRUE, printplot = FALSE){
+  plot_NAME <- (deparse(substitute(field)))
+  if(Single.Field.Analysis > 0){
+  # removing rows with NAs in Yield
+  sum(is.na(field$Yield))
+  # field <- field[!complete.cases(field$Yield), ]
+  field <- field[!is.na(field$Yield),]
+  # as.factor(fieldA$ControlRate)
+  table.field <- table(as.factor(field$ControlRate))
+  field$ControlRate.Levels <- as.factor(intervals * ceiling(field$ControlRate/intervals))
+  field.Count <- setNames(aggregate(field$ControlRate, 
+          by = list(field$ControlRate.Levels), FUN = length), c("ControlRate", "Count"))
+  # Degree of freedome = n * k - k
+  field.Count$degree.Freedom <- 
+    (field.Count$Count * length(field.Count$ControlRate)) -length(field.Count$ControlRate)
+  
+  field.mean <-
+    setNames(aggregate(
+    field$Yield,
+    by = list(field$ControlRate.Levels),
+    FUN = mean
+    ),
+    c("ControlRate", "Mean"))
+    
+    field.SD <-
+    setNames(aggregate(
+    field$Yield,
+    by = list(field$ControlRate.Levels),
+    FUN = sd
+    ),
+    c("ControlRate", "SD"))
+  # plot individual fields with tukey test We will print box plot only if we
+  # want for certain ControlRates intervals. Otherwise we will have too many
+  # plots
+  if(printplot == 1 ){
+  get_my_box_plot(field, plot_name = plot_NAME)
+  }
+  # Else we work on the merged data with SD pooled; no need to calculate mean
+  # and SD as we will be doing it below
+  
+  } else {
+    temp.Field <- field
+    colnames(temp.Field)[colnames(temp.Field) == "ControlRate"] <- "ControlRate.Levels"
+    colnames(temp.Field)[colnames(temp.Field) == "Mean"] <- "Yield"
+    # get_my_box_plot(temp.Field)
+    field.SD  <- 
+      as.data.frame(cbind(ControlRate = field["ControlRate"], SD = field["SD_pooled"]))
+    field.mean <- 
+      as.data.frame(cbind(ControlRate = field["ControlRate"], Mean = field["Mean"]))
+  }
+  
+# Calculate Required replicate and Effect Size from each
+# field for ControlRate i vs i+1
+# ReqRep_EffectSize_table <- function (field.mean, field.SD){
+Req.Rep.table.field <- {}
+for (i in 1:nrow(field.SD)){
+  if(i+1 > nrow(field.SD) ){
+    break
+  }
+  temp.Effect.size <-
+    cohen.d(
+    m1 = field.mean$Mean[i],
+    s1 = field.SD$SD[i],
+    m2 = field.mean$Mean[i + 1],
+    s2 = field.SD$SD[i + 1]
+    )
+    
+    tmp.req.reps <-
+    required.replicates(
+    m1 = field.mean$Mean[i],
+    s1 = field.SD$SD[i],
+    m2 = field.mean$Mean[i + 1],
+    s2 = field.SD$SD[i + 1]
+    )
+ 
+    tmp.table <-
+    cbind(
+    Group = paste0(field.SD$ControlRate[i], " Vs ", field.SD$ControlRate[i +
+    1]),
+    EffectSize = temp.Effect.size,
+    RequiredReplicates = tmp.req.reps
+    )
+      
+      Req.Rep.table.field <- rbind(Req.Rep.table.field, tmp.table)
+}
+if (Single.Field.Analysis > 0) {
+  return(
+    list(
+      field.mean = field.mean,
+      fieldSD = field.SD,
+      field.Count = field.Count,
+      Req.Rep.table.field = Req.Rep.table.field
+    )
+  )
+} else{
+  return(list(Req.Rep.table.field = Req.Rep.table.field))
+}
+  }
+###############################################End of Functions##########
+```
+
+
+Now, we read four fields data:
+
+```{r}
+fieldA <-
+  read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/fieldA.csv",
+  header = TRUE,
+  sep = ","
+  )
+  # head(fieldA)
+  dim(fieldA)
+  tmp.fieldA <- fieldA
+  tmp.fieldA$ControlRate <- as.factor(tmp.fieldA$ControlRate)
+  # aggregate(fieldA$Yield, by = list(fieldA$ControlRate), FUN = mean)
+```
+
+Note: There are 40 levels of Control rates in fieldA, we can reduce these levels, so what we can do is relevel them separated by 'intervals' of(say 1000) as used in 'calculate_field_mean_SD' function above. We can do the same for other fields. However, instead of checking all this one by one, we will be using the functions we described above to analyze these four fields data and get the plots. 
+
+```{r}
+fieldB <-
+  read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/fieldB.csv",
+  header = TRUE,
+  sep = ","
+  )
+  # head(fieldB)
+  dim(fieldB)
+  
+  # fieldC
+  fieldC <-
+  read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/fieldC.csv",
+  header = TRUE,
+  sep = ","
+  )
+  # head(fieldC)
+  dim(fieldC)
+  
+  # fieldD
+  fieldD <-
+  read.table(
+  "https://raw.githubusercontent.com/achalneupane/data/master/fieldD.csv",
+  header = TRUE,
+  sep = ","
+  )
+  # head(fieldD)
+  dim(fieldD)
+```
+
+
+we can calculate EffectSize and RequiredReplicates for these four fields using previous homeworks functions Cohen's d and 
+required.replicates as described in the begining of this report.
+
+  
+Here, we can work on each individual field, first for the interval of 500, 1000,
+2000 and 3000 ControlRates and decide which ControlRate interval fits the best
+for our data. Then we we will work on merged data that we merge after
+calculating individual fields (i.e using Mean and SD pooled for each
+ControlRate from all fields)
+  
+We chan check how many replicates we need for each field if we compare at
+the different ControlRates intervals starting with 500 to 3000. Set `eval = TRUE` to check this code.
+
+At ControlRates interval of 500:
+```{r, eval = TRUE}
+# Now we chan check how many replicates we need for each field if we compare at
+# the different ControlRates intervals starting with 500 to 3000:
+# At ControlRates interval of 500:
+ControlRateInterval <- 500
+# field A
+fieldA.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldA, interval = ControlRateInterval
+    )
+# field B
+fieldB.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldB, interval = ControlRateInterval
+    )
+# field C
+fieldC.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldC, interval = ControlRateInterval
+    )
+# field D
+fieldD.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldD, interval = ControlRateInterval
+    )
+# Now, we merge all these so we can plot them together later
+my_list <- list(fieldA.data$Req.Rep.table.field, fieldB.data$Req.Rep.table.field, 
+                fieldC.data$Req.Rep.table.field, fieldD.data$Req.Rep.table.field)
+my_list_nms <- setNames(my_list, c("fieldA", "fieldB", "fieldC", "fieldD"))
+Merged.EffectSize.500 <- 
+  data.frame(rbindlist(lapply(my_list_nms, as.data.table), idcol = "id"))
+Merged.EffectSize.500$interval <- 500
+```
+
+
+At ControlRates interval of 1000:
+
+```{r, eval = TRUE}
+ControlRateInterval <- 1000
+# field A
+fieldA.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldA, interval = ControlRateInterval
+    )
+# field B
+fieldB.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldB, interval = ControlRateInterval
+    )
+# field C
+fieldC.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldC, interval = ControlRateInterval
+    )
+# field D
+fieldD.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldD, interval = ControlRateInterval
+    )
+# Now, we merge all these so we can plot them together later
+my_list <- list(fieldA.data$Req.Rep.table.field, fieldB.data$Req.Rep.table.field, 
+                fieldC.data$Req.Rep.table.field, fieldD.data$Req.Rep.table.field)
+my_list_nms <- setNames(my_list, c("fieldA", "fieldB", "fieldC", "fieldD"))
+Merged.EffectSize.1000 <- 
+  data.frame(rbindlist(lapply(my_list_nms, as.data.table), idcol = "id"))
+Merged.EffectSize.1000$interval <- 1000
+```
+
+At ControlRates interval of 2000:
+
+```{r, eval = TRUE}
+ControlRateInterval <- 2000
+# field A
+fieldA.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldA, interval = ControlRateInterval
+    )
+# field B
+fieldB.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldB, interval = ControlRateInterval
+    )
+# field C
+fieldC.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldC, interval = ControlRateInterval
+    )
+# field D
+fieldD.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldD, interval = ControlRateInterval
+    )
+# Now, we merge all these so we can plot them together later
+my_list <- list(fieldA.data$Req.Rep.table.field, fieldB.data$Req.Rep.table.field, 
+                fieldC.data$Req.Rep.table.field, fieldD.data$Req.Rep.table.field)
+my_list_nms <- setNames(my_list, c("fieldA", "fieldB", "fieldC", "fieldD"))
+Merged.EffectSize.2000 <- 
+  data.frame(rbindlist(lapply(my_list_nms, as.data.table), idcol = "id"))
+Merged.EffectSize.2000$interval <- 2000
+```
+
+At ControlRates interval of 3000:
+
+```{r, eval = TRUE}
+ControlRateInterval <- 3000
+# field A
+fieldA.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldA, interval = ControlRateInterval
+    )
+# field B
+fieldB.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldB, interval = ControlRateInterval
+    )
+# field C
+fieldC.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldC, interval = ControlRateInterval
+    )
+# field D
+fieldD.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldD, interval = ControlRateInterval
+    )
+# Now, we merge all these so we can plot them together later
+my_list <- list(fieldA.data$Req.Rep.table.field, fieldB.data$Req.Rep.table.field, 
+                fieldC.data$Req.Rep.table.field, fieldD.data$Req.Rep.table.field)
+my_list_nms <- setNames(my_list, c("fieldA", "fieldB", "fieldC", "fieldD"))
+Merged.EffectSize.3000 <- 
+  data.frame(rbindlist(lapply(my_list_nms, as.data.table), idcol = "id"))
+Merged.EffectSize.3000$interval <- 3000
+```
+
+
+Now, let's plot these data for EffectSize Vs RequiredReplicates for each Field and fordifferent ControlRate intervals
+
+```{r, eval = TRUE}
+EffectSize.Plot <-
+  rbind(
+  Merged.EffectSize.500,
+  Merged.EffectSize.1000,
+  Merged.EffectSize.2000,
+  Merged.EffectSize.3000
+  )
+EffectSize.Plot$id <- factor(EffectSize.Plot$id)
+EffectSize.Plot$interval <- factor(EffectSize.Plot$interval)
+EffectSize.Plot$Group <- factor(EffectSize.Plot$Group)
+EffectSize.Plot$EffectSize <- as.numeric(EffectSize.Plot$EffectSize)
+EffectSize.Plot$RequiredReplicates <- as.numeric(EffectSize.Plot$RequiredReplicates)
+head(EffectSize.Plot)
+scaleFUN <- function(x) sprintf("%.2f", x)
+# To eliminate any outliers and noise, we can plot effect Size between 0-1 and
+# Required Replicates upto 5000
+EffectSize.Plot <- EffectSize.Plot[EffectSize.Plot$RequiredReplicates<= 5000,]
+EffectSize.Plot <- EffectSize.Plot[EffectSize.Plot$EffectSize<= 1,]
+EffectSize.Plot$Group <- factor(EffectSize.Plot$Group)
+ggplot(EffectSize.Plot, aes(x=EffectSize, y=RequiredReplicates)) + 
+  ggtitle("Effect size Vs Required replicates for each field data") +
+  geom_point(aes(shape = Group), size = 2)  + 
+  scale_shape_manual(values=1:nlevels(EffectSize.Plot$Group)) +
+  geom_line() + 
+  scale_x_continuous("EffectSize", breaks=c(0,0.2,0.5,1), labels = scaleFUN) +
+  theme_bw() +
+  theme(axis.title = element_text(size=14,face="bold"), axis.text = element_text(size=10), 
+        plot.title = element_text(hjust = 0.5, face = "bold")) +
+  facet_wrap(~id)
+```
+
+Based on the plot we just plotted above, RequiredReplicates increase significantly with decreasing Effect Size. 
+
+Additionally, after running all these `ControlRateInterval`, I noticed that the Required replicates decrease for the higher ControlRate intervals. The reason I did not include this in my report is because it gives lots of output. SO, if we consider taking the ControlRate intervals of only 1000 and get the field mean and field SD for each field as below.
+
+Now, I will only limit my analysis for all fields (merged) for the Control Rates interval of 1000. 
+
+```{r}
+# If we consider taking the ControlRate intervals of 1000 and get the field mean and field
+# SD for each field:
+ControlRateInterval <- 1000
+# field A
+fieldA.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldA, intervals = ControlRateInterval, printplot = TRUE
+    )
+fieldA.data
+```
+Based on the plot we can see that the Mean Yield is significant between 23000 vs all ControlRates , 24000 vs all Control Rates, 25000 Vs all Control rates. yield has no significant effect of Seeding from Control Rate between 26000 to 28000. Infact, it starts to decline significantly  from 29000 Control Seedings. 
+
+```{r}
+# field B
+fieldB.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldB, interval = ControlRateInterval, printplot = TRUE
+    )
+fieldB.data
+```
+
+Here, we see significant difference between all Control Rates of Seeding except between 28000 Vs 29000. The seeding rates of 28000 has the highest Mean yield here. 
+
+```{r}
+# field C
+fieldC.data <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = fieldC, interval = ControlRateInterval, printplot = TRUE
+    )
+fieldC.data
+```
+
+Here, all Control rates of seeding are significantly diffferent with the highest Mean yield for 28000.
+
+```{r}
+# field D
+fieldD.data <- calculate_field_mean_SD_and_get_RR_EffSize(
+  field = fieldD, interval = ControlRateInterval, printplot = TRUE
+  )
+fieldD.data
+```
+
+Here, all Control Rates of seeding are significantly different except for 26000-28000 Vs 29000 with the highest Mean yield for 28000.
+
+Also, to check if my calculation of Control rates and yield mean matches with
+the table in instruction (with 1000 intervals), we can check this with the merged field data ( i.e.
+fieldA, fieldB, fieldC and fieldD) data. We should get the same Mean values in
+the instruction table above.
+
+```{r}
+all.merged.raw.fields <- rbind(fieldA, fieldB, fieldC, fieldD)
+check.the.instruction.table <-
+calculate_field_mean_SD_and_get_RR_EffSize(
+  field = all.merged.raw.fields, intervals = ControlRateInterval
+  )
+check.the.instruction.table$field.mean
+```
+
+We can now merge all four fields  for SD, means and ControlRate level counts.
+
+```{r}
+merged.SD.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$fieldSD,
+  fieldB.data$fieldSD,
+  fieldC.data$fieldSD,
+  fieldD.data$fieldSD
+  )
+  )
+  
+  
+  merged.Mean.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$field.mean,
+  fieldB.data$field.mean,
+  fieldC.data$field.mean,
+  fieldD.data$field.mean
+  )
+  )
+  
+  
+  merged.Count.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$field.Count,
+  fieldB.data$field.Count,
+  fieldC.data$field.Count,
+  fieldD.data$field.Count
+  )
+  )
+```
+
+We need SD pooled for these levels so we can calculate Cohen's d and Required
+Replicates.
+
+```{r}
+levels(merged.SD.4.plots$ControlRate)
+```
+
+First, we merged all merged.SD.4.plots, merged.Mean.4.plots and merged.Count.4.plots from all fields.
+```{r}
+# Therefore, now merging all three dataframes from all four plots for SD, Mean
+# and counts by ControlRate column
+Mean_SD_Count.dat <- Reduce(function(...)
+  merge(..., by = c("ControlRate", "grp"), all.x = TRUE),
+  lapply(
+    list(merged.Mean.4.plots, merged.SD.4.plots, merged.Count.4.plots),
+    transform,
+    grp = ave(seq_along(ControlRate), ControlRate, FUN = seq_along)
+  ))
+head(Mean_SD_Count.dat)
+```
+
+Now, we can also run ANOVA on the merged data `Mean_SD_Count.dat`
+
+```{r}
+Mean_SD_Count_merged_for_all_four_plots <- Mean_SD_Count.dat
+Mean_SD_Count_merged_for_all_four_plots$Yield <-
+Mean_SD_Count_merged_for_all_four_plots$Mean
+Mean_SD_Count_merged_for_all_four_plots$ControlRate.Levels <-
+Mean_SD_Count_merged_for_all_four_plots$ControlRate
+get_my_box_plot(Mean_SD_Count_merged_for_all_four_plots, plot_name = "all four fields")
+```
+
+Based on this plot, from all fields, we can tell that, Control Rates of seeding of 23000-25000 has significantly less Mean yield as compared to 26000-29000. It looks like Control Rates of Seeding between 27000 and 28000 has the highest Mean yield.
+
+We now calculate pooled SD for merged 4 plots `Mean_SD_Count.dat` to calculate Effect Size and Required Replicates for all fields (combined analysis) using pooled SD.
+
+```{r}
+pooled.dat <- Mean_SD_Count.dat
+# # Pooled sd can be calculated as: 
+pooled.dat$df <- pooled.dat$Count-1
+# pooled SD is :
+# pooledSD <- sqrt( sum(pooled.dat$sd^2 * pooled.dat$df) / sum(pooled.dat$df) )
+# We can calculate our SD pooled using this formula:
+#  s_{pooled} = \sqrt{\frac{\sum_i (n_i-1)s_i^2}{N-k}}
+# We will derrive this in steps as below:
+pooled.dat$df <- pooled.dat$Count-1
+pooled.dat$sd.square <- pooled.dat$SD^2 
+pooled.dat$ss <- pooled.dat$sd.square * pooled.dat$df
+# We can use convenience function (aggregate) for splitting and calculating the necessary sums.
+ds <- aggregate(ss ~ ControlRate, data = pooled.dat, sum)
+# Two different built in methods for split apply, we could use aggregate for
+# both if we wanted. This calculates our degrees of freedom.
+ds$df <- tapply(pooled.dat$df, pooled.dat$ControlRate, sum) 
+# divide ss by df and then we get sd square
+ds$sd.square <- ds$ss / ds$df
+# Finally, we can get our sd pooled
+ds$SD_pooled <- sqrt(ds$sd.square)
+ds
+# However, we could also calculate our sd_pooled as below and get the same results :
+sd_pooled <- lapply( split(Mean_SD_Count.dat, Mean_SD_Count.dat$ControlRate),
+         function(dd) sqrt( sum( dd$SD^2 * (dd$Count-1) )/(sum(dd$Count-1)-nrow(dd)) ) )
+```
+
+Now, we calculate Mean (Mean of Means) from the merged table `Mean_SD_Count.dat`, so we can calculate Cohen's d and RequiredReplicates for all four field combined.
+
+```{r}
+ds.Mean <-
+  setNames(aggregate(
+  Mean_SD_Count.dat$Mean,
+  by = list(Mean_SD_Count.dat$ControlRate),
+  FUN = mean
+  ),
+  c("ControlRate", "Mean"))
+ds <- merge(ds, ds.Mean, by.x = "ControlRate")
+ds
+```
+
+Now we calculate the Effect Size and Cohen's D for the combined 4 plots using mean yield and sd pooled for different ControlRate
+
+Now we calculate the Effect Size and Cohen's D for the combined 4 plots using mean yield and sd pooled for different ControlRate usinf our function `calculate_field_mean_SD_and_get_RR_EffSize`.
+
+```{r}
+RequiredReplicates_for_all_fields <- 
+  calculate_field_mean_SD_and_get_RR_EffSize(
+    field = ds, intervals = ControlRateInterval, Single.Field.Analysis = FALSE
+    )
+RequiredReplicates_for_all_fields
+```
+
+We can plot this results for better visualization of pattern.
+
+```{r}
+RequiredReplicates_for_all_fields <-
+  as.data.frame(RequiredReplicates_for_all_fields$Req.Rep.table.field)
+  
+  RequiredReplicates_for_all_fields$Group <-
+  factor(RequiredReplicates_for_all_fields$Group)
+  
+  RequiredReplicates_for_all_fields$RequiredReplicates <-
+  as.numeric(as.character(RequiredReplicates_for_all_fields$RequiredReplicates))
+  
+  RequiredReplicates_for_all_fields$EffectSize <-
+  as.numeric(as.character(RequiredReplicates_for_all_fields$EffectSize))
+  
+  # Plot RequiredReplicates_for_all_fields
+  ggplot(RequiredReplicates_for_all_fields,
+  aes(x = EffectSize, y = RequiredReplicates)) +
+  ggtitle("Effect size Vs Required replicates for all fields data \n(Combined Effect)") +
+  geom_point(aes(shape = Group), size = 2)  +
+  scale_shape_manual(values = 1:nlevels(EffectSize.Plot$Group)) +
+  geom_line() +
+  scale_x_continuous("EffectSize",
+  breaks = c(
+  0,
+  0.2,
+  0.5,
+  1,
+  max(RequiredReplicates_for_all_fields$EffectSize)
+  ),
+  labels = scaleFUN) +
+  theme_bw() +
+  theme(
+  axis.title = element_text(size = 14, face = "bold"),
+  axis.text = element_text(size = 10),
+  plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+Based on the combined effect size (from all four fields), we can see that the Effect size is inversely proportional to Required Replicates. We also see that for the small effect of ~0.2, we need exponentially larger replicates, for medium effect (~0.5), we need about 80 replicates and for larger effect (more than 0.8), we only need about 20 or fewer replicates. Our analysis from all fields also indicates that we have highest mean yield for controlRates of Seeding og 27000-29000. 
+
+Final discussion and suggestion:
+
+Based on the results we saw above, if we take individual field (one at a time),  we would need thousands of replicates for low effect size. However, for moderate and large effect size, the required replicates number signficantly decreases even if we use individual field data separately. On the other hand, when we combine all four fields, our required replictes decreases for all low, moderate and large effect sizes (Figure: Effect size Vs Required replicates for all fields data (Combined Effect)) as compared to individual fields (Figure: Effect size Vs Required replicates for each field data). I also found that the required replicates decreases for lower rates of seeding (control Rates of 23000 Vs 24000). 
+Based on these results, we can also conclude that the Required replicates is inversely proportional to the Effect size as seen in all four fields data and merged data. 
+
+Aditionally, the mean yield significantly increases when we increase the seeding rates at control rates of 26000 to 28000 for each individual field. This was also consistent for combined field data (Figure: ControlRates Vs Mean yield for all four fields). So, my suggestion for this analysis is that we should used all four fields to calculate required replicates and effect size, though we could still use single field data separately to derrive the conclusion that higher seeding rates (~26000-28000) has higher mean yield which was consistent in all four fields. However, making use of all four fields data is recommended. 
+
+## Part 2 ##
+
+We will continue working with this data from four corn fields, but will also be looking at some issues with times and dates.
+For each field, I've two files, seed*.csv and harvest*.csv, corresponding to seeding rate and yield data, respectively. Both sets of files have a column Timestamp with strings of the form
+2018-05-20T13:20:08.201Z
+Our task will be to extract the date and time values from these strings, and answer these questions. The text before 'T" is the date string, and the text between 'T" and "Z" is the time string, in universal time. Specifically, we want to know:
+1. What is the range of planting dates in these data?
+2. Was each field harvested entirely in one day, and where they harvested each at approximately the same time of day?
+It might be enough to process only the first and last rows in the data. Each should be sampled at one second intervals, so the time difference between the first and last rows, in seconds, should be almost equal to the number of rows. I would not be too worried about gaps on the data on the order of seconds, but I would want to know about hour long gaps in the data, and where they occur. Note that time will reset to 0 at 23:59:59 and date will increment, so account for this in the analysis.
+Some additional thoughts:
+There is a relationship between planting date and yield. We could review the literature to get a more precise estimate (and you can do that, if you wish), but we'll start with a rough back-of-the-envelope calculation. 
+Suppose, we are working with 100-day corn - we expect corn to reach maturity in roughly 100 days. Let's suppose that the difference between the first field planting date and the last field planting date is 5 days. That's 5 percent of the growing period, so let %Diff = 5. What is the standard deviation for Yield, with regard to planting date? Again, we can look to the literature, but we'll use a simplifying assumption that it will be similar to the sd for yield vs planting rate, as determined in the `Part 1` project. Convert that to CV. 
+Now we have a first approximation for effect size (%Diff/CV). Is this effect size large enough that we need to worry that the effect of planting date will confound our analysis of the relationship between yield and planting rate? When I gather data from more fields, do I need to be careful and only include fields in a narrow range of dates? What is the first approximation for the number of fields required to test the relationship between planting date and yield?
+Not, about gaps in harvest. I've been arguing that analyzing yield monitor data should be a two-step process. First, analysis the yield as a time series (as grain moves through the harvester) then analyze as spatial data (the as the harvester moves over the field). There will be auto-correlated errors in each process that should be analyzed independently.
+In particular, the value for yield as reported in these data is not the yield of the grain as it is measured going through the harvester. The grain moving through the harvester will be of varying degrees of maturity, thus of grain moisture - less mature grain will have more water content, thus more weight. Yield values are standardized to a define percent moisture, so the harvester has a moisture sensor, and the percent moisture reading is use to normalize yield.
+But yield is measured at one second intervals, while moisture can only be measured at approximately 10-15 second intervals. I'm curious if gaps in the harvest record will affect how yield is normalized by moisture - there may be some cases where the moisture reading is uncorrelated with yield, because of this difference in measurement (I suspect it will be very small, but it's an interesting problem, to me).
+I'm also interested in how percent moisture changes over the course of a day, and if there is an effect when fields are harvested at different times of day.
+More will follow in the discussions.
+
+**Solution**
+
+
+The algorithm to do this analysis is divided into several steps as described below:
+
+1. First you have to define the path to all csv files for `Part 2` under (`path.part2`) and all .csv files from `Part 1` under `path.part1` in the begining of the code below.
+2. I have used some external packages like ggplot2 to make the plots.
+3. I have written several functions to analyze each individual field as well as merged field statistics that calculates cohens effect size, required replicates, and does ANOVA analysis on individual field as well as on merged data from all fields. 
+4. This function `get_question_1_and_2_answers` calculates the time spent each day on field, start and end time start and end date. observations each day, and also calculate one hour gap (more than an hour gap in consecutive rows) if present in the data. It spits out a table (`range_table`) with all the date data required for this project. I then used this range table to plot time, and dates.
+5. I have also plotted the Moisture content in each harvest field and how it gets affected during the day, and across the range of dates.
+6. Function `calculate_field_mean_SD_and_get_RR_EffSize` also uses mean, sd, and counts from each field to calculate cohens d and Required replicates. It also uses pooled standard deviations and Mean (mean of Means) calculated from all four fields for different control Rates to calculate cohens d and required replicates of combined field data. I have tested this function on all four fields at ControlRate level of 500, 1000, 2000 and 3000 intervals for `Part 1`, but this time, I have modified this function to calculate cohends d and required replicates for 1000 control rates also taking dates into consideration. This function also calculates these values for date only (neglecting control Rates).
+7. I have also shown ANOVA analysis followed by TUKEY HSD test to show which ControlRates of seeding have significant effect on Yield for each field and then for all fields (combined all four fields).
+8. Lastly, I have plotted EffectSize Vs RequiredReplicates for all combined field.
+
+First of all, we will set two directory paths where we have all our files we want to anlalyze. first path is `path.part2` for `Part 2` data and `path.part1` for data in `Part 1`
+
+`all.files` contains the file name of all csv files in our directory.
+
+
+```{r}
+# # Here, I read all files from the system rather than reading one file at a time.
+# # Path to all .csv data files for Part 2.
+# path.final <-
+# "/Users/owner1/statistics/"
+# 
+# # Path to all .csv data files for midterm.
+# path.midterm <-
+#   "/Users/owner1/statistics/"
+# instead from local path, we can get files from git repos
+library(rvest)
+path.part2 <- read_html("https://github.com//achalneupane/data") %>% html_nodes(".js-navigation-open") %>% html_attr("href")
+path.part1 <- read_html("https://github.com//achalneupane/data") %>% html_nodes(".js-navigation-open") %>% html_attr("href")
+```
+
+Now, we first install and load some of the packages  ("multcompView", "ggplot2",
+"scales", "data.table", etc.) we will be using for this exercise.
+
+```{r}
+# First, install missing packages and load them
+myPackages <-
+c(
+"multcompView",
+"ggplot2",
+"scales",
+"data.table",
+"reshape2",
+"RColorBrewer",
+"plyr",
+"ggpmisc"
+)
+my.installed.packages <- installed.packages()
+available.packages <- myPackages %in% my.installed.packages
+if (sum(!available.packages) > 0) {
+install.packages(myPackages[!available.packages])
+}
+# Load all required packages
+lapply(myPackages, require, character.only = TRUE)
+```
+
+Normally, I would write all functions in a separate file and use them as
+source('function_file.r') However, I have my functions for this project written
+here.
+```{r}
+# function for question 1 and 2
+get_question_1_and_2_answers <- function(field_or_seed) {
+# range of planting dates
+field_or_seed$Date <- gsub("T.*", "", field_or_seed$Timestamp)
+field_or_seed$Time <- gsub(".*T|Z", "", field_or_seed$Timestamp)
+# Range in days
+field_or_seed$date_time <-
+as.POSIXct(paste(field_or_seed$Date, field_or_seed$Time), tz = "UTC")
+# field_or_seed$date_time <- paste(field_or_seed$Date, field_or_seed$Time)
+# num_days <- round(difftime(max(as.POSIXct(field_or_seed$date_time)), min(as.POSIXct(field_or_seed$date_time))), 3)
+num_days <-
+round(difftime(max(as.POSIXct(
+field_or_seed$date_time
+)), min(as.POSIXct(
+field_or_seed$date_time
+)), units = "days"), 3)
+range_from_start_to_end_date_in_days <-
+ifelse(num_days <= 1,
+paste0(num_days, " day"),
+paste0(num_days, " days"))
+# Range in span of date for the field
+range_of_start_end_date <-
+paste0(range(as.Date(field_or_seed$Date))[1], " to ", range(as.Date(field_or_seed$Date))[2])
+field_or_seed$Date <- as.factor(field_or_seed$Date)
+# time range each day
+tt <- field_or_seed[, c("Date", "Time")]
+time.range.each.day <- aggregate(data.frame(Time = strptime(do.call(paste, tt), '%F %R:%OS', tz = 'UTC')),
+by = list(Date = tt$Date),
+function(Time) {
+paste(format(min(Time), '%T'),
+format(max(Time), '%T'),
+sep = ' to ')
+})
+rm(tt)
+# Function to find more than an hour gap in consecutive rows
+about_an_hour_gap <- function(field_or_seed) {
+one_hour_thing <- {
+}
+for (i in 1:nrow(field_or_seed)) {
+# i=3
+if (i == nrow(field_or_seed))
+{
+break
+} else
+time.lapse <-
+abs(as.numeric(
+difftime(field_or_seed$date_time[i + 1], field_or_seed$date_time[i]),
+units = "mins"
+))
+# find consecutive rows where the time is more than or equal 60 minutes and
+# dates are the same
+if (time.lapse >= 60 &
+field_or_seed$Date[i + 1] == field_or_seed$Date[i]) {
+one_hour_thing.tmp <- field_or_seed[i:(i + 1), ]
+one_hour_thing <- rbind(one_hour_thing, one_hour_thing.tmp)
+}
+}
+return(one_hour_thing)
+}
+about_an_hour_gap(field_or_seed)
+one_hour_gap_time_stamp <- about_an_hour_gap(field_or_seed)
+# function to calculate total time spent each day
+time.elapsed.each.day.function <- function(x) {
+difftime(max(as.POSIXct(x)), min(as.POSIXct(x)), units = "mins")
+}
+# time.range.each.day(tt)
+time.elapsed.each.day <-
+aggregate(date_time ~ Date, data = field_or_seed, FUN = time.elapsed.each.day.function)
+colnames(time.elapsed.each.day) <-
+c("Date", "Time_elapsed (minutes)")
+observations.each.day <- table(field_or_seed$Date)
+# Elapsed Dates
+dates.elapsed.each.field.function <- function(x){
+  difftime(max(as.POSIXct(x)), min(as.POSIXct(x)), units = "days")
+}
+elapsed.dates.each.field <- as.integer(dates.elapsed.each.field.function(field_or_seed$Date))
+return(
+list(
+observations.each.day = observations.each.day,
+range_from_start_to_end_date_in_days = range_from_start_to_end_date_in_days,
+range_of_start_end_date = range_of_start_end_date,
+time.elapsed.each.day = time.elapsed.each.day,
+elapsed.dates.each.field = elapsed.dates.each.field, 
+time.range.each.day = time.range.each.day,
+one_hour_gap_time_stamp = one_hour_gap_time_stamp
+)
+)
+}
+# Functions to calculate cohen's d and Required Replicates
+cohen.d <- function(m1, s1, m2, s2) {
+cohens_d <- (abs(m1 - m2) / sqrt((s1 ^ 2 + s2 ^ 2) / 2))
+return(cohens_d)
+}
+required.replicates <-
+function (m1,
+s1,
+m2,
+s2,
+alpha = 0.05,
+beta = 0.2) {
+n <-
+2 * ((((sqrt((s1 ^ 2 + s2 ^ 2) / 2
+)) / (m1 - m2)) ^ 2) * (qnorm((1 - alpha / 2)) + qnorm((1 - beta))) ^ 2)
+return(round(n, 0))
+}
+# Additional functions: They do anova and also calculate required replicates for fields
+# We willl also perform ANOVA analysis with Tukey Test for paired comparision of
+# mean for each field data as well as merged data at different ControlRate
+# intervals. This function does Tukey HSD test and generates label for
+# significant outcomes.
+# Create function to get the labels for Tukey HSD:
+generate_label_df <- function(TUKEY, variable) {
+# Extract labels and factor levels from Tukey post-hoc
+Tukey.levels <- TUKEY[[variable]][, 4]
+Tukey.labels <-
+data.frame(multcompLetters(Tukey.levels)['Letters'])
+#I need to put the labels in the same order as in the boxplot :
+Tukey.labels$treatment = rownames(Tukey.labels)
+Tukey.labels = Tukey.labels[order(Tukey.labels$treatment) ,]
+return(Tukey.labels)
+}
+# This function does ANOVA and makes boxplots with Tukey statistics for
+# comparing Mean yield.
+get_my_box_plot <- function (field, plot_name = "the Field") {
+field$CR.Date.Levels <- gsub("-", "_", field$CR.Date.Levels)
+field$CR.Date.Levels <- as.factor(field$CR.Date.Levels)
+model = lm(field$Yield ~ field$CR.Date.Levels)
+ANOVA = aov(model)
+# If residual degrees of freedom is less than or equal 1, don't do Tukey test;
+# simply return ANOVA summary.
+if (ANOVA$df.residual <= 1) {
+return(summary.aov(ANOVA))
+}
+# Tukey test to study each pair of treatment :
+TUKEY <-
+TukeyHSD(x = ANOVA,
+'field$CR.Date.Levels',
+conf.level = 0.95)
+# generate labels using function
+labels <- generate_label_df(TUKEY , "field$CR.Date.Levels")
+# rename columns for merging
+names(labels) <- c('Letters', 'CR.Date.Levels')
+# Obtain letter positions for y axis using means
+yvalue <- aggregate(Yield ~ CR.Date.Levels, data = field, mean)
+part2 <- merge(labels, yvalue) #merge dataframes
+p <- ggplot(field, aes(x = CR.Date.Levels, y = Yield)) +
+geom_blank() +
+theme_bw() +
+# theme(panel.grid.major = element_blank(),
+# panel.grid.minor = element_blank()) +
+labs(x = 'CR.Date.Levels', y = 'Mean Yield') +
+ggtitle(paste0("CR.Date.Levels Vs Mean yield for ", plot_name),
+expression(atop(italic(
+"(Anova:TukeyHSD)"
+), ""))) +
+# ggtitle(paste0("CR.Date.Levels Vs Mean yield for ", plot_name)) +
+theme(plot.title = element_text(hjust = 0.5, face = 'bold')) +
+geom_boxplot(fill = 'grey', stat = "boxplot") +
+# coord_cartesian(clip = 'off') +
+geom_text(
+data = part2,
+aes(x = CR.Date.Levels, y = Yield, label = Letters),
+vjust = -3.5,
+hjust = -.5
+) +
+theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+# geom_vline(aes(xintercept = 4.5), linetype = "dashed") +
+theme(plot.title = element_text(vjust = -0.6)) +
+coord_cartesian(ylim = c(min(field$Yield), max(field$Yield) + 10))
+print(p)
+}
+```
+
+Function to calculate mean and sd for each field for a given interval of
+ControlRate and then calculate Required Replicates and EffectSize. I have made
+one function to do all that so I can just use this function to analyze all
+four fields. To analyze single field set `Single.Field.Analysis = TRUE`, and 
+to analyze all four field together, set `Single.Field.Analysis = FALSE`,
+
+```{r}
+calculate_field_mean_SD_and_get_RR_EffSize <- 
+  function(
+    field, intervals = 1000, Single.Field.Analysis = TRUE, Date.Only = FALSE, printplot = FALSE){
+    options(warn=1)
+    plot_NAME <- (deparse(substitute(field)))
+    if(Single.Field.Analysis > 0){
+      # removing rows with NAs in Yield
+      sum(is.na(field$Yield))
+      # field <- field[!complete.cases(field$Yield), ]
+      field <- field[!is.na(field$Yield),]
+      # as.factor(fieldA$ControlRate)
+      
+      
+      # work on timestamp columns
+      field$Date <- gsub("T.*", "", field$Timestamp)
+      field$Time <- gsub(".*T|Z", "", field$Timestamp)
+      # Range in days
+      field$date_time <- as.POSIXct(paste(field$Date, field$Time), tz = "UTC")
+      
+      
+      # table.field <- table(as.factor(field$Date))
+      field$ControlRate.Levels <- as.factor(intervals * ceiling(field$ControlRate/intervals))
+      if(Date.Only < 1){
+      field$CR.Date.Levels <- as.factor(paste(field$ControlRate.Levels, field$Date, sep = "*"))
+      } else {
+        field$CR.Date.Levels <- as.factor(field$Date)
+      }
+      table.field <- table(as.factor(field$CR.Date.Levels))
+      
+      
+      
+      
+      field.Count <- setNames(aggregate(field$CR.Date.Levels, 
+                                        by = list(field$CR.Date.Levels), FUN = length), c("CR.Date.Levels", "Count"))
+      field.mean <-
+        setNames(aggregate(
+          field$Yield,
+          by = list(field$CR.Date.Levels),
+          FUN = mean
+        ),
+        c("CR.Date.Levels", "Mean"))
+      
+      
+      field.SD <-
+        setNames(aggregate(
+          field$Yield,
+          by = list(field$CR.Date.Levels),
+          FUN = sd
+        ),
+        c("CR.Date.Levels", "SD"))
+      
+      
+      if(printplot == 1 ){
+        get_my_box_plot(field, plot_name = plot_NAME)
+      }
+      
+      # plot individual fields with tukey test We will print box plot only if we
+      # want for certain ControlRates intervals. Otherwise we will have too many
+      # plots
+    } else {
+      temp.Field <- field
+      colnames(temp.Field)[colnames(temp.Field) == "CR.Date.Levels"] <- "ControlRate.Levels"
+      colnames(temp.Field)[colnames(temp.Field) == "Mean"] <- "Yield"
+      # get_my_box_plot(temp.Field)
+      field.SD  <- 
+        as.data.frame(cbind(ControlRate = field["CR.Date.Levels"], SD = field["SD_pooled"]))
+      field.mean <- 
+        as.data.frame(cbind(ControlRate = field["CR.Date.Levels"], Mean = field["Mean"]))
+    }
+    
+    # Calculate Required replicate and Effect Size from each
+    # field for ControlRate i vs i+1
+    
+    
+    Req.Rep.table.field <- {}
+    for (i in 1:nrow(field.SD)){
+      if(i+1 > nrow(field.SD) ){
+        break
+      }
+      temp.Effect.size <-
+        cohen.d(
+          m1 = field.mean$Mean[i],
+          s1 = field.SD$SD[i],
+          m2 = field.mean$Mean[i + 1],
+          s2 = field.SD$SD[i + 1]
+        )
+      
+      tmp.req.reps <-
+        required.replicates(
+          m1 = field.mean$Mean[i],
+          s1 = field.SD$SD[i],
+          m2 = field.mean$Mean[i + 1],
+          s2 = field.SD$SD[i + 1]
+        )
+      
+      tmp.table <-
+        cbind(
+          Group = paste0(field.SD$CR.Date.Levels[i], " Vs ", field.SD$CR.Date.Levels[i + 1]),
+          EffectSize = temp.Effect.size,
+          RequiredReplicates = tmp.req.reps
+        )
+      
+      Req.Rep.table.field <- rbind(Req.Rep.table.field, tmp.table)
+    }
+    if (Single.Field.Analysis > 0) {
+      return(
+        list(
+          field.mean = field.mean,
+          fieldSD = field.SD,
+          field.Count = field.Count,
+          Req.Rep.table.field = Req.Rep.table.field
+        )
+      )
+    } else{
+      return(list(Req.Rep.table.field = Req.Rep.table.field))
+    }
+  }
+```
+
+Here, I am reading all files in my directory we set in the begining
+(path.part2). I was being a bit lazy to copy hard coded paths. I then read those
+files in for loop and assigned them to their respective variable names [eg,
+gsub(".csv","",filename.csv)].
+
+```{r}
+# all.files contains the file name of all csv files in our directory. I have decided to
+# read all files from the system rather than reading one file at a time.
+# using from github
+all.files <- path.part2
+all.files <- all.files[grepl("*.csv", all.files)]
+# # selecting only required files
+all.files <- all.files[grepl("seedA.csv|seedB.csv|seedC.csv|seedD.csv|harvestA.csv|harvestB.csv|harvestC.csv|harvestD.csv", all.files)]
+# # Or choose specifically which data files in path to analyze
+# all.files <- all.files <- c("seedA.csv", "seedB.csv", "seedC.csv", "seedD.csv")
+# Rearranging the vectors, putting seed data first and then harvest data
+all.files <-
+c(all.files[grepl("seed", all.files)], all.files[grepl("harvest", all.files)])
+# all.files
+# [1] "harvestA.csv" "harvestB.csv" "harvestC.csv" "harvestD.csv" "seedA.csv"    "seedB.csv"    "seedC.csv"    "seedD.csv"
+#https://raw.githubusercontent.com/achalneupane/data/master/
+# reading all csv files within the path and saving them to their respective names.
+for (i in 1:length(all.files)) {
+assign(
+gsub(".*master/|.csv", "", all.files)[i],
+read.table(gsub("blob/", "",paste0("https://raw.githubusercontent.com",all.files[i])),
+header = TRUE,
+sep = ",")
+)
+print(paste0("Read file ", all.files[i], ' !'))
+}
+# head(harvestA)
+# head(harvestB) # and so on..
+```
+
+Here, I am using `get_question_1_and_2_answers` to extract date information by
+looping over all data files we just read above.
+
+```{r}
+# make a table of date range
+range_table <- {}
+one.hour.time.difference <- data.frame()
+for (i in 1:length(all.files)) {
+# file.dat <- eval(sub(".csv", "", all.files, fixed = TRUE)[i])
+file.dat <- eval(gsub(".*master/|.csv", "", all.files)[i])
+# print(paste0("Doing time thing for ", file.dat, "..."))
+dat <- get_question_1_and_2_answers(eval(parse(text = file.dat)))
+tmp.range.of.days <-
+cbind(
+data = file.dat,
+range_from_start_to_end_date_in_days = dat$range_from_start_to_end_date_in_days,
+elapsed.dates.each.field = dat$elapsed.dates.each.field,
+range_of_start_end_date = dat$range_of_start_end_date,
+time.range.each.day = dat$time.range.each.day,
+time.elapsed.each.day = dat$time.elapsed.each.day
+)
+range_table <- rbind(range_table, tmp.range.of.days)
+tmp.one.hour.time.difference <- dat$one_hour_gap_time_stamp
+tmp.one.hour.time.difference$field <- file.dat
+if (dim(as.data.frame(tmp.one.hour.time.difference))[1] >= 2) {
+one.hour.time.difference <-
+rbind.fill(one.hour.time.difference, tmp.one.hour.time.difference)
+} else{
+one.hour.time.difference <- one.hour.time.difference
+}
+}
+range_table <- as.data.frame(range_table)
+range_table$days_number <-
+as.numeric(gsub(
+' days|day',
+"",
+range_table$range_from_start_to_end_date_in_days
+))
+# Range table
+range_table
+```
+This is the range table for all fields. I have calculated the range for total
+elapsed time (in terms of days) in `range_from_start_to_end_date_in_days`
+column, total dates elapsed in `elapsed.dates.each.field` column, Range in dates
+in `range_of_start_end_date` column, time range each day (from start to end
+time) in `time.range.each.day.Time` column, total time spent in the field each
+date in `time.elapsed.each.day.Time_elapsed (minutes)` column.
+
+```{r}
+# This is the list of consecutive rows with more than one hour time gap from all files:
+one.hour.time.difference
+```
+
+I was able to find more than an hour gap in consecutive rows in `harvestC` data
+only
+
+```{r}
+# Plotting the total number of days for each field type
+ggplot(range_table, aes(x = data, y = days_number)) + geom_point(size = 4) +
+  ggtitle("Plot in terms of elapsed time- \n start to end (in days)") +
+theme_bw() +
+theme(
+axis.line = element_line(colour = "black"),
+panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),
+panel.border = element_blank(),
+panel.background = element_blank()
+) +
+theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+theme(text = element_text(size = 14)) +
+scale_y_continuous(breaks = round(c(
+1,
+max(range_table$days_number) * 1 / 3,
+max(range_table$days_number) * 2 / 3,
+max(range_table$days_number)
+), 2)) +
+# to check if any of the data were planted/harvested within one day range
+geom_hline(yintercept = 1) +
+geom_text((aes(3, 1, label = "Within 1 day (24 hours margin)", vjust = -1)))
+```
+
+Based on this plot, we can see that SeedA, seedB, seedC and seedD were all
+planted within 24 hours span. We can also check the `range_table` above to get
+the exact timeframe for this. However, if want to see if they were planted or
+harvested on the same date, then we can plot this figure below:
+
+```{r}
+# If we want to see whether they were planted or harvested the same day (i.e
+# Date) and (not necessarily 24 hours margin), we choose range_table$elapsed.dates.each.field
+# Now plot them
+ggplot(range_table, aes(x = data, y = elapsed.dates.each.field)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  ggtitle("Plot in terms of elapsed dates") +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank()) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  theme(text = element_text(size=14)) +
+# to check if any of the data were planted/harvested the same "Date"
+geom_hline(yintercept = 1) +
+  geom_hline(yintercept = 0, color="blue", linetype="dashed") +
+geom_text((aes(3, 1, label = "Margin outside the \"same\" date", vjust = -1)))
+```
+
+This plot above shows that seedA and seedD were planted on the same date, and
+harvestB was harvested also on the same date. Rest of the field data were
+harvested/planted for multiple dates. Bubbles within the black solid line
+indicates that the fields were, harvested/planted the same date. Only seedA,
+seedD and harvestB are within the solid line. Here, Y axis margin of 1 means
+next date. Data within the black and dashed blue lines indicate the same date. 
+
+
+Additionally, if we want to see how many hours were spent on each field in
+total, we can plot this below:
+
+```{r}
+plot.new <- range_table[, c("data", "time.elapsed.each.day.Time_elapsed (minutes)", "time.elapsed.each.day.Date")]
+plot.new$time.elapsed.each.day.Time_elapsed <- as.numeric(plot.new$`time.elapsed.each.day.Time_elapsed (minutes)`)
+plot.new$time.elapsed.each.day.Time_elapsed.in.hour <- plot.new$time.elapsed.each.day.Time_elapsed/60
+plot.new.data <- setNames(aggregate(plot.new$time.elapsed.each.day.Time_elapsed.in.hour, list(range_table$data), sum), c("group", "time.spent.in.hours"))
+ggplot(plot.new.data, aes(x = group, y = time.spent.in.hours)) +
+  geom_point(size = 4) +
+  theme_bw() +
+  ggtitle("Plot in terms of total time spent in hours") +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank()) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  theme(text = element_text(size=14)) 
+```
+
+Based on this above plot, it looks like only harvestC and harvestD had more than
+10 hours spent on them.
+
+Now, we can also plot start and end time for everyday record:
+```{r}
+range_table$start_date_time <-
+as.POSIXct(paste(
+range_table$time.range.each.day.Date ,
+gsub("to.*| ", "", range_table$time.range.each.day.Time)
+), tz = 'UTC')
+range_table$end_date_time <-
+as.POSIXct(paste(
+range_table$time.range.each.day.Date ,
+gsub(".*to| ", "", range_table$time.range.each.day.Time)
+), tz = 'UTC')
+tt <- range_table[, c("data", "start_date_time", "end_date_time")]
+tt <- melt(tt, id = "data")
+# Plot for date and time
+ggplot(tt, aes(
+x = data,
+y = as.character.Date(value),
+colour = variable
+)) +
+geom_point(size = 4) +
+ylab("Dates and Time") +
+theme_bw() +
+ggtitle("Start and end time for everyday record") +
+theme(
+axis.line = element_line(colour = "black"),
+panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),
+panel.border = element_blank(),
+panel.background = element_blank()
+) +
+theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14)) +
+theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 8)) +
+# theme(text = element_text(size = 14)) +
+geom_hline(yintercept = 1:length(tt$value), linetype = "dotted") +
+labs(color = 'Each Day') +
+scale_color_manual(labels = c("START_time", "END_time"),
+values = c("blue", "red")) 
+```
+This plot also shows similar result as with previous plot, but with both start
+and end time.
+
+We can also check the moisture level differences in the fields by date and
+times.
+ 
+```{r}
+# Now, let's work on the effect of time/dates on moiture level
+tt1 <- harvestA
+tt2 <- harvestB
+tt3 <- harvestC
+tt4 <- harvestD
+tt1$type <- "harvestA"
+tt2$type <- "harvestB"
+tt3$type <- "harvestC"
+tt4$type <- "harvestD"
+make_posixct <- function(x) {
+  x$Date <- gsub("T.*", "", x$Timestamp)
+  x$Date <- as.factor(x$Date)
+  x$Time <- gsub(".*T|Z", "", x$Timestamp)
+  n <- 2
+  pat <- paste0('^([^:]+(?::[^:]+){', n - 1, '}).*')
+  x$Time  <- as.factor(sub(pat, '\\1', x$Time))
+  return(x)
+}
+tt1 <- make_posixct(tt1)
+tt2 <- make_posixct(tt2)
+tt3 <- make_posixct(tt3)
+tt4 <- make_posixct(tt4)
+colnames(tt2) <- colnames(tt1)
+df <- rbind(tt1, tt2, tt3, tt4)
+df$Time <-
+  as.POSIXct(strptime(df$Time, format = "%H:%M", tz = "UTC"))
+lims <-
+  as.POSIXct(strptime(c("0:00", "23:59"), format = "%H:%M", tz = "UTC"))
+p <-
+  ggplot(data = df, aes(
+    x = Time,
+    y = Moisture,
+    colour = as.factor(Date)
+  )) +
+  geom_point() +
+  scale_x_datetime(
+    limits = lims,
+    breaks = date_breaks("2 hour"),
+    labels = date_format("%H:%M", tz = "UTC")
+  ) +
+  labs(color = 'Dates') +
+  facet_grid(. ~ type)
+p + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+```
+Based on this figure above, we can see that the moisture content is very low
+from midnight to 2:00pm, but then after, it increases substantially. I don't
+think there is so much difference in moisture in terms of harvest dates though.
+
+
+I tried to pull weather data for each observation, however the api I used only
+allows 1000 requests per day, so I did not include that data.
+```{r, eval= FALSE}
+# We can use darksky like api's to pull weather data, however it's not
+# possible as we have so many observations. Only allows 1000 downloads per day.
+# install.packages("darksky")
+library(darksky) darksky_api_key(force = TRUE)
+#API: 60b8ca6aaece606b21c0dfec1cb7ec9f
+head(seedA)
+# field_or_seed <- seedA 
+tmp <- get_forecast_for(10.25209, 478.4000, "2013-05-06T12:00:00")
+# Create empty columns and cbind to the field data so you can add new weather
+data field_or_seed <- cbind(field_or_seed, setNames(lapply(get.weather.cols,
+function(x) x = NA), get.weather.cols)) 
+field_or_seed$Date <- gsub("T.*", "", field_or_seed$Timestamp)
+field_or_seed$Time <- gsub(".*T|Z", "", field_or_seed$Timestamp) # Range in days field_or_seed$date_time <-
+as.POSIXct(paste(field_or_seed$Date, field_or_seed$Time), tz = "UTC")
+field_or_seed_with_weather <- {}
+for (i in 1:nrow(field_or_seed)) {
+print(paste0("My iteration is: ", i)) tmp.min <-
+get_forecast_for(44.311356, -96.798386, min(field_or_seed$date_time[i]))
+tmp.weather.data <- cbind(field_or_seed[i,], tmp.min$daily)
+field_or_seed_with_weather <- rbind(field_or_seed_with_weather,
+tmp.weather.data)
+}
+```
+
+Additionally, let's read our csv files from `Part 1`
+
+```{r}
+# # If using local path
+#   setwd(path.part1)
+#   all.files <- list.files(path.part1)
+  # here, instead, I am just using the URL
+  all.files <- path.part1
+  all.files <- all.files[grepl("*.csv", all.files)]
+  # > all.files
+  # [1] "fieldA.csv" "fieldB.csv" "fieldC.csv" "fieldD.csv"
+  
+all.files <- all.files[grepl("fieldA.csv|fieldB.csv|fieldC.csv|fieldD.csv", all.files)]  
+  
+  
+# reading all csv files within the path and saving them with their respective
+# names
+# https://raw.githubusercontent.com/achalneupane/data/master/
+# reading all csv files within the path and saving them to their respective names.
+for (i in 1:length(all.files)) {
+assign(
+gsub(".*master/|.csv", "", all.files)[i],
+read.table(gsub("blob/", "",paste0("https://raw.githubusercontent.com",all.files[i])),
+header = TRUE,
+sep = ",")
+)
+print(paste0("Read file ", all.files[i], ' !'))
+}
+  
+  # Now, let's merge field and seed data
+  
+  # head(fieldA)
+  # head(seedA)
+  
+  dataA <-
+  merge(
+  fieldA,
+  seedA,
+  by.x = c("Easting", "Northing"),
+  by.y = c("LonM", "LatM")
+  )
+  colnames(dataA) <- gsub(".x", "", colnames(dataA))
+  dataB <-
+  merge(
+  fieldB,
+  seedB,
+  by.x = c("Easting", "Northing"),
+  by.y = c("LonM", "LatM")
+  )
+  colnames(dataB) <- gsub(".x", "", colnames(dataB))
+  dataC <-
+  merge(
+  fieldC,
+  seedC,
+  by.x = c("Easting", "Northing"),
+  by.y = c("LonM", "LatM")
+  )
+  colnames(dataC) <- gsub(".x", "", colnames(dataC))
+  dataD <-
+  merge(
+  fieldD,
+  seedD,
+  by.x = c("Easting", "Northing"),
+  by.y = c("LonM", "LatM")
+  )
+  colnames(dataD) <- gsub(".x", "", colnames(dataD))
+  
+  # Taking 1000 ControlRates interval, we will also compare different dates (i.e,
+  # ControlRate and date pairs) for each merged seed and field data.
+  
+  ControlRateInterval <- 1000
+  # field A
+  fieldA.data <-
+  calculate_field_mean_SD_and_get_RR_EffSize(field = dataA, intervals = ControlRateInterval)
+  # fieldA.data
+  
+  
+  # field B
+  fieldB.data <-
+  calculate_field_mean_SD_and_get_RR_EffSize(field = dataB, intervals = ControlRateInterval)
+  
+  # fieldB.data
+  
+  # From Part 1 for fieldB, we saw significant difference between all Control Rates of
+  # Seeding except between 28000 Vs 29000. The seeding rates of 28000 has the
+  # highest Mean yield here.
+  
+  # field C
+  fieldC.data <-
+  calculate_field_mean_SD_and_get_RR_EffSize(field = dataC, intervals = ControlRateInterval)
+  # fieldC.data
+  
+  # From Part 1 for fieldC, we saw all Control rates of seeding are significantly diffferent with the highest Mean yield for 28000.
+  
+  # field D
+  fieldD.data <-
+  calculate_field_mean_SD_and_get_RR_EffSize(field = dataD, intervals = ControlRateInterval)
+ # fieldD.data
+```  
+  
+  Based on my analysis from `Part 1`, we saw that it is better to compare all
+  four fields together. Also, I do not want to clutter this report with too many
+  figures and tables, I am analyzing 1000 Control Rate and all four fields
+  merged together. This way we can compare the skewed data points if we analyze
+  with date and ControlRate pairs. I have done this analysis below
+  
+
+  We can now merge all four fields  for SD, means and ControlRate level counts.
+
+```{r}
+  merged.SD.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$fieldSD,
+  fieldB.data$fieldSD,
+  fieldC.data$fieldSD,
+  fieldD.data$fieldSD
+  )
+  )
+  
+  
+  merged.Mean.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$field.mean,
+  fieldB.data$field.mean,
+  fieldC.data$field.mean,
+  fieldD.data$field.mean
+  )
+  )
+  
+  
+  merged.Count.4.plots <-
+  Reduce(
+  function(x, y)
+  merge(x, y, all = TRUE),
+  list(
+  fieldA.data$field.Count,
+  fieldB.data$field.Count,
+  fieldC.data$field.Count,
+  fieldD.data$field.Count
+  )
+  )
+```
+
+We need SD pooled for these levels so we can calculate Cohen's d and Required
+Replicates.
+
+```{r}  
+  levels(merged.SD.4.plots$CR.Date.Levels)
+  # First, we merged all merged.SD.4.plots, merged.Mean.4.plots and
+  # merged.Count.4.plots from all fields.
+  # Therefore, now merging all three dataframes from all four plots for SD, Mean
+  # and counts by ControlRate column
+  
+  Mean_SD_Count.dat <- Reduce(function(...)
+  merge(..., by = c("CR.Date.Levels", "grp"), all.x = TRUE),
+  lapply(
+  list(merged.Mean.4.plots, merged.SD.4.plots, merged.Count.4.plots),
+  transform,
+  grp = ave(seq_along(CR.Date.Levels), CR.Date.Levels, FUN = seq_along)
+  ))
+  # head(Mean_SD_Count.dat)
+  
+  # Now, we can also do Anova on the merged data `Mean_SD_Count.dat`
+  
+  Mean_SD_Count_merged_for_all_four_plots <- Mean_SD_Count.dat
+  Mean_SD_Count_merged_for_all_four_plots$Yield <-
+  Mean_SD_Count_merged_for_all_four_plots$Mean
+  Mean_SD_Count_merged_for_all_four_plots$ControlRate.Levels <-
+  Mean_SD_Count_merged_for_all_four_plots$ControlRate
+  
+  get_my_box_plot(Mean_SD_Count_merged_for_all_four_plots, plot_name = "all four fields")
+```
+
+  Based on this plot above, from all fields, we can tell that, Control Rates of
+  seeding of 23000-25000 has significantly less Mean yield as compared to
+  26000-29000. It looks like Control Rates of Seeding between 27000 and 28000
+  has the highest Mean yield. I also think that there is no effect on seeding
+  dates, I have done some analysis to show the seeding effect only in the last
+  part of this report and based on that as well, I do not think there is 
+  significant effect of Dates on Yield.
+
+  
+  We now calculate pooled SD for merged 4 plots `Mean_SD_Count.dat` to calculate
+  Effect Size and Required Replicates for all fields (combined analysis) using
+  pooled SD.
+  
+```{r}
+pooled.dat <- Mean_SD_Count.dat
+# # Pooled sd can be calculated as:
+pooled.dat$df <- pooled.dat$Count - 1
+# pooled SD is :
+# pooledSD <- sqrt( sum(pooled.dat$sd^2 * pooled.dat$df) / sum(pooled.dat$df) )
+# We can calculate our SD pooled using this formula:
+#  s_{pooled} = \sqrt{\frac{\sum_i (n_i-1)s_i^2}{N-k}}
+# We will derrive this in steps as below:
+pooled.dat$df <- pooled.dat$Count - 1
+pooled.dat$sd.square <- pooled.dat$SD ^ 2
+pooled.dat$ss <- pooled.dat$sd.square * pooled.dat$df
+# We can use convenience function (aggregate) for splitting and calculating
+# the necessary sums.
+ds <- aggregate(ss ~ CR.Date.Levels, data = pooled.dat, sum)
+# Two different built-in methods for split apply, we could use aggregate for
+# both if we wanted. This calculates our degrees of freedom.
+ds$df <- tapply(pooled.dat$df, pooled.dat$CR.Date.Levels, sum)
+# divide ss by df and then we get sd square
+ds$sd.square <- ds$ss / ds$df
+# Finally, we can get our sd pooled
+ds$SD_pooled <- sqrt(ds$sd.square)
+# ds
+# However, we could also calculate our sd_pooled as below and get the same results :
+# sd_pooled <- lapply( split(Mean_SD_Count.dat, Mean_SD_Count.dat$CR.Date.Levels),
+# function(dd) sqrt( sum( dd$SD^2 * (dd$Count-1) )/(sum(dd$Count-1)-nrow(dd)) ) )
+# Now, we calculate Mean (Mean of Means) from the merged table
+# `Mean_SD_Count.dat so we can calculate Cohens d and RequiredReplicates for all
+# four field combined.
+ds.Mean <-
+setNames(aggregate(
+Mean_SD_Count.dat$Mean,
+by = list(Mean_SD_Count.dat$CR.Date.Levels),
+FUN = mean
+),
+c("CR.Date.Levels", "Mean"))
+ds <- merge(ds, ds.Mean, by.x = "CR.Date.Levels")
+# ds
+# Now we calculate the Effect Size and Cohen's D for the combined 4 plots using
+# mean yield and sd pooled for different ControlRate
+# Now we calculate the Effect Size and Cohen's D for the combined 4 plots using
+# mean yield and sd pooled for different ControlRate usinf our function
+RequiredReplicates_for_all_fields <-
+calculate_field_mean_SD_and_get_RR_EffSize(
+field = ds,
+intervals = ControlRateInterval,
+Single.Field.Analysis = FALSE
+)
+```
+This table gives us the required replicates and effectSize for all ControlRates-Date pairs
+```{r}
+RequiredReplicates_for_all_fields
+```
+
+We can plot this results
+
+```{r}
+RequiredReplicates_for_all_fields <-
+  as.data.frame(RequiredReplicates_for_all_fields$Req.Rep.table.field)
+  
+  RequiredReplicates_for_all_fields$Group <-
+  factor(RequiredReplicates_for_all_fields$Group)
+  
+  RequiredReplicates_for_all_fields$RequiredReplicates <-
+  as.numeric(as.character(RequiredReplicates_for_all_fields$RequiredReplicates))
+  
+  RequiredReplicates_for_all_fields$EffectSize <-
+  as.numeric(as.character(RequiredReplicates_for_all_fields$EffectSize))
+  
+  
+  # There are one or two extreme Required replicates and extreme Effect size. We can
+  # remove them to plot them, so we can properly visualize the datapoints
+  
+  RequiredReplicates_for_all_fields <-
+  RequiredReplicates_for_all_fields[RequiredReplicates_for_all_fields$RequiredReplicates < 4000, ]
+  RequiredReplicates_for_all_fields <-
+  RequiredReplicates_for_all_fields[RequiredReplicates_for_all_fields$EffectSize < 1.5, ]
+  
+  my_levels <-
+  length(levels(RequiredReplicates_for_all_fields$Group))
+  RequiredReplicates_for_all_fields$EffectSize <-
+  round(RequiredReplicates_for_all_fields$EffectSize, 2)
+  
+  # scaleFUN <- function(x) sprintf("%.2f", x)
+  # Plot RequiredReplicates_for_all_fields
+  
+  n <- my_levels
+  qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual', ]
+  col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+  
+  
+  ggplot(
+  RequiredReplicates_for_all_fields,
+  aes(
+  x = EffectSize,
+  y = RequiredReplicates,
+  shape = as.factor(Group),
+  group = 1
+  )
+  ) +
+  ggtitle("Effect size Vs Required replicates \n for all fields data \n(Combined Effect)") +
+  geom_point(alpha = 0.9,
+  size = 3,
+  stroke = 1)  +
+  scale_shape_manual(values = rep(c(0:2, 5:6, 9:10, 11:12, 14), times =
+  4)) +
+  scale_color_manual(values = col_vector) +
+  geom_line(color = "black") +
+  scale_x_continuous("EffectSize",
+  breaks = c(0,
+  0.2,
+  0.5,
+  1,
+  max(
+  as.numeric(RequiredReplicates_for_all_fields$EffectSize)
+  ))) +
+  theme_bw() +
+  theme(
+  axis.title = element_text(size = 14, face = "bold"),
+  axis.text = element_text(size = 10),
+  plot.title = element_text(hjust = 0.5, face = "bold"),
+  axis.line = element_line(colour = "black"),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(),
+  panel.background = element_blank()
+  ) +
+  labs(shape = "Comparison groups")
+```  
+  
+Based on this plot above, we can tell that there is strong negative correlation
+between EffectSize and RequiredReplicates.
+
+
+So far, we analyzed our data for controlRates-Date pair, now we can also do the
+same analysis for Date effect only.
+  
+```{r}  
+######################## Date Only Analysis !! ##############################
+# If we want to do Date effect only without taking ControlRates into consideration, then we do the following:
+  
+# field A
+fieldA.data <-
+calculate_field_mean_SD_and_get_RR_EffSize(field = dataA,
+intervals = ControlRateInterval,
+Date.Only = TRUE)
+# fieldA.data
+# field B
+fieldB.data <-
+calculate_field_mean_SD_and_get_RR_EffSize(field = dataB,
+intervals = ControlRateInterval,
+Date.Only = TRUE)
+# fieldB.data
+# field C
+fieldC.data <-
+calculate_field_mean_SD_and_get_RR_EffSize(field = dataC,
+intervals = ControlRateInterval,
+Date.Only = TRUE)
+# fieldC.data
+# field D
+fieldD.data <-
+calculate_field_mean_SD_and_get_RR_EffSize(field = dataD,
+intervals = ControlRateInterval,
+Date.Only = TRUE)
+# fieldD.data
+# We can now merge all four fields  for SD, means and ControlRate level counts.
+merged.SD.4.plots <-
+Reduce(
+function(x, y)
+merge(x, y, all = TRUE),
+list(
+fieldA.data$fieldSD,
+fieldB.data$fieldSD,
+fieldC.data$fieldSD,
+fieldD.data$fieldSD
+)
+)
+merged.Mean.4.plots <-
+Reduce(
+function(x, y)
+merge(x, y, all = TRUE),
+list(
+fieldA.data$field.mean,
+fieldB.data$field.mean,
+fieldC.data$field.mean,
+fieldD.data$field.mean
+)
+)
+merged.Count.4.plots <-
+Reduce(
+function(x, y)
+merge(x, y, all = TRUE),
+list(
+fieldA.data$field.Count,
+fieldB.data$field.Count,
+fieldC.data$field.Count,
+fieldD.data$field.Count
+)
+)
+# We need SD pooled for these levels so we can calculate Cohen's d and
+# Required Replicates.
+levels(merged.SD.4.plots$CR.Date.Levels)
+# First, we merged all merged.SD.4.plots, merged.Mean.4.plots and
+# merged.Count.4.plots from all fields.
+# Therefore, now merging all three dataframes from all four plots for SD, Mean
+# and counts by ControlRate column
+Mean_SD_Count.dat <- Reduce(function(...)
+merge(..., by = c("CR.Date.Levels", "grp"), all.x = TRUE),
+lapply(
+list(merged.Mean.4.plots, merged.SD.4.plots, merged.Count.4.plots),
+transform,
+grp = ave(seq_along(CR.Date.Levels), CR.Date.Levels, FUN = seq_along)
+))
+head(Mean_SD_Count.dat)
+# Now, we can also do Anova on the merged data `Mean_SD_Count.dat`
+Mean_SD_Count_merged_for_all_four_plots <- Mean_SD_Count.dat
+Mean_SD_Count_merged_for_all_four_plots$Yield <-
+Mean_SD_Count_merged_for_all_four_plots$Mean
+Mean_SD_Count_merged_for_all_four_plots$ControlRate.Levels <-
+Mean_SD_Count_merged_for_all_four_plots$ControlRate
+Mean_SD_Count_merged_for_all_four_plots$CR.Date.Levels <-
+as.factor(gsub(
+"-",
+"_",
+Mean_SD_Count_merged_for_all_four_plots$CR.Date.Levels
+))
+get_my_box_plot(Mean_SD_Count_merged_for_all_four_plots, plot_name = "all four fields")
+```
+
+  From this result above, since the residuals from ANOVA model has only 1 degree
+  of freedom, and the global p-value is not significant, we don't have to
+  plot the TUKEY pairwise test. Instead, we only show the Summary anova. This
+  shows that the date alone doesn't affect our mean Yield.
+  
+  We now calculate pooled SD for merged 4 plots `Mean_SD_Count.dat` to calculate
+  Effect Size and Required Replicates for all fields (combined analysis) using
+  pooled SD.
+  
+```{r}
+pooled.dat <- Mean_SD_Count.dat
+# # Pooled sd can be calculated as:
+pooled.dat$df <- pooled.dat$Count - 1
+# pooled SD is :
+# pooledSD <- sqrt( sum(pooled.dat$sd^2 * pooled.dat$df) / sum(pooled.dat$df) )
+# We can calculate our SD pooled using this formula:
+#  s_{pooled} = \sqrt{\frac{\sum_i (n_i-1)s_i^2}{N-k}}
+# We will derrive this in steps as below:
+pooled.dat$df <- pooled.dat$Count - 1
+pooled.dat$sd.square <- pooled.dat$SD ^ 2
+pooled.dat$ss <- pooled.dat$sd.square * pooled.dat$df
+# We can use convenience function (aggregate) for splitting and calculating
+# the necessary sums.
+ds <- aggregate(ss ~ CR.Date.Levels, data = pooled.dat, sum)
+# Two different built in methods for split apply, we could use aggregate for
+# both if we wanted. This calculates our degrees of freedom.
+ds$df <- tapply(pooled.dat$df, pooled.dat$CR.Date.Levels, sum)
+# divide ss by df and then we get sd square
+ds$sd.square <- ds$ss / ds$df
+# Finally, we can get our sd pooled
+ds$SD_pooled <- sqrt(ds$sd.square)
+ds
+# However, we could also calculate our sd_pooled as below and get the same results :
+sd_pooled <-
+lapply(split(Mean_SD_Count.dat, Mean_SD_Count.dat$CR.Date.Levels),
+function(dd)
+sqrt(sum(dd$SD ^ 2 * (dd$Count - 1)) / (sum(dd$Count - 1) - nrow(dd))))
+# Now, we calculate Mean (Mean of Means) from the merged table
+# `Mean_SD_Count.dat`, so we can calculate Cohens d and RequiredReplicates for
+# all four field combined.
+ds.Mean <-
+setNames(aggregate(
+Mean_SD_Count.dat$Mean,
+by = list(Mean_SD_Count.dat$CR.Date.Levels),
+FUN = mean
+),
+c("CR.Date.Levels", "Mean"))
+ds <- merge(ds, ds.Mean, by.x = "CR.Date.Levels")
+ds
+# Now we calculate the Effect Size and Cohen's D for the combined 4 plots using
+# mean yield and sd pooled for different ControlRate
+# Now we calculate the Effect Size and Cohen's D for the combined 4 plots using
+# mean yield and sd pooled for different ControlRate usinf our function
+# `calculate_field_mean_SD_and_get_RR_EffSize`.
+RequiredReplicates_for_all_fields <-
+calculate_field_mean_SD_and_get_RR_EffSize(
+field = ds,
+intervals = ControlRateInterval,
+Single.Field.Analysis = FALSE
+)
+RequiredReplicates_for_all_fields
+# We can plot this results for better visualization of pattern.
+RequiredReplicates_for_all_fields <-
+as.data.frame(RequiredReplicates_for_all_fields$Req.Rep.table.field)
+RequiredReplicates_for_all_fields$Group <-
+factor(RequiredReplicates_for_all_fields$Group)
+RequiredReplicates_for_all_fields$RequiredReplicates <-
+as.numeric(as.character(RequiredReplicates_for_all_fields$RequiredReplicates))
+RequiredReplicates_for_all_fields$EffectSize <-
+as.numeric(as.character(RequiredReplicates_for_all_fields$EffectSize))
+# There are one or two extreme Required replicates and extreme Effect size. We can
+# remove them to plot them, so we can properly visualize the datapoints
+RequiredReplicates_for_all_fields <-
+RequiredReplicates_for_all_fields[RequiredReplicates_for_all_fields$RequiredReplicates < 4000, ]
+RequiredReplicates_for_all_fields <-
+RequiredReplicates_for_all_fields[RequiredReplicates_for_all_fields$EffectSize < 1.5, ]
+my_levels <-
+length(levels(RequiredReplicates_for_all_fields$Group))
+RequiredReplicates_for_all_fields$EffectSize <-
+round(RequiredReplicates_for_all_fields$EffectSize, 2)
+# Plot RequiredReplicates_for_all_fields
+n <- my_levels
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+ggplot(
+RequiredReplicates_for_all_fields,
+aes(
+x = EffectSize,
+y = RequiredReplicates,
+shape = as.factor(Group),
+group = 1
+)
+) +
+ggtitle("Effect size Vs Required replicates for all fields data \n(Combined Effect)") +
+geom_point(alpha = 0.9,
+size = 3,
+stroke = 1)  +
+scale_shape_manual(values = rep(c(0:2, 5:6, 9:10, 11:12, 14), times =
+4)) +
+scale_color_manual(values = col_vector) +
+geom_line(color = "black") +
+scale_x_continuous("EffectSize",
+breaks = c(0,
+0.2,
+0.5,
+1,
+max(
+as.numeric(RequiredReplicates_for_all_fields$EffectSize)
+))) +
+theme_bw() +
+theme(
+axis.title = element_text(size = 14, face = "bold"),
+axis.text = element_text(size = 10),
+plot.title = element_text(hjust = 0.5, face = "bold"),
+axis.line = element_line(colour = "black"),
+panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),
+panel.border = element_blank(),
+panel.background = element_blank()
+) +
+labs(shape = "Comparison groups")
+################################ End of codes !! ################################
+```
+
+Discussion: Based on these results, I think that the fields were planted within
+24 hours margin. seedB and seedC were planted on the different dates.
+Similarly, harvestB was harvested within 24 hours and on the same date, but rest
+of the fields were harvested/planted for multiple dates. Additionally, I also
+performed ANOVA for ControlRates paired with dates and found no significant
+difference to  what I found from `Part 1`. I analyzed these data for Date
+effect also and it looks like there is no Date effect on Mean Yield. I thought
+the skewness in 28000 interval from my analysis in `Part 1`  would be addressed by Date effect,
+but I could not find significant effect of date here. As in the `Part 1`, I also
+calculated the required replicated for ControlRate-Date pairs as well as Date
+only observations, and in both cases, the EffectSize was inversely proportional
+to RequiredReplicates.
+© 2022 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
