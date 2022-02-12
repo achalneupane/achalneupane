@@ -15,8 +15,7 @@ summary: Statistics series
 
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
-<p>In this exercise, I will be analyzing four fields as a
-statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.</p>
+<p>In this exercise, I will be analyzing agrometric datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.</p>
 <p>The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
 This table summarizes all four fields at the Control Rate interval of 1000 which was also reproduced below in my anaysis. More importantly, we are interested in exploring the EffectSize and Required Replicates for properly examining any statistical evidence for the yield and variable seeding rates relationships.</p>
@@ -256,7 +255,7 @@ if (Single.Field.Analysis &gt; 0) {
 }
   }
 ###############################################End of Functions##########</code></pre>
-<p>Now, we read four fields data:</p>
+<p>Now, we read datasets from four fields:</p>
 <pre class="r"><code>fieldA &lt;-
   read.table(
   &quot;https://raw.githubusercontent.com/achalneupane/data/master/fieldA.csv&quot;,
@@ -867,7 +866,7 @@ More will follow in the discussions.</p>
 <li>I have written several functions to analyze each individual field as well as merged field statistics that calculates cohens effect size, required replicates, and does ANOVA analysis on individual field as well as on merged data from all fields.</li>
 <li>This function <code>get_question_1_and_2_answers</code> calculates the time spent each day on field, start and end time start and end date. observations each day, and also calculate one hour gap (more than an hour gap in consecutive rows) if present in the data. It spits out a table (<code>range_table</code>) with all the date data required for this project. I then used this range table to plot time, and dates.</li>
 <li>I have also plotted the Moisture content in each harvest field and how it gets affected during the day, and across the range of dates.</li>
-<li>Function <code>calculate_field_mean_SD_and_get_RR_EffSize</code> also uses mean, sd, and counts from each field to calculate cohens d and Required replicates. It also uses pooled standard deviations and Mean (mean of Means) calculated from all four fields for different control Rates to calculate cohens d and required replicates of combined field data. I have tested this function on all four fields at ControlRate level of 500, 1000, 2000 and 3000 intervals for mid-term, but this time, I have modified this function to calculate cohends d and required replicates for 1000 control rates also taking dates into consideration. This function also calculates these values for date only (neglecting control Rates).</li>
+<li>Function <code>calculate_field_mean_SD_and_get_RR_EffSize</code> also uses mean, sd, and counts from each field to calculate cohens d and Required replicates. It also uses pooled standard deviations and Mean (mean of Means) calculated from all four fields for different control Rates to calculate cohens d and required replicates of combined field data. I have tested this function on all four fields at ControlRate level of 500, 1000, 2000 and 3000 intervals for <code>Part 1</code>, but this time, I have modified this function to calculate cohends d and required replicates for 1000 control rates also taking dates into consideration. This function also calculates these values for date only (neglecting control Rates).</li>
 <li>I have also shown ANOVA analysis followed by TUKEY HSD test to show which ControlRates of seeding have significant effect on Yield for each field and then for all fields (combined all four fields).</li>
 <li>Lastly, I have plotted EffectSize Vs RequiredReplicates for all combined field.</li>
 </ol>
@@ -2198,10 +2197,10 @@ labs(shape = &quot;Comparison groups&quot;)</code></pre>
 Similarly, harvestB was harvested within 24 hours and on the same date, but rest
 of the fields were harvested/planted for multiple dates. Additionally, I also
 performed ANOVA for ControlRates paired with dates and found no significant
-difference to what I found for my <code>Part 1</code>. I analyzed these data for Date
+difference to what I found from <code>Part 1</code>. I analyzed these data for Date
 effect also and it looks like there is no Date effect on Mean Yield. I thought
-the skewned in 28000 interval from my part1 would be addressed by Date effect,
-but I could not find significant effect of date here. As in the mid-term, I also
+the skewness in 28000 interval from my analysis in <code>Part 1</code> would be addressed by Date effect,
+but I could not find significant effect of date here. As in the <code>Part 1</code>, I also
 calculated the required replicated for ControlRate-Date pairs as well as Date
 only observations, and in both cases, the EffectSize was inversely proportional
 to RequiredReplicates.
