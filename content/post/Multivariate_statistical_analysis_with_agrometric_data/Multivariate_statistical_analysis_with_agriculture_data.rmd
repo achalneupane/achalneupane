@@ -810,7 +810,7 @@ First of all we, will set two directory paths where we have all our files we wan
 ```{r}
 # # Here, I read all files from the system rather than reading one file at a time.
 # # Path to all .csv data files for part2.
-# # Path to all .csv data files for final.
+
 # path.final <-
 # "/Users/owner1/statistics/"
 # 
