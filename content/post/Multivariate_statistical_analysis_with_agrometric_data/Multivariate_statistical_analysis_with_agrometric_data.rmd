@@ -13,8 +13,7 @@ summary: Statistics series
 
 ## Part 1 ##
 
-In this exercise, I will be analyzing four fields as a
-statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
+In this exercise, I will be analyzing agrometric datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
 
 The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
