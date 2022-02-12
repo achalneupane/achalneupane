@@ -716,8 +716,11 @@ We will continue working with this data from four corn fields, but will also be 
 For each field, I've two files, seed*.csv and harvest*.csv, corresponding to seeding rate and yield data, respectively. Both sets of files have a column Timestamp with strings of the form
 2018-05-20T13:20:08.201Z
 Our task will be to extract the date and time values from these strings, and answer these questions. The text before 'T" is the date string, and the text between 'T" and "Z" is the time string, in universal time. Specifically, we want to know:
+
 1. What is the range of planting dates in these data?
 2. Was each field harvested entirely in one day, and where they harvested each at approximately the same time of day?
+
+
 It might be enough to process only the first and last rows in the data. Each should be sampled at one second intervals, so the time difference between the first and last rows, in seconds, should be almost equal to the number of rows. I would not be too worried about gaps on the data on the order of seconds, but I would want to know about hour long gaps in the data, and where they occur. Note that time will reset to 0 at 23:59:59 and date will increment, so account for this in the analysis.
 Some additional thoughts:
 There is a relationship between planting date and yield. We could review the literature to get a more precise estimate (and you can do that, if you wish), but we'll start with a rough back-of-the-envelope calculation. 
