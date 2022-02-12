@@ -804,12 +804,20 @@ The algorithm to do this analysis is divided into several steps as described bel
 
 First of all we, will set two directory paths where we have all our files we want to anlalyze. first path is `path.part2` for part2 data and `path.part1` for part1 data
 
-`all.files` contains the file name of all csv files in our directory. I have decided to
-read all files from the system rather than reading one file at a time.
+`all.files` contains the file name of all csv files in our directory.
 
 ```{r}
+# # Here, I read all files from the system rather than reading one file at a time.
 # # Path to all .csv data files for part2.
-# instead for local path, we can get files from git repos
+# # Path to all .csv data files for final.
+# path.final <-
+# "/Users/owner1/statistics/"
+# 
+# # Path to all .csv data files for midterm.
+# path.midterm <-
+#   "/Users/owner1/statistics/"
+
+# instead from local path, we can get files from git repos
 library(rvest)
 path.part2 <- read_html("https://github.com//achalneupane/data") %>% html_nodes(".js-navigation-open") %>% html_attr("href")
 
