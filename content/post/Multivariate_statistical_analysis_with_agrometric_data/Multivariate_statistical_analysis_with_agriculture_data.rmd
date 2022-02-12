@@ -1,6 +1,6 @@
 ---
 Authors: ["**Achal Neupane**"]
-title: "Multivariate statistical analysis with Agriculture data"
+title: "Multivariate statistical analysis with agrometric data"
 date: 2019-06-21T17:26:23-05:00
 draft: false
 output: html_document
