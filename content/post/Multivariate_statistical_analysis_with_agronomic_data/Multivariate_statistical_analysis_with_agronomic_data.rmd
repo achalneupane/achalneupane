@@ -1,6 +1,6 @@
 ---
 Authors: ["**Achal Neupane**"]
-title: "Multivariate statistical analysis with agrometric data"
+title: "Multivariate statistical analysis with agronomic data"
 date: 2020-06-21T17:26:23-05:00
 draft: false
 output: html_document
@@ -13,7 +13,7 @@ summary: Statistics series
 
 ## Part 1 ##
 
-In this exercise, I will be analyzing agrometric datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
+In this exercise, I will be analyzing agronomic datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
 
 The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.

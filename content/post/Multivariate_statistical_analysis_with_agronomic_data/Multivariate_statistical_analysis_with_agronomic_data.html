@@ -1,6 +1,6 @@
 ---
 Authors: ["**Achal Neupane**"]
-title: "Multivariate statistical analysis with agrometric data"
+title: "Multivariate statistical analysis with agronomic data"
 date: 2020-06-21T17:26:23-05:00
 draft: false
 output: html_document
@@ -15,7 +15,7 @@ summary: Statistics series
 
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
-<p>In this exercise, I will be analyzing agrometric datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.</p>
+<p>In this exercise, I will be analyzing agronomic datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.</p>
 <p>The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
 This table summarizes all four fields at the Control Rate interval of 1000 which was also reproduced below in my anaysis. More importantly, we are interested in exploring the EffectSize and Required Replicates for properly examining any statistical evidence for the yield and variable seeding rates relationships.</p>
@@ -463,7 +463,7 @@ ggplot(EffectSize.Plot, aes(x=EffectSize, y=RequiredReplicates)) +
   theme(axis.title = element_text(size=14,face=&quot;bold&quot;), axis.text = element_text(size=10), 
         plot.title = element_text(hjust = 0.5, face = &quot;bold&quot;)) +
   facet_wrap(~id)</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>Based on the plot we just plotted above, RequiredReplicates increase significantly with decreasing Effect Size.</p>
 <p>Additionally, after running all these <code>ControlRateInterval</code>, I noticed that the Required replicates decrease for the higher ControlRate intervals. The reason I did not include this in my report is because it gives lots of output. SO, if we consider taking the ControlRate intervals of only 1000 and get the field mean and field SD for each field as below.</p>
 <p>Now, I will only limit my analysis for all fields (merged) for the Control Rates interval of 1000.</p>
@@ -475,7 +475,7 @@ fieldA.data &lt;-
   calculate_field_mean_SD_and_get_RR_EffSize(
     field = fieldA, intervals = ControlRateInterval, printplot = TRUE
     )</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 <pre class="r"><code>fieldA.data</code></pre>
 <pre><code>## $field.mean
 ##   ControlRate      Mean
@@ -521,7 +521,7 @@ fieldB.data &lt;-
   calculate_field_mean_SD_and_get_RR_EffSize(
     field = fieldB, interval = ControlRateInterval, printplot = TRUE
     )</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <pre class="r"><code>fieldB.data</code></pre>
 <pre><code>## $field.mean
 ##   ControlRate     Mean
@@ -563,7 +563,7 @@ fieldC.data &lt;-
   calculate_field_mean_SD_and_get_RR_EffSize(
     field = fieldC, interval = ControlRateInterval, printplot = TRUE
     )</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <pre class="r"><code>fieldC.data</code></pre>
 <pre><code>## $field.mean
 ##   ControlRate     Mean
@@ -604,7 +604,7 @@ fieldC.data &lt;-
 fieldD.data &lt;- calculate_field_mean_SD_and_get_RR_EffSize(
   field = fieldD, interval = ControlRateInterval, printplot = TRUE
   )</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <pre class="r"><code>fieldD.data</code></pre>
 <pre><code>## $field.mean
 ##   ControlRate     Mean
@@ -730,7 +730,7 @@ Mean_SD_Count_merged_for_all_four_plots$Mean
 Mean_SD_Count_merged_for_all_four_plots$ControlRate.Levels &lt;-
 Mean_SD_Count_merged_for_all_four_plots$ControlRate
 get_my_box_plot(Mean_SD_Count_merged_for_all_four_plots, plot_name = &quot;all four fields&quot;)</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>Based on this plot, from all fields, we can tell that, Control Rates of seeding of 23000-25000 has significantly less Mean yield as compared to 26000-29000. It looks like Control Rates of Seeding between 27000 and 28000 has the highest Mean yield.</p>
 <p>We now calculate pooled SD for merged 4 plots <code>Mean_SD_Count.dat</code> to calculate Effect Size and Required Replicates for all fields (combined analysis) using pooled SD.</p>
 <pre class="r"><code>pooled.dat &lt;- Mean_SD_Count.dat
@@ -833,7 +833,7 @@ RequiredReplicates_for_all_fields</code></pre>
   axis.text = element_text(size = 10),
   plot.title = element_text(hjust = 0.5, face = &quot;bold&quot;)
   )</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 <p>Based on the combined effect size (from all four fields), we can see that the Effect size is inversely proportional to Required Replicates. We also see that for the small effect of ~0.2, we need exponentially larger replicates, for medium effect (~0.5), we need about 80 replicates and for larger effect (more than 0.8), we only need about 20 or fewer replicates. Our analysis from all fields also indicates that we have highest mean yield for controlRates of Seeding og 27000-29000.</p>
 <p>Final discussion and suggestion:</p>
 <p>Based on the results we saw above, if we take individual field (one at a time), we would need thousands of replicates for low effect size. However, for moderate and large effect size, the required replicates number signficantly decreases even if we use individual field data separately. On the other hand, when we combine all four fields, our required replictes decreases for all low, moderate and large effect sizes (Figure: Effect size Vs Required replicates for all fields data (Combined Effect)) as compared to individual fields (Figure: Effect size Vs Required replicates for each field data). I also found that the required replicates decreases for lower rates of seeding (control Rates of 23000 Vs 24000).
@@ -1422,7 +1422,7 @@ max(range_table$days_number)
 # to check if any of the data were planted/harvested within one day range
 geom_hline(yintercept = 1) +
 geom_text((aes(3, 1, label = &quot;Within 1 day (24 hours margin)&quot;, vjust = -1)))</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 <p>Based on this plot, we can see that SeedA, seedB, seedC and seedD were all
 planted within 24 hours span. We can also check the <code>range_table</code> above to get
 the exact timeframe for this. However, if want to see if they were planted or
@@ -1445,7 +1445,7 @@ ggplot(range_table, aes(x = data, y = elapsed.dates.each.field)) +
 geom_hline(yintercept = 1) +
   geom_hline(yintercept = 0, color=&quot;blue&quot;, linetype=&quot;dashed&quot;) +
 geom_text((aes(3, 1, label = &quot;Margin outside the \&quot;same\&quot; date&quot;, vjust = -1)))</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 <p>This plot above shows that seedA and seedD were planted on the same date, and
 harvestB was harvested also on the same date. Rest of the field data were
 harvested/planted for multiple dates. Bubbles within the black solid line
@@ -1469,7 +1469,7 @@ ggplot(plot.new.data, aes(x = group, y = time.spent.in.hours)) +
         panel.background = element_blank()) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   theme(text = element_text(size=14)) </code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <p>Based on this above plot, it looks like only harvestC and harvestD had more than
 10 hours spent on them.</p>
 <p>Now, we can also plot start and end time for everyday record:</p>
@@ -1509,7 +1509,7 @@ geom_hline(yintercept = 1:length(tt$value), linetype = &quot;dotted&quot;) +
 labs(color = &#39;Each Day&#39;) +
 scale_color_manual(labels = c(&quot;START_time&quot;, &quot;END_time&quot;),
 values = c(&quot;blue&quot;, &quot;red&quot;)) </code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-36-1.png" width="672" />
 This plot also shows similar result as with previous plot, but with both start
 and end time.</p>
 <p>We can also check the moisture level differences in the fields by date and
@@ -1557,7 +1557,7 @@ p &lt;-
   labs(color = &#39;Dates&#39;) +
   facet_grid(. ~ type)
 p + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 Based on this figure above, we can see that the moisture content is very low
 from midnight to 2:00pm, but then after, it increases substantially. I don’t
 think there is so much difference in moisture in terms of harvest dates though.</p>
@@ -1760,7 +1760,7 @@ Replicates.</p>
   Mean_SD_Count_merged_for_all_four_plots$ControlRate
   
   get_my_box_plot(Mean_SD_Count_merged_for_all_four_plots, plot_name = &quot;all four fields&quot;)</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
 <p>Based on this plot above, from all fields, we can tell that, Control Rates of
 seeding of 23000-25000 has significantly less Mean yield as compared to
 26000-29000. It looks like Control Rates of Seeding between 27000 and 28000
@@ -1949,7 +1949,7 @@ Single.Field.Analysis = FALSE
   panel.background = element_blank()
   ) +
   labs(shape = &quot;Comparison groups&quot;)</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-44-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-44-1.png" width="672" /></p>
 <p>Based on this plot above, we can tell that there is strong negative correlation
 between EffectSize and RequiredReplicates.</p>
 <p>So far, we analyzed our data for controlRates-Date pair, now we can also do the
@@ -2190,7 +2190,7 @@ panel.border = element_blank(),
 panel.background = element_blank()
 ) +
 labs(shape = &quot;Comparison groups&quot;)</code></pre>
-<p><img src="/post/Multivariate_statistical_analysis_with_agrometric_data/Multivariate_statistical_analysis_with_agrometric_data_files/figure-html/unnamed-chunk-46-1.png" width="672" /></p>
+<p><img src="/post/Multivariate_statistical_analysis_with_agronomic_data/Multivariate_statistical_analysis_with_agronomic_data_files/figure-html/unnamed-chunk-46-1.png" width="672" /></p>
 <pre class="r"><code>################################ End of codes !! ################################</code></pre>
 <p>Discussion: Based on these results, I think that the fields were planted within
 24 hours margin. seedB and seedC were planted on the different dates.
