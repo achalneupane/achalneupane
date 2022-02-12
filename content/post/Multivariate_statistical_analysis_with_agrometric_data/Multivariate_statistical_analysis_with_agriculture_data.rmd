@@ -17,7 +17,7 @@ summary: Statistics series
 ## Part1 ##
 
 In this exercise, I will be analyzing four fields as a
-statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yeild.
+statistical consultant. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
 
 The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
@@ -523,7 +523,7 @@ fieldA.data <-
 
 fieldA.data
 ```
-Based on the plot we can see that the Mean Yield is significant between 23000 vs all ControlRates , 24000 vs all Control Rates, 25000 Vs all Control rates. Yeild has no significant effect of Seeding from Control Rate between 26000 to 28000. Infact, it starts to decline significantly  from 29000 Control Seedings. 
+Based on the plot we can see that the Mean Yield is significant between 23000 vs all ControlRates , 24000 vs all Control Rates, 25000 Vs all Control rates. yield has no significant effect of Seeding from Control Rate between 26000 to 28000. Infact, it starts to decline significantly  from 29000 Control Seedings. 
 
 ```{r}
 # field B
@@ -547,7 +547,7 @@ fieldC.data <-
 fieldC.data
 ```
 
-Here, all Control rates of seeding are significantly diffferent with the highest Mean yeild for 28000.
+Here, all Control rates of seeding are significantly diffferent with the highest Mean yield for 28000.
 
 ```{r}
 # field D
@@ -560,7 +560,7 @@ fieldD.data
 
 Here, all Control Rates of seeding are significantly different except for 26000-28000 Vs 29000 with the highest Mean yield for 28000.
 
-Also, to check if my calculation of Control rates and Yeild mean matches with
+Also, to check if my calculation of Control rates and yield mean matches with
 the table in instruction (with 1000 intervals), we can check this with the merged field data ( i.e.
 fieldA, fieldB, fieldC and fieldD) data. We should get the same Mean values in
 the instruction table above.
@@ -760,7 +760,7 @@ RequiredReplicates_for_all_fields <-
   )
 ```
 
-Based on the combined effect size (from all four fields), we can see that the Effect size is inversely proportional to Required Replicates. We also see that for the small effect of ~0.2, we need exponentially larger replicates, for medium effect (~0.5), we need about 80 replicates and for larger effect (more than 0.8), we only need about 20 or fewer replicates. Our analysis from all fields also indicates that we have highest mean yeild for controlRates of Seeding og 27000-29000. 
+Based on the combined effect size (from all four fields), we can see that the Effect size is inversely proportional to Required Replicates. We also see that for the small effect of ~0.2, we need exponentially larger replicates, for medium effect (~0.5), we need about 80 replicates and for larger effect (more than 0.8), we only need about 20 or fewer replicates. Our analysis from all fields also indicates that we have highest mean yield for controlRates of Seeding og 27000-29000. 
 
 Final discussion and suggestion:
 
@@ -1603,7 +1603,7 @@ print(paste0("Read file ", all.files[i], ' !'))
   calculate_field_mean_SD_and_get_RR_EffSize(field = dataC, intervals = ControlRateInterval)
   # fieldC.data
   
-  # From part1 for fieldC, we saw all Control rates of seeding are significantly diffferent with the highest Mean yeild for 28000.
+  # From part1 for fieldC, we saw all Control rates of seeding are significantly diffferent with the highest Mean yield for 28000.
   
   # field D
   fieldD.data <-
