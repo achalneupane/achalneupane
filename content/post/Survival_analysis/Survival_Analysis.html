@@ -1,0 +1,143 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Survival Analysis"
+date: 2019-10-11T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+summary: Statistics series
+---
+
+
+
+<p>We have data on survival of patients with lung cancer at Mayo Clinic. We want to answer the following questions and provide some graphs. We will use the  data located in the  package to answer the following:</p>
+<pre><code>a. What is the probability that someone will survive past 300 days?
+
+b. Provide a graph, including 95% confidence limits, of the Kaplan-Meier estimate of the entire study.
+
+c. Is there a difference in the survival rates between males and females? Provide a formal statistical test with a p-value and visual evidence.
+
+d. Is there a difference in the survival rates for the older half of the group versus the younger half? Provide a formal statistical test with a p-value and visual evidence.</code></pre>
+<pre><code>## Warning: package &#39;survminer&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;tibble&#39;:
+##   method     from  
+##   format.tbl pillar
+##   print.tbl  pillar</code></pre>
+<pre><code>## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
+## when loading &#39;dplyr&#39;</code></pre>
+<pre><code>## Loading required package: ggpubr</code></pre>
+<pre><code>## Warning: package &#39;ggpubr&#39; was built under R version 4.0.2</code></pre>
+<pre><code>## Warning: package &#39;HSAUR3&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Loading required package: tools</code></pre>
+<pre><code>## Warning: package &#39;mclust&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Package &#39;mclust&#39; version 5.4.9
+## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.</code></pre>
+<pre><code>## Warning: package &#39;knitr&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## 1a.</code></pre>
+<pre><code>## Call: survfit(formula = Surv(time, status == 2) ~ 1, data = cancer)
+## 
+##  time n.risk n.event survival std.err lower 95% CI upper 95% CI
+##   300     92     101    0.531  0.0346        0.467        0.603</code></pre>
+<pre><code>## 1b.</code></pre>
+<p><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre><code>## 1c.</code></pre>
+<pre><code>## SEX values: male=1, female=2</code></pre>
+<p><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-3.png" width="672" /><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
+<pre><code>## Call:
+## survdiff(formula = Surv(time, status == 2) ~ sex, data = cancer)
+## 
+##         N Observed Expected (O-E)^2/E (O-E)^2/V
+## sex=1 138      112     91.6      4.55      10.3
+## sex=2  90       53     73.4      5.68      10.3
+## 
+##  Chisq= 10.3  on 1 degrees of freedom, p= 0.001</code></pre>
+<pre><code>## 1d</code></pre>
+<p><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-5.png" width="672" /><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-1-6.png" width="672" /></p>
+<pre><code>## Call:
+## survdiff(formula = Surv(time, status == 2) ~ Age_Group, data = dup.cancer)
+## 
+##               N Observed Expected (O-E)^2/E (O-E)^2/V
+## Age_Group=1 117       80     88.8     0.865      1.88
+## Age_Group=2 111       85     76.2     1.007      1.88
+## 
+##  Chisq= 1.9  on 1 degrees of freedom, p= 0.2</code></pre>
+<p>Discussion:</p>
+<p>1a. What is the probability that someone will survive past 300 days?</p>
+<p>The survival probability after 300 days is 53.1% determined from the dataset.</p>
+<p>1b. Provide a graph, including 95% confidence limits, of the Kaplan-Meier estimate of the entire study.</p>
+<p>The plot based on the Kaplan-Meier estimator for the survival function shows that the survivability is in downward direction. The plot function generates the 95% confidence interval, and I have h and v lines drawn for survival probability at 300 days as well . The plot also indicates that within this timeline, the interval is higher for later days of survival time indicating larger variability in survival uncertainty (after 400 days of survivability).</p>
+<p>1c. Is there a difference in the survival rates between males and females? Provide a formal statistical test with a p-value and visual evidence.</p>
+<p>Yes Males and Females have different survival probabilities which can be determined based on Kaplan-Maier estimator on male and female groups. Second plot was also generated by using <code>plot(survfit(Surv(time,status==2)~sex, data=cancer)</code>. In this plot, the black line (males) lies below the red line (female) throughout the interval. This tells us that women have higher survival compared to males. The log rank test also indicates significant differece between sex groups with p-value of 0.001 to reject the NULL hypothesis (Null hypothesis: no difference in male and female survivability) with 95% confidence.</p>
+<p>1d. Is there a difference in the survival rates for the older half of the group versus the younger half? Provide a formal statistical test with a p-value and visual evidence.</p>
+<p>Here, data was divided into younger and older groups for the analysis based on median age. After properly splitting the data, a plot was generated based on Kaplan-Meir estimator for the two groups. Based on this plot, we can tell that the younger group (black line) of patients have longer survivability than the older patient groups(red line).However, based on the log rank test, the difference is not significant (P=0.17) to reject the NULL hypothesis ( NULL hypothesis: no difference in terms of survivability between the two age groups).</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>A healthcare group has asked us to analyse the  data from the  package, which is the survival times (in months) after a mastectomy of women with breast cancer. The cancers are classified as having metastasized or not based on a histochemical marker. The healthcare group requests that your report should not be longer than one page, and must only consist of one plot, one table, and one paragraph. So, we will do the following:</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Plot the survivor functions of each group only using GGPlot, estimated using the Kaplan-Meier estimate.</p></li>
+<li><p>Use a log-rank test to compare the survival experience of each group more formally. Only present a formal table of your results.</p></li>
+<li><p>Write one paragraph summarizing your findings and conclusions.</p></li>
+</ol></li>
+</ol>
+<pre><code>## Call: survfit(formula = Surv(time, event) ~ metastasized, data = mt)
+## 
+##                 metastasized=no 
+##  time n.risk n.event survival std.err lower 95% CI upper 95% CI
+##    23     12       1    0.917  0.0798        0.773        1.000
+##    47     11       1    0.833  0.1076        0.647        1.000
+##    69     10       1    0.750  0.1250        0.541        1.000
+##   148      6       1    0.625  0.1545        0.385        1.000
+##   181      5       1    0.500  0.1667        0.260        0.961
+## 
+##                 metastasized=yes 
+##  time n.risk n.event survival std.err lower 95% CI upper 95% CI
+##     5     32       1    0.969  0.0308        0.910        1.000
+##     8     31       1    0.938  0.0428        0.857        1.000
+##    10     30       1    0.906  0.0515        0.811        1.000
+##    13     29       1    0.875  0.0585        0.768        0.997
+##    18     28       1    0.844  0.0642        0.727        0.979
+##    24     27       1    0.812  0.0690        0.688        0.960
+##    26     26       2    0.750  0.0765        0.614        0.916
+##    31     24       1    0.719  0.0795        0.579        0.893
+##    35     23       1    0.688  0.0819        0.544        0.868
+##    40     22       1    0.656  0.0840        0.511        0.843
+##    41     21       1    0.625  0.0856        0.478        0.817
+##    48     20       1    0.594  0.0868        0.446        0.791
+##    50     19       1    0.562  0.0877        0.414        0.764
+##    59     18       1    0.531  0.0882        0.384        0.736
+##    61     17       1    0.500  0.0884        0.354        0.707
+##    68     16       1    0.469  0.0882        0.324        0.678
+##    71     15       1    0.438  0.0877        0.295        0.648
+##   113     10       1    0.394  0.0892        0.253        0.614
+##   118      8       1    0.345  0.0906        0.206        0.577
+##   143      7       1    0.295  0.0900        0.162        0.537</code></pre>
+<p><img src="/post/Survival_analysis/Survival_Analysis_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre><code>## log rank test</code></pre>
+<pre><code>## Call:
+## survdiff(formula = Surv(time, event == 1) ~ metastasized, data = mt, 
+##     rho = 0)
+## 
+##                   N Observed Expected (O-E)^2/E (O-E)^2/V
+## metastasized=no  12        5      9.2      1.91      3.04
+## metastasized=yes 32       21     16.8      1.05      3.04
+## 
+##  Chisq= 3  on 1 degrees of freedom, p= 0.08</code></pre>
+<pre><code>## Cox&#39;s regression test</code></pre>
+<pre><code>## Call:
+## coxph(formula = Surv(time, event) ~ metastasized, data = mt)
+## 
+##                   coef exp(coef) se(coef)     z    p
+## metastasizedyes 0.8516    2.3434   0.5022 1.696 0.09
+## 
+## Likelihood ratio test=3.35  on 1 df, p=0.06704
+## n= 44, number of events= 26</code></pre>
+<p>Question 2c:</p>
+<p>Explanation for part 2a
+The figure in part 1, shows the survival probability of women with breast cancer under two categories- metastasized and not-metastasized. The red line shows the survival probability of those that have not undergone metastasis and the brown line shows the survival probability of those that have cancer metastasized elsewhere in the organs. Based on this plot we can tell that those with mestasized cancer have lower survival probability (brown line). After about 143 weeks, metastasized patient’s (brown line) survival drops down to only 29.5 % whereas for non-metastasized (red line) pateint’s the survival is still above 60%.</p>
+<p>Explanation for part 2b.</p>
+<p>To determine whether the difference is statistically significant, I have performed log-rank test and got p-value of 0.061 which is not significant at P&lt;0.05 whereas for Cox regression test, the p-value was even higher.</p>
+<p>To summarize answer for part 2c:</p>
+<p>Although we saw from the figure that the the survival probability of women with matastasized breast cancer is lower than those without metastasized breast cancer, the statistical test shows this difference to be statistically not siginificant.</p>

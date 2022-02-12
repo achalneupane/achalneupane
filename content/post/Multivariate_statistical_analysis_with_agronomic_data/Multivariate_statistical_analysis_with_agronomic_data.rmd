@@ -1935,12 +1935,12 @@ labs(shape = "Comparison groups")
 ```
 
 Discussion: Based on these results, I think that the fields were planted within
-24 hours margin. seedB and seedC were planted on the different dates.
+24 hours. seedB and seedC were planted on different dates.
 Similarly, harvestB was harvested within 24 hours and on the same date, but rest
 of the fields were harvested/planted for multiple dates. Additionally, I also
-performed ANOVA for ControlRates paired with dates and found no significant
-difference to  what I found from `Part 1`. I analyzed these data for Date
-effect also and it looks like there is no Date effect on Mean Yield. I thought
+performed ANOVA for ControlRates paired with dates and were not significantly
+different from what I found in `Part 1`. I analyzed these data for Date
+effect and seems there is no Date effect on Mean Yield. I thought
 the skewness in 28000 interval from my analysis in `Part 1`  would be addressed by Date effect,
 but I could not find significant effect of date here. As in the `Part 1`, I also
 calculated the required replicated for ControlRate-Date pairs as well as Date
