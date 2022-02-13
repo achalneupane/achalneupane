@@ -22,7 +22,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 To examine the data `Beat the Blues` from package `HSAUR3`, we will do the following:
 
 
-a. Construct boxplots to compare the factor variable $\textbf{drug}$ in an analogous way to how we constructed boxplots in the video for the treatment variable. Discuss the results. 
+a. Construct boxplots to compare the factor variable $\textbf{drug}$. Discuss the results. 
 
 b. Repeat (a) for the $\textbf{length}$ variable. Discuss the results.
 
@@ -80,8 +80,7 @@ boxplot(lengthhigh, main ="Length>6m", ylab= "BDI", xlab = "Time (in months)",na
 cat("#1.c")
 # c. Use the \textit{lm} function to fit a model to the Beat the Blues
 # data that assumes that the repeated measurements are independent.
-# Compare the results to those from fitting the random intercept model
-# \textit{BtheB\_lmer1} from the video.
+
 
 BtheB$subject=factor(rownames(BtheB))
 nobs=nrow(BtheB)
