@@ -20,44 +20,135 @@ b. Provide a graph, including 95% confidence limits, of the Kaplan-Meier estimat
 c. Is there a difference in the survival rates between males and females? Provide a formal statistical test with a p-value and visual evidence.
 
 d. Is there a difference in the survival rates for the older half of the group versus the younger half? Provide a formal statistical test with a p-value and visual evidence.</code></pre>
-<pre><code>## Warning: package &#39;survminer&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Loading required package: ggplot2</code></pre>
-<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Registered S3 methods overwritten by &#39;tibble&#39;:
+<pre class="r"><code># load all required packages
+library(survminer)
+## Warning: package &#39;survminer&#39; was built under R version 4.0.5
+## Loading required package: ggplot2
+## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5
+## Registered S3 methods overwritten by &#39;tibble&#39;:
 ##   method     from  
 ##   format.tbl pillar
-##   print.tbl  pillar</code></pre>
-<pre><code>## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
-## when loading &#39;dplyr&#39;</code></pre>
-<pre><code>## Loading required package: ggpubr</code></pre>
-<pre><code>## Warning: package &#39;ggpubr&#39; was built under R version 4.0.2</code></pre>
-<pre><code>## Warning: package &#39;HSAUR3&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Loading required package: tools</code></pre>
-<pre><code>## Warning: package &#39;mclust&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Package &#39;mclust&#39; version 5.4.9
-## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.</code></pre>
-<pre><code>## Warning: package &#39;knitr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## 1a.</code></pre>
-<pre><code>## Call: survfit(formula = Surv(time, status == 2) ~ 1, data = cancer)
+##   print.tbl  pillar
+## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
+## when loading &#39;dplyr&#39;
+## Loading required package: ggpubr
+## Warning: package &#39;ggpubr&#39; was built under R version 4.0.2
+library(survival)
+library(ggplot2)        
+library(HSAUR3)
+## Warning: package &#39;HSAUR3&#39; was built under R version 4.0.5
+## Loading required package: tools
+library(mclust)
+## Warning: package &#39;mclust&#39; was built under R version 4.0.5
+## Package &#39;mclust&#39; version 5.4.9
+## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.
+library(knitr)
+## Warning: package &#39;knitr&#39; was built under R version 4.0.5
+cat(&quot;1a.&quot;) 
+## 1a.
+
+data(cancer)
+
+##status 1=censored, 2=dead
+SA1=survfit(formula=Surv(time,status==2)~1, data=cancer)
+
+print(summary(SA1,time=300))
+## Call: survfit(formula = Surv(time, status == 2) ~ 1, data = cancer)
 ## 
 ##  time n.risk n.event survival std.err lower 95% CI upper 95% CI
-##   300     92     101    0.531  0.0346        0.467        0.603</code></pre>
-<pre><code>## 1b.</code></pre>
-<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<pre><code>## 1c.</code></pre>
-<pre><code>## SEX values: male=1, female=2</code></pre>
-<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-3.png" width="672" /><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
-<pre><code>## Call:
+##   300     92     101    0.531  0.0346        0.467        0.603
+
+cat(&quot;1b.&quot;)
+## 1b.
+plot(SA1,col=&quot;red&quot;,main=&quot;base R: Survival Chance based on Kaplan-Meir Estimate&quot;,
+     xlab=&quot;Survival Time in Days&quot;,ylab=&quot;Probability of Survival&quot;)
+abline(v=300,h=0.531,col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>
+p&lt;- ggsurvplot(SA1, data = cancer) +
+  labs (x = &quot;Time (months)&quot;, title = &quot;ggplot: Survival Chance based on Kaplan-Meir Estimate&quot;) 
+p$plot + geom_hline(yintercept=0.531, color=&#39;red&#39;) + geom_vline(xintercept = 300, color=&#39;red&#39;)</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>
+
+cat(&quot;1c.&quot;)
+## 1c.
+
+cat(&quot;SEX values: male=1, female=2&quot;)
+## SEX values: male=1, female=2
+males.df=subset(cancer, sex==1)
+females.df=subset(cancer, sex==2)
+
+SUR_Male=survfit(formula=Surv(time,status==2)~1, data=males.df)
+SUR_Female=survfit(formula=Surv(time,status==2)~1, data=females.df)
+
+layout(matrix(1:1, ncol = 1))
+
+plot(SUR_Male,col=&quot;black&quot;,main=&quot;Survival Chance by Gender&quot;,
+     xlab=&quot;Survival Time (days)&quot;,ylab=&quot;Surviving Probability&quot;)
+lines(SUR_Female,col=&quot;red&quot;)
+legend(&quot;topright&quot;,c(&quot;Males&quot;,&quot;Females&quot;),lty=c(1,1),
+       lwd=c(2,2),col=c(&quot;black&quot;,&quot;red&quot;))</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
+<pre class="r"><code>
+
+plot(survfit(Surv(time,status==2)~sex, data=cancer),
+     main=&quot;Males and Females Survival&quot;,lty=c(1,2),col=c(&quot;black&quot;,&quot;red&quot;),
+     ylab=&quot;Survival Probability&quot;,xlab=&quot;Survival Time (days)&quot;)
+legend(&quot;topright&quot;,c(&quot;Males&quot;,&quot;Females&quot;),lty=c(1,1),
+       lwd=c(2,2),col=c(&quot;black&quot;,&quot;red&quot;))</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
+<pre class="r"><code>
+print(survdiff(formula=Surv(time,status==2)~sex,data=cancer))
+## Call:
 ## survdiff(formula = Surv(time, status == 2) ~ sex, data = cancer)
 ## 
 ##         N Observed Expected (O-E)^2/E (O-E)^2/V
 ## sex=1 138      112     91.6      4.55      10.3
 ## sex=2  90       53     73.4      5.68      10.3
 ## 
-##  Chisq= 10.3  on 1 degrees of freedom, p= 0.001</code></pre>
-<pre><code>## 1d</code></pre>
-<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-5.png" width="672" /><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-6.png" width="672" /></p>
-<pre><code>## Call:
+##  Chisq= 10.3  on 1 degrees of freedom, p= 0.001
+
+
+cat(&quot;1d&quot;)
+## 1d
+## Splitting data into young and old where age group=1 meansyoung half, age
+## group=2 mean old half
+
+dup.cancer &lt;- cancer
+dup.cancer$Age_Group &lt;- 2
+get.median &lt;- median(cancer$age)
+
+for(i in 1:nrow(cancer)){
+  if(cancer[i,4] &lt;= get.median){
+    dup.cancer[i,11]=1}
+}
+
+
+young=subset(dup.cancer, Age_Group==1)
+old=subset(dup.cancer, Age_Group==2)
+
+young_sa=survfit(formula=Surv(time,status==2)~1, data=young)
+old_sa=survfit(formula=Surv(time,status==2)~1, data=old)
+
+
+plot(young_sa,col=&quot;black&quot;,main=&quot;Survival Probability Plot&quot;,
+     xlab=&quot;Survival (days)&quot;,ylab=&quot;Surviving Probability&quot;)
+lines(old_sa,col=&quot;red&quot;)
+legend(800, 0.8, legend=c(&quot;Yound&quot;, &quot;Old&quot;),
+       col=c(&quot;black&quot;, &quot;red&quot;), lty=c(1,1), cex=0.8)</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-5.png" width="672" /></p>
+<pre class="r"><code>
+
+plot(survfit(Surv(time,status==2)~Age_Group, data = dup.cancer),
+     main=&quot;Survivability between young and old&quot;,lty=c(1,2),col=c(&quot;black&quot;,&quot;red&quot;),
+     ylab=&quot;Survival Probability&quot;,xlab=&quot;Survival (days)&quot;)
+legend(&quot;topright&quot;,c(&quot;Young&quot;,&quot;Old&quot;),lty=c(1,1),
+       lwd=c(2,2),col=c(&quot;black&quot;,&quot;red&quot;))</code></pre>
+<p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-1-6.png" width="672" /></p>
+<pre class="r"><code>
+print(survdiff(formula=Surv(time,status==2)~Age_Group,data = dup.cancer))
+## Call:
 ## survdiff(formula = Surv(time, status == 2) ~ Age_Group, data = dup.cancer)
 ## 
 ##               N Observed Expected (O-E)^2/E (O-E)^2/V
@@ -71,7 +162,7 @@ d. Is there a difference in the survival rates for the older half of the group v
 <p>1b. Provide a graph, including 95% confidence limits, of the Kaplan-Meier estimate of the entire study.</p>
 <p>The plot based on the Kaplan-Meier estimator for the survival function shows that the survivability is in downward direction. The plot function generates the 95% confidence interval, and I have h and v lines drawn for survival probability at 300 days as well . The plot also indicates that within this timeline, the interval is higher for later days of survival time indicating larger variability in survival uncertainty (after 400 days of survivability).</p>
 <p>1c. Is there a difference in the survival rates between males and females? Provide a formal statistical test with a p-value and visual evidence.</p>
-<p>Yes Males and Females have different survival probabilities which can be determined based on Kaplan-Maier estimator on male and female groups. Second plot was also generated by using <code>plot(survfit(Surv(time,status==2)~sex, data=cancer)</code>. In this plot, the black line (males) lies below the red line (female) throughout the interval. This tells us that women have higher survival compared to males. The log rank test also indicates significant differece between sex groups with p-value of 0.001 to reject the NULL hypothesis (Null hypothesis: no difference in male and female survivability) with 95% confidence.</p>
+<p>Yes, males and females have different surviving probabilities which can be determined based on Kaplan-Maier estimator on male and female groups. Second plot was also generated by using <code>plot(survfit(Surv(time,status==2)~sex, data=cancer)</code>. In this plot, the black line (males) lies below the red line (female) throughout the interval. This tells us that women have higher survival compared to males. The log rank test also indicates significant differece between sex groups with p-value of 0.001 to reject the NULL hypothesis (Null hypothesis: no difference in male and female survivability) with 95% confidence.</p>
 <p>1d. Is there a difference in the survival rates for the older half of the group versus the younger half? Provide a formal statistical test with a p-value and visual evidence.</p>
 <p>Here, data was divided into younger and older groups for the analysis based on median age. After properly splitting the data, a plot was generated based on Kaplan-Meir estimator for the two groups. Based on this plot, we can tell that the younger group (black line) of patients have longer survivability than the older patient groups(red line).However, based on the log rank test, the difference is not significant (P=0.17) to reject the NULL hypothesis ( NULL hypothesis: no difference in terms of survivability between the two age groups).</p>
 <ol start="2" style="list-style-type: decimal">
@@ -115,8 +206,8 @@ d. Is there a difference in the survival rates for the older half of the group v
 ##   118      8       1    0.345  0.0906        0.206        0.577
 ##   143      7       1    0.295  0.0900        0.162        0.537</code></pre>
 <p><img src="/post/Survival_analysis/Survival_analysis_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<pre><code>## log rank test</code></pre>
-<pre><code>## Call:
+<pre><code>## log rank test
+## Call:
 ## survdiff(formula = Surv(time, event == 1) ~ metastasized, data = mt, 
 ##     rho = 0)
 ## 
@@ -124,9 +215,9 @@ d. Is there a difference in the survival rates for the older half of the group v
 ## metastasized=no  12        5      9.2      1.91      3.04
 ## metastasized=yes 32       21     16.8      1.05      3.04
 ## 
-##  Chisq= 3  on 1 degrees of freedom, p= 0.08</code></pre>
-<pre><code>## Cox&#39;s regression test</code></pre>
-<pre><code>## Call:
+##  Chisq= 3  on 1 degrees of freedom, p= 0.08
+## Cox&#39;s regression test
+## Call:
 ## coxph(formula = Surv(time, event) ~ metastasized, data = mt)
 ## 
 ##                   coef exp(coef) se(coef)     z    p
@@ -135,8 +226,8 @@ d. Is there a difference in the survival rates for the older half of the group v
 ## Likelihood ratio test=3.35  on 1 df, p=0.06704
 ## n= 44, number of events= 26</code></pre>
 <p>Question 2c:</p>
-<p>Explanation for part 2a
-The figure in part 1, shows the survival probability of women with breast cancer under two categories- metastasized and not-metastasized. The red line shows the survival probability of those that have not undergone metastasis and the brown line shows the survival probability of those that have cancer metastasized elsewhere in the organs. Based on this plot we can tell that those with mestasized cancer have lower survival probability (brown line). After about 143 weeks, metastasized patient’s (brown line) survival drops down to only 29.5 % whereas for non-metastasized (red line) pateint’s the survival is still above 60%.</p>
+<p>Explanation for part 2a</p>
+<p>The figure in part 1, shows the survival probability of women with breast cancer under two categories- metastasized and not-metastasized. The red line shows the survival probability of those that have not undergone metastasis and the brown line shows the survival probability of those that have cancer metastasized elsewhere in the organs. Based on this plot we can tell that those with mestasized cancer have lower survival probability (brown line). After about 143 weeks, metastasized patient’s (brown line) survival drops down to only 29.5 % whereas for non-metastasized (red line) pateint’s the survival is still above 60%.</p>
 <p>Explanation for part 2b.</p>
 <p>To determine whether the difference is statistically significant, I have performed log-rank test and got p-value of 0.061 which is not significant at P&lt;0.05 whereas for Cox regression test, the p-value was even higher.</p>
 <p>To summarize answer for part 2c:</p>

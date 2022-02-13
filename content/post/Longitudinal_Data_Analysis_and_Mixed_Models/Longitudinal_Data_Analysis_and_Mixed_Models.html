@@ -391,7 +391,7 @@ ggplot(data_sum, aes(x=time, y=mean, colour=treatment)) +
 <p>In linear model, Bdi.pre, time, treatmentBtheB, and drugYes are significant, but in the lmer model, only bdi.pre and time are significant. This means that the linear model understates the standard errors because it does not account for the correlation over time or the repeated measures.</p>
 <p>In the first output, the linear model shows that there is interation between time and treatment with P &lt; 0.05. However, mixed effect model (lmer) indicates that there is no time and treatment effect because p is 0.09.</p>
 <p>The mean profile shows that the results are very different between the two categories, but the standard deviation bars converge.</p>
-<p>Now, consider the  data from the package HSAUR3. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). Perform the following on this dataset</p>
+<p>Now, consider the  data from the package HSAUR3. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). Perform the following on this dataset:</p>
 <pre><code>  a. Construct boxplots by group and discuss. 
 
   b. Produce separate plots of the profiles of the individuals in each group.
@@ -974,7 +974,8 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </tbody>
 </table>
 <p>Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.</p>
-<pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). Justify your answer. (Hint: use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method, be sure to state your method)</code></pre>
+<pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). 
+(Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)</code></pre>
 <pre><code>## Warning: package &#39;MESS&#39; was built under R version 4.0.5</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;MESS&#39;</code></pre>

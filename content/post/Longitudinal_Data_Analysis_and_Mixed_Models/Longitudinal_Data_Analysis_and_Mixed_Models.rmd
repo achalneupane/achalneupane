@@ -169,7 +169,7 @@ In the first output, the linear model shows that there is interation between tim
 The mean profile shows that the results are very different between the two categories, but the standard deviation bars converge.
   
   
-Now, consider the \textbf{phosphate} data from the package HSAUR3. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). Perform the following on this dataset
+Now, consider the \textbf{phosphate} data from the package HSAUR3. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). Perform the following on this dataset:
  
       a. Construct boxplots by group and discuss. 
    
@@ -359,7 +359,8 @@ knitr::kable(summary(resp_sub_gee4)$coef, caption = "Summary coeff of GEE binomi
 Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.
 
 
-    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). Justify your answer. (Hint: use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method, be sure to state your method)
+    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). 
+    (Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)
     
 ```{r,echo=FALSE}
 
@@ -383,9 +384,11 @@ knitr::kable(QIC(resp_sub_gee4), caption = "QIC from GGE ar1")
 
 ```
 
-As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. I used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.
+As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. We used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.
 
-2. The data set \textbf{schizophrenia2} from \textbf{HSAUR3} package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder'' (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above). The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2)
+2. The data set \textbf{schizophrenia2} from \textbf{HSAUR3} package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder'' (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above). 
+
+The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2)
 
 We will now investigate this question using:
 

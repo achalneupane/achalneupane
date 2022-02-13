@@ -1,0 +1,689 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Density Estimation"
+date: 2019-09-01T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+summary: Statistics series
+---
+
+
+
+<ol style="list-style-type: decimal">
+<li><p>The  data from  contains the velocities of 82 galaxies from six well-separated conic sections of space (Postman et al., 1986, Roeder, 1990). The data is intended to shed light on whether or not the observable universe contains superclusters of galaxies surrounded by large voids. The evidence for the existence of superclusters would be the multimodality of the distribution of velocities. Here, we will:</p>
+<p>a.) Construct histograms using the following functions:</p>
+<pre><code> -hist() and ggplot()+geom_histogram()
+
+ -truehist() and ggplot+geom_histogram() (pay attention to the y-axis!)
+
+ -qplot()</code></pre>
+<p>b.) Create a new variable  = <span class="math inline">\(\log\)</span>(galaxies). Construct histograms using the functions in part a.) and comment on the shape and differences.</p>
+<p>c.) Construct kernel density estimates using two different choices of kernel functions and three choices of bandwidth (one that is too large and “oversmooths,” one that is too small and “undersmooths,” and one that appears appropriate.) Therefore, we should have six different kernel density estimates plots. We can use the log scale or original scale for the variable.</p>
+<p>d.) What is our conclusion about the possible existence of superclusterd of galaxies? How many superclusters (1,2, 3, … )?</p>
+<p>e.) How many clusters did it find? Did it match with our answer from (d) above? We will report parameter estimates and BIC of the best model.</p></li>
+</ol>
+<pre class="r"><code>library(MASS)
+library(ggplot2)
+## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5
+## Registered S3 methods overwritten by &#39;tibble&#39;:
+##   method     from  
+##   format.tbl pillar
+##   print.tbl  pillar
+## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
+## when loading &#39;dplyr&#39;
+# Load the data
+data(galaxies)
+
+message(&quot;# 1a.&quot;, &quot; &quot;)
+## # 1a.
+
+# histogram
+message(&quot;Using hist and geom_histogram:&quot;, &quot; &quot;)
+## Using hist and geom_histogram:
+hist(galaxies,
+     xlab = &#39;velocity&#39;,
+     main = &#39;base R: Histogram showing galaxies&#39;,
+     ylab = &#39;Frequency&#39;, freq = TRUE)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>
+ggplot() + aes(galaxies) +
+  geom_histogram(binwidth = 5000, breaks = c(seq(5000, 35000, 5000)), boundary = NULL, fill = &#39;white&#39;, color = &quot;black&quot;) +
+  labs(title = &#39;ggplot: Histogram showing galaxies&#39;, x= &quot;velocity&quot;, y = &quot;Frequency&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>
+# truehist
+message(&quot;Using truehist and geom_histogram():&quot;, &quot; &quot;)
+## Using truehist and geom_histogram():
+#draw the histogram
+truehist(galaxies,
+         xlab = &#39;velocity&#39;,
+         main = &#39;base R: True Histogram showing galaxies&#39;,
+         ylab = &#39;density&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+
+ggplot() + aes(galaxies) + geom_histogram(aes(y = ..density..), binwidth = BINWIDTH, breaks = c(seq(5000, 35000, 5000)), boundary = NULL, fill = &#39;skyblue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) + 
+labs(title = &quot;ggplot: True Histogram showing galaxies&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
+<pre class="r"><code>######
+
+
+
+
+# qplot
+message(&quot;Using qplot:&quot;, &quot; &quot;)
+## Using qplot:
+qplot(galaxies) +
+  labs(title=&#39;base R: Histogram showing galaxies (qplot)&#39;,
+       x=&#39;Velocity&#39;,
+       y=&#39;Frequency&#39;)
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-5.png" width="672" /></p>
+<pre class="r"><code>
+
+BINS &lt;- 30
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() + aes(galaxies) +
+  geom_histogram(bins = BINS, breaks = BREAKS, binwidth = BINWIDTH, boundary = NULL, fill = &#39;grey&#39;, color = &quot;black&quot;) +
+  labs(x = &quot;velocity&quot;, y= &quot;Frequency&quot;, title = &#39;ggplot: Histogram showing galaxies (qplot)&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-6.png" width="672" /></p>
+<pre class="r"><code>
+
+message(&quot;# 1b.&quot;, &quot; &quot;)
+## # 1b.
+
+loggalaxies &lt;- log(galaxies)
+# histogram
+message(&quot;Using hist and geom_histogram:&quot;, &quot; &quot;)
+## Using hist and geom_histogram:
+#set the figure position
+# par(fig=c(0,1,0,1),new=T)
+#draw the histogram
+hist(loggalaxies,
+     xlab = &#39;log velocity&#39;,
+     main = &#39;base R: Histogram showing log velocity of galaxies&#39;,
+     ylab = &#39;Frequency&#39;, freq = TRUE)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-7.png" width="672" /></p>
+<pre class="r"><code>
+
+BINS &lt;- 7
+BREAKS &lt;- seq(9, 10.5, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() + aes(loggalaxies) +
+  geom_histogram(binwidth = .15, bins = 8, boundary = NULL, fill = &#39;white&#39;, color = &quot;black&quot;) +
+  labs(x = &quot;log velocity&quot;, y = &quot;Frequency&quot;, title = &#39;ggplot: Histogram showing log velocity of galaxies&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-8.png" width="672" /></p>
+<pre class="r"><code>
+# truehist
+message(&quot;Using truehist and geom_histogram():&quot;, &quot; &quot;)
+## Using truehist and geom_histogram():
+#draw the histogram
+truehist(loggalaxies,
+         xlab = &#39;log velocity of galaxies&#39;,
+         main = &#39;base R: True Histogram of log velocity of galaxies&#39;,
+         ylab = &#39;density&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-9.png" width="672" /></p>
+<pre class="r"><code>######### *****
+
+
+BINS &lt;- 7
+BREAKS &lt;- seq(9, 10.5, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+# ggplot() + aes(loggalaxies) + geom_histogram(binwidth = BINWIDTH, boundary = NULL, fill = &#39;skyblue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) # Frequency
+ggplot() + aes(loggalaxies) + geom_histogram(aes(y = ..density..), binwidth = BINWIDTH, bins = BINS, breaks = BREAKS, boundary = NULL, fill = &#39;skyblue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+labs(title = &quot;ggplot: True Histogram of log velocity of galaxies&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-10.png" width="672" /></p>
+<pre class="r"><code>
+######
+
+
+# qplot
+message(&quot;Using qplot:&quot;, &quot; &quot;)
+## Using qplot:
+qplot(loggalaxies) +
+  labs(title=&#39;base R: Histogram of log velocity of galaxies (qplot)&#39;,
+       x=&#39;log velocity of Galaxies&#39;,
+       y=&#39;Frequency&#39;)
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-11.png" width="672" /></p>
+<pre class="r"><code>
+
+ggplot() + aes(loggalaxies) +
+  geom_histogram(bins = 30, boundary = NULL, fill = &#39;grey&#39;, color = &quot;black&quot;) +
+  labs(x = &quot;log velocity&quot;, title = &#39;ggplot: Histogram showing log velocity of Galaxies (qplot)&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-12.png" width="672" /></p>
+<pre class="r"><code>
+message (&quot;# 1c.&quot;, &quot; &quot;)
+## # 1c.
+
+truehist(galaxies,ymax=0.0002,col=&quot;blue&quot;, main=&quot;base R: Gaussian Over Smooth&quot;)
+lines(density(galaxies,kernel=&quot;gaussian&quot;,bw=5000),col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-13.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;blue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;gaussian&quot;, bw = 5000, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Gaussian Over Smooth&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-14.png" width="672" /></p>
+<pre class="r"><code>
+truehist(galaxies,ymax=0.0002,col=&quot;blue&quot;, main=&quot;base R: Gaussian Under Smooth&quot;)
+lines(density(galaxies,kernel=&quot;gaussian&quot;,bw=500),col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-15.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;blue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;gaussian&quot;, bw = 500, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Gaussian Under Smooth&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-16.png" width="672" /></p>
+<pre class="r"><code>
+truehist(galaxies,ymax=0.0002,col=&quot;blue&quot;, main=&quot;base R: Gaussian Best Appx&quot;)
+lines(density(galaxies,kernel=&quot;gaussian&quot;,bw=1100),col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-17.png" width="672" /></p>
+<pre class="r"><code>
+
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;blue&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;gaussian&quot;, bw = 1100, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Gaussian Best Appx&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-18.png" width="672" /></p>
+<pre class="r"><code>
+truehist(galaxies,ymax=0.0002,col=&quot;green&quot;, ylab = &quot;density&quot;, main=&quot;base R: Triangular Over Smooth&quot;)
+lines(density(galaxies,kernel=&quot;triangular&quot;,bw=5000),col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-19.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;green&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;triangular&quot;, bw = 5000, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Triangular Over Smooth&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-20.png" width="672" /></p>
+<pre class="r"><code>
+truehist(galaxies,ymax=0.0002,col=&quot;green&quot;, ylab= &quot;density&quot;, main=&quot;base R: Triangular Under Smooth&quot;)
+lines(density(galaxies,kernel=&quot;triangular&quot;,bw=500),col=&quot;red&quot;,main=&quot;Triangular_Under&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-21.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;green&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;triangular&quot;, bw = 500, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Triangular Under Smooth&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-22.png" width="672" /></p>
+<pre class="r"><code>
+truehist(galaxies,ymax=0.0002,col=&quot;green&quot;, ylab = &quot;density&quot;, main=&quot;base R: Triangular Best Appx&quot;)
+lines(density(galaxies,kernel=&quot;triangular&quot;,bw=1100), col=&quot;red&quot;,main=&quot;Triangular_Appx&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-23.png" width="672" /></p>
+<pre class="r"><code>
+BINS &lt;- 6
+BREAKS &lt;- seq(5000, 35000, length.out = BINS + 1)
+BINWIDTH &lt;- BREAKS[2] - BREAKS[1]
+ggplot() +
+  aes(galaxies) +
+  geom_histogram(aes(y=..density..), bins = BINS, binwidth = BINWIDTH, breaks = BREAKS, boundary = NULL, fill = &#39;green&#39;, color = &quot;black&quot;, closed = &quot;left&quot;) +
+  stat_density(kernel = &quot;triangular&quot;, bw = 1100, fill = NA, col = &quot;red&quot;) +
+  labs(title = &quot;ggplot: Triangular Best Appx&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-24.png" width="672" /></p>
+<pre class="r"><code>
+
+message(&quot;# 1e.&quot;,&quot; &quot;)
+## # 1e.
+
+# we can use:
+library(mclust)
+## Warning: package &#39;mclust&#39; was built under R version 4.0.5
+## Package &#39;mclust&#39; version 5.4.9
+## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.
+mod=Mclust(galaxies)
+print(mod)
+## &#39;Mclust&#39; model object: (V,4) 
+## 
+## Available components: 
+##  [1] &quot;call&quot;           &quot;data&quot;           &quot;modelName&quot;      &quot;n&quot;             
+##  [5] &quot;d&quot;              &quot;G&quot;              &quot;BIC&quot;            &quot;loglik&quot;        
+##  [9] &quot;df&quot;             &quot;bic&quot;            &quot;icl&quot;            &quot;hypvol&quot;        
+## [13] &quot;parameters&quot;     &quot;z&quot;              &quot;classification&quot; &quot;uncertainty&quot;
+
+print(summary(mod, parameters = TRUE))
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust V (univariate, unequal variance) model with 4 components: 
+## 
+##  log-likelihood  n df       BIC       ICL
+##        -765.694 82 11 -1579.862 -1598.907
+## 
+## Clustering table:
+##  1  2  3  4 
+##  7 35 32  8 
+## 
+## Mixing probabilities:
+##          1          2          3          4 
+## 0.08440635 0.38660329 0.37116156 0.15782880 
+## 
+## Means:
+##         1         2         3         4 
+##  9707.492 19804.259 22879.486 24459.536 
+## 
+## Variances:
+##          1          2          3          4 
+##   177296.7   436160.9  1261611.3 34437115.3
+
+
+#pot the density plot of the model
+# par(fig=c(0,1,0,1),new=T)
+plot(mod,what=&quot;density&quot;)
+title (&quot;Density plot of the finite mixture model&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-1-25.png" width="672" /></p>
+<pre class="r"><code>
+# BIC
+mclustBIC(galaxies)
+## Bayesian Information Criterion (BIC): 
+##           E         V
+## 1 -1622.361 -1622.361
+## 2 -1631.243 -1595.403
+## 3 -1584.016 -1592.299
+## 4 -1592.828 -1579.862
+## 5 -1592.299 -1593.277
+## 6 -1601.228 -1604.069
+## 7 -1588.610 -1611.538
+## 8 -1597.427 -1625.804
+## 9 -1600.709 -1633.494
+## 
+## Top 3 models based on the BIC criterion: 
+##       V,4       E,3       E,7 
+## -1579.862 -1584.016 -1588.610</code></pre>
+<p>1.a. Here, all graphs have similar shapes for hist() and truehist(), except for a scaling factor. This is expected as hist() shows the frequency along the y axis, whereas truehist() produces the probability, which is a scaled version of the frequency. We can make some estimation about the distribution of the data, but cannot comment in a parametric way. Just based on the plots, we can tell that the data are highly congested in the middle of the data range. We can best think that there are three clusters of data, but qplot(), shows an extra cluster in the middle-congested cluster of data. By observing the qplot(),we can assume that there are four clusters in the data set.</p>
+<p>1.b. A scaled version of the data in part (a) is used to construct the same plots. Similar comments like in part (a) is valid here as well to describe the similarity of hist() and truehist(). From this scaled data hist() and truehist(), still it is reasonable to guess that there are three clusters.</p>
+<p>1.c. Here over smoothing and under smoothing bin width choice were easy and straight forward. Startting with the extreme bw values, 5000, 500 and 1100 were used to generate the three Kernels for Gaussian and Triangular. Searching for the best fit just by visualizing was not easy. By changing the the binwidth, we can actually set the Kernel to better fit for the best approximate of clusters.</p>
+<p>1.d. From the figures found in part (c), we can assume that there are four clusters in the data set with unequal variances. It was hard to determine manually, but my guess was that there are about three or four clusters with almost equal possiblity.</p>
+<p>1.e. The mclust() found four clusters of unequal variance for the best fit. However, the density plot of the model indicates there are three clusters. Based on this information, we can say that there are at least 3 or 4 clusters that can be determined from this analysis.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><p>The  data from  gives the birth and death rates for 69 countries (from Hartigan, 1975). Now, we will work on the following:</p>
+<p>a.) Produce a scatterplot of the data and overlay a contour plot of the estimated bivariate density.</p>
+<p>b.) Does the plot give us any interesting insights into the possible structure of the data?</p>
+<p>c.) Construct the perspective plot (persp() in R, GGplot is not required for this question).</p>
+<p>d.) Model-based clustering (Mclust). Provide plot of the summary of our fit (BIC, classification, uncertainty, and density).</p>
+<p>e.) Discuss the results (structure of data, outliers, etc.). Write a discussion in the context of the problem.</p></li>
+</ol>
+<pre class="r"><code>library(HSAUR3)
+## Warning: package &#39;HSAUR3&#39; was built under R version 4.0.5
+## Loading required package: tools
+library(KernSmooth)
+## KernSmooth 2.23 loaded
+## Copyright M. P. Wand 1997-2009
+library(reshape2)
+## Warning: package &#39;reshape2&#39; was built under R version 4.0.2
+library(dplyr)
+## Warning: package &#39;dplyr&#39; was built under R version 4.0.2
+## 
+## Attaching package: &#39;dplyr&#39;
+## The following object is masked from &#39;package:MASS&#39;:
+## 
+##     select
+## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union
+
+data(birthdeathrates)
+head(birthdeathrates)
+##     birth death
+## alg  36.4  14.6
+## con  37.3   8.0
+## egy  42.1  15.3
+## gha  55.8  25.6
+## ict  56.1  33.1
+## mag  41.8  15.8
+length(birthdeathrates)
+## [1] 2
+nrow(birthdeathrates)
+## [1] 69
+
+message (&quot;# 2a&quot;, &quot; &quot;)
+## # 2a
+
+BDRd &lt;- bkde2D(birthdeathrates, bandwidth = sapply(birthdeathrates, dpik))
+contour(x=BDRd$x1, y=BDRd$x2, z=BDRd$fhat,
+        main = &quot;base R: Countour Scatterplot of Birth_Death_Rates&quot;,
+        xlab=&quot;Birth Rates&quot;, 
+        ylab=&quot;Death Rates&quot;,
+        xlim =c(0,60), ylim = c(0,35))
+points(birthdeathrates, pch=16, col=&quot;red&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>
+ggplot(data=birthdeathrates,aes(birth,death)) + 
+  geom_density2d(aes(colour=..level..)) + 
+  scale_colour_gradient(low=&quot;green&quot;,high=&quot;red&quot;) + 
+  theme_bw() +
+  geom_point() +
+  labs(title=&#39;ggplot: Countour Scatterplot of Birth_Death_Rates&#39;,
+       x=&#39;Birth Rate&#39;,
+       y=&#39;Death Rate&#39;) +
+  scale_x_continuous(limits = c(0,60)) +
+  scale_y_continuous(limits = c(0,35))</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+<pre class="r"><code>
+message(&quot;# 2c.&quot;, &quot; &quot;)
+## # 2c.
+
+persp (x=BDRd$x1, y=BDRd$x2, z=BDRd$fhat,
+       xlab=&quot;Birth Rates&quot;, 
+       ylab=&quot;Death Rates&quot;,
+       zlab=&quot;Estimated Density&quot;,
+       theta=-35, axes=TRUE, box=TRUE, main = &quot;Perspective plot for birthdeathrates data&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-3.png" width="672" /></p>
+<pre class="r"><code>
+message(&quot;# 2d.&quot;, &quot; &quot;)
+## # 2d.
+library(mclust)
+
+mod &lt;- Mclust(birthdeathrates)
+mod
+## &#39;Mclust&#39; model object: (EII,4) 
+## 
+## Available components: 
+##  [1] &quot;call&quot;           &quot;data&quot;           &quot;modelName&quot;      &quot;n&quot;             
+##  [5] &quot;d&quot;              &quot;G&quot;              &quot;BIC&quot;            &quot;loglik&quot;        
+##  [9] &quot;df&quot;             &quot;bic&quot;            &quot;icl&quot;            &quot;hypvol&quot;        
+## [13] &quot;parameters&quot;     &quot;z&quot;              &quot;classification&quot; &quot;uncertainty&quot;
+summary(mod, parameters = TRUE)
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust EII (spherical, equal volume) model with 4 components: 
+## 
+##  log-likelihood  n df       BIC       ICL
+##       -424.4194 69 12 -899.6481 -906.4841
+## 
+## Clustering table:
+##  1  2  3  4 
+##  2 17 38 12 
+## 
+## Mixing probabilities:
+##          1          2          3          4 
+## 0.02898652 0.24555002 0.55023375 0.17522972 
+## 
+## Means:
+##           [,1]     [,2]      [,3]      [,4]
+## birth 55.94967 43.80396 19.922913 33.730672
+## death 29.34960 12.09411  9.081348  8.535812
+## 
+## Variances:
+## [,,1]
+##         birth   death
+## birth 10.2108  0.0000
+## death  0.0000 10.2108
+## [,,2]
+##         birth   death
+## birth 10.2108  0.0000
+## death  0.0000 10.2108
+## [,,3]
+##         birth   death
+## birth 10.2108  0.0000
+## death  0.0000 10.2108
+## [,,4]
+##         birth   death
+## birth 10.2108  0.0000
+## death  0.0000 10.2108
+message(&quot;Value for mod$parameters$mean&quot;, &quot; &quot;)
+## Value for mod$parameters$mean
+sqrt(mod$parameters$variance$sigmasq)
+## [1] 3.195434
+
+BIC.data&lt;- as.data.frame(mod$BIC[,])
+BIC.data$NumComp&lt;-rownames(BIC.data)
+melted.BIC&lt;- reshape2::melt(BIC.data, var.ids= &quot;NumComp&quot;)
+## Using NumComp as id variables
+
+par(mfrow=c(1,1), ask=FALSE)
+# BIC
+plot(mod, what=&quot;BIC&quot;, main = &quot;base R: Plot of BIC&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-4.png" width="672" /></p>
+<pre class="r"><code>
+ggplot(melted.BIC, aes(x=as.numeric(NumComp), y=value, colour=variable, group=variable))+
+  scale_x_continuous(&quot;Number of Components&quot;)+
+  scale_y_continuous(&quot;BIC&quot;)+
+  scale_colour_hue(&quot;&quot;)+
+  geom_point()+
+  geom_line()+
+  theme_bw() + 
+  labs(title = &quot;ggplot: BIC&quot;)
+## Warning: Removed 19 rows containing missing values (geom_point).
+## Warning: Removed 19 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-5.png" width="672" /></p>
+<pre class="r"><code>
+# uncertainty
+par(mfrow=c(1,1), ask=FALSE)
+plot(mod, what=&quot;uncertainty&quot;)
+title(main = &quot;base R: Plot of uncertainty&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-6.png" width="672" /></p>
+<pre class="r"><code>
+birthdeathrates %&gt;% mutate(uncertainty = mod$uncertainty,
+                classification = factor(mod$classification)) %&gt;% 
+  ggplot(aes(birth, death, size = uncertainty, color = classification)) +
+  geom_point() + 
+  guides(size = guide_legend(), colour = &quot;legend&quot;) + theme_classic() +
+  stat_ellipse(level = 0.5, type = &quot;t&quot;) + 
+  labs(x = &quot;birth&quot;, y = &quot;death&quot;, title = &quot;ggplot: Uncertainty&quot;)
+## Too few points to calculate an ellipse
+## Warning: Removed 1 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-7.png" width="672" /></p>
+<pre class="r"><code>
+# classification
+par(mfrow=c(1,1), ask=FALSE)
+plot(mod, what=&quot;classification&quot;)
+title(main = &quot;base R: Plot of classification&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-8.png" width="672" /></p>
+<pre class="r"><code>
+birthdeathrates %&gt;% mutate(uncertainty = mod$uncertainty,
+                classification = factor(mod$classification)) %&gt;% 
+  ggplot(aes(birth, death, shape = classification, color = classification)) +
+  geom_point() + 
+  guides(size = guide_legend(), shape = guide_legend()) + theme_classic() +
+  stat_ellipse(level = 0.5, type = &quot;t&quot;) + 
+  labs(x = &quot;birth&quot;, y = &quot;death&quot;, title = &quot;ggplot: Plot of classification&quot;)
+## Too few points to calculate an ellipse
+## Warning: Removed 1 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-9.png" width="672" /></p>
+<pre class="r"><code>
+# density
+par(mfrow=c(1,1), ask=FALSE)
+plot(mod, what=&quot;density&quot;)
+title(main = &quot;base R: Plot of density&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-10.png" width="672" /></p>
+<pre class="r"><code>
+ggplot(birthdeathrates, aes(x = birth, y = death)) +
+  geom_point() +
+  geom_density_2d() + 
+  labs ( title = &quot;ggplot: Plot of density&quot;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-2-11.png" width="672" /></p>
+<p>2.b. Comparaing data for birth rates from 10 to about 50 with the death rates, we can tell that the death rate is relatively slow. I would say twice as many people are being born than they are dying (i.e., 2:1 birth to death ratio). The countour appears to show the majority of countries grouping around a birthrate of 20 and a death rate of 10.</p>
+<p>2.e. The BIC plot indicates that there are 4 clusters. The classification plot seems to indicate the groupings of the data. The table of means indicate that the birth rates group along ~ 20, 34, 44, and 56. The death rates group around 9, 8, 12 and 30.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>A sex difference in the age of onset of schizophrenia was noted by Kraepelin (1919). Subsequent epidemiological studies of the disorder have consistently shown an earlier onset in men than in women. One model that has been suggested to explain this observed difference is known as the subtype model which postulates two types of schizophrenia, one characterized by early onset, typical symptoms and poor premorbid competence; and the other by late onset, atypical symptoms and good premorbid competence. The early onset type is assumed to be largely a disorder of men and the late onset largely a disorder of women. Fit finite mixutres of normal densities separately to the onset data for men and women given in the  data from . See if we can produce some evidence for or against the subtype model.</li>
+</ol>
+<p>Answer:</p>
+<p>Based on this density plot faceted by gender, we can tell that the distribution in diagnosis of disease is centered towards 20 years (age) in males whereas, for females, its more uniform thoughout the life.</p>
+<pre class="r"><code>data(schizophrenia)
+#plot the schizophrenia data using stat_density within ggplot2, facet by gender
+# par(fig=c(0,1,0,1),new=T)
+ggplot(data=schizophrenia)+
+  stat_density(kernel=&#39;gaussian&#39;,adjust=1,aes(age,fill=gender)) +
+  facet_grid(gender~.) +
+       labs(title = &#39;Density plot (gaussian) of Schizophrenia diagnosis data&#39;,
+       x = &quot;Diagnosis Age&quot;,
+       y=&#39;Density Estimate&#39;) +
+  scale_fill_manual( values = c(&quot;red&quot;,&quot;blue&quot;)) +
+  theme(
+        strip.background = element_blank(),
+        strip.text.y = element_blank(),
+        panel.background = element_blank()
+        )</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>We can also check the distribution of the data using histogram plots. These plots also show that male diagnosis age numbers are centered more around mid 20’s, where as females patients can also be diagnosed in 40s and fewer (compared to males) in mid 20s.</p>
+<pre class="r"><code># par(fig=c(0,1,0,1),new=T)
+ggplot(data=schizophrenia)+
+  geom_histogram(aes(age,fill=gender)) +
+  facet_grid(gender~.) +
+  labs(title = &#39;Histogram of Schizophrenia Diagnosis by Gender&#39;,
+       x = &#39;Age of diagnosis&#39;,
+       y=&#39;Frequency&#39;) +
+scale_fill_manual( values = c(&quot;red&quot;,&quot;blue&quot;)) +
+# scale_color_brewer(palette = &quot;Set2&quot;) +
+  theme(
+        strip.background = element_blank(),
+        strip.text.y = element_blank(),
+        panel.background = element_blank()
+        )
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Or we can visualize both together and see the same results discussed above by making this plot below:</p>
+<pre class="r"><code>setMen &lt;- subset(schizophrenia, gender==&quot;male&quot;)$age
+setWmn &lt;- subset(schizophrenia, gender!=&quot;male&quot;)$age
+
+par(mfrow=c(1,1))
+hist (schizophrenia$age, xlab=&quot;Age&quot;, ylab=&quot;Density&quot;, main=&quot;Distribution of Schizophrenia Onset by Age&quot;, freq=FALSE, ylim=c(0,.075), border=4)
+lines(density(setMen), col=1, )
+lines(density(setWmn), col=2)
+legend(40, 0.05, legend=c(&quot;Female&quot;, &quot;Male&quot;),
+       col=c(1,2), lty=c(1,1), cex=0.8)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>We can subset the schizophrenia data by male and female for fit of model analysis by gender:</p>
+<pre class="r"><code>head(schizophrenia)
+##   age gender
+## 1  20 female
+## 2  30 female
+## 3  21 female
+## 4  23 female
+## 5  30 female
+## 6  25 female
+onset=schizophrenia
+male=subset(onset,gender==&quot;male&quot;)
+female=subset(onset,gender==&quot;female&quot;)
+message(&quot;
+Mclust Data
+        &quot;,&quot;&quot;)
+## 
+## Mclust Data
+## 
+mod_male=Mclust(male$age)
+mod_female=Mclust(female$age)
+# par(mfrow=c(2,2))
+plot(mod_male, what = &quot;BIC&quot;)
+title(main=&#39;BIC Of schizophrenia for male&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>plot(mod_female, what = &quot;BIC&quot;)
+title(main=&#39;BIC Of schizophrenia for female&#39;)</code></pre>
+<p><img src="/post/Density_Estimation/Density_Estimation_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<pre class="r"><code>
+message(&quot;Male
+        &quot;,&quot;&quot;)
+## Male
+## 
+print(mod_male)
+## &#39;Mclust&#39; model object: (V,2) 
+## 
+## Available components: 
+##  [1] &quot;call&quot;           &quot;data&quot;           &quot;modelName&quot;      &quot;n&quot;             
+##  [5] &quot;d&quot;              &quot;G&quot;              &quot;BIC&quot;            &quot;loglik&quot;        
+##  [9] &quot;df&quot;             &quot;bic&quot;            &quot;icl&quot;            &quot;hypvol&quot;        
+## [13] &quot;parameters&quot;     &quot;z&quot;              &quot;classification&quot; &quot;uncertainty&quot;
+print(summary(mod_male, parameters = TRUE))
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust V (univariate, unequal variance) model with 2 components: 
+## 
+##  log-likelihood   n df       BIC       ICL
+##       -520.9747 152  5 -1067.069 -1134.392
+## 
+## Clustering table:
+##  1  2 
+## 99 53 
+## 
+## Mixing probabilities:
+##         1         2 
+## 0.5104189 0.4895811 
+## 
+## Means:
+##        1        2 
+## 20.23922 27.74615 
+## 
+## Variances:
+##          1          2 
+##   9.395305 111.997525
+# print(mod_male$parameters)
+message(&quot;FeMale
+        &quot;,&quot;&quot;)
+## FeMale
+## 
+print(mod_female)
+## &#39;Mclust&#39; model object: (E,2) 
+## 
+## Available components: 
+##  [1] &quot;call&quot;           &quot;data&quot;           &quot;modelName&quot;      &quot;n&quot;             
+##  [5] &quot;d&quot;              &quot;G&quot;              &quot;BIC&quot;            &quot;loglik&quot;        
+##  [9] &quot;df&quot;             &quot;bic&quot;            &quot;icl&quot;            &quot;hypvol&quot;        
+## [13] &quot;parameters&quot;     &quot;z&quot;              &quot;classification&quot; &quot;uncertainty&quot;
+print(summary(mod_female, parameters = TRUE))
+## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust E (univariate, equal variance) model with 2 components: 
+## 
+##  log-likelihood  n df       BIC       ICL
+##       -373.6992 99  4 -765.7788 -774.8935
+## 
+## Clustering table:
+##  1  2 
+## 74 25 
+## 
+## Mixing probabilities:
+##         1         2 
+## 0.7472883 0.2527117 
+## 
+## Means:
+##        1        2 
+## 24.93517 46.85570 
+## 
+## Variances:
+##        1        2 
+## 44.55641 44.55641
+# print(mod_female$parameters)
+
+# male group mean
+message(paste0(&quot;Male Group mean is 0.51*20.23+(1-0.51)*27.75 = &quot;, 0.51*20.23+(1-0.51)*27.75))
+## Male Group mean is 0.51*20.23+(1-0.51)*27.75 = 23.9148
+# Female group mean
+message(paste0(&quot;Female Group mean is 0.746*24.93+(1-0.747)*46.85 = &quot;, 0.746*24.93+(1-0.747)*46.85))
+## Female Group mean is 0.746*24.93+(1-0.747)*46.85 = 30.45083</code></pre>
+<p>From the model summary above, we can see that the female model showing data points centered at about 25 and age 47 of age marks, whereas for males it was at around 20 and 27 years of age (i.e., within 20s). For males, the mean was calculated to be 23.91. Similarly, the mean of whole female group was calculated to be 30.45. So female group has a larger age mean which tells us that the males have onset of disorder earlier than females. Additionally, the BIC plot shows that the optimal number of cluster for both males and females is 2.</p>
