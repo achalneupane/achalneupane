@@ -18,7 +18,7 @@ summary: Statistics series
 <h2>Part 1</h2>
 <p>To examine the data <code>Beat the Blues</code> from package <code>HSAUR3</code>, we will do the following:</p>
 <ol style="list-style-type: lower-alpha">
-<li><p>Construct boxplots to compare the factor variable <span class="math inline">\(\textbf{drug}\)</span> in an analogous way to how we constructed boxplots in the video for the treatment variable. Discuss the results.</p></li>
+<li><p>Construct boxplots to compare the factor variable <span class="math inline">\(\textbf{drug}\)</span>. Discuss the results.</p></li>
 <li><p>Repeat (a) for the <span class="math inline">\(\textbf{length}\)</span> variable. Discuss the results.</p></li>
 <li><p>Use the <span class="math inline">\(\textit{lm}\)</span> function to fit a model to the Beat the Blues data that assumes that the repeated measurements are independent. Compare the results to those from fitting the random intercept model <span class="math inline">\(\textit{BtheB\_lmer1}\)</span>.</p></li>
 <li><p>Investigate and discuss whether there is any evidence of an interaction between treatment and time for the Beat the Blues data.</p></li>
@@ -36,6 +36,7 @@ library(&quot;multcomp&quot;)
 ## Loading required package: mvtnorm
 ## Warning: package &#39;mvtnorm&#39; was built under R version 4.0.5
 ## Loading required package: survival
+## Warning: package &#39;survival&#39; was built under R version 4.0.5
 ## Loading required package: TH.data
 ## Warning: package &#39;TH.data&#39; was built under R version 4.0.5
 ## Loading required package: MASS
@@ -112,8 +113,7 @@ cat(&quot;#1.c&quot;)
 ## #1.c
 # c. Use the \textit{lm} function to fit a model to the Beat the Blues
 # data that assumes that the repeated measurements are independent.
-# Compare the results to those from fitting the random intercept model
-# \textit{BtheB\_lmer1} from the video.
+
 
 BtheB$subject=factor(rownames(BtheB))
 nobs=nrow(BtheB)
