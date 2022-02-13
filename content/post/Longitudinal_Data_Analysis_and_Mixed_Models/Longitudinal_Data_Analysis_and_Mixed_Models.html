@@ -1129,10 +1129,11 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </tr>
 </tbody>
 </table>
-<p>As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. I used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.</p>
+<p>As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. We used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.</p>
 <ol start="2" style="list-style-type: decimal">
-<li>The data set  from  package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder’’ (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above). The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (<a href="https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2" class="uri">https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2</a>)</li>
+<li>The data set  from  package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder’’ (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above).</li>
 </ol>
+<p>The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (<a href="https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2" class="uri">https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2</a>)</p>
 <p>We will now investigate this question using:</p>
 <pre><code>a. plots and summary statistics
 
