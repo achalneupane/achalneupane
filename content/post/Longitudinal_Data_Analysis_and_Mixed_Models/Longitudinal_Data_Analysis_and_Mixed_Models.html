@@ -408,7 +408,7 @@ ggplot(data_sum, aes(x=time, y=mean, colour=treatment)) +
 <ol style="list-style-type: lower-alpha">
 <li>Construct boxplots by group and discuss.</li>
 <li>Produce separate plots of the profiles of the individuals in each group.</li>
-<li>Guided by how these plots fit, which linear mixed effects models do you think might be sensible? (Discuss intercept and slope, intercept and interaction).</li>
+<li>Guided by how these plots fit, which linear mixed effects models do we think might be sensible? We will discuss intercept and slope, intercept and interaction.</li>
 <li>Convert the data to long version and fit the model of your choice and discuss the results.</li>
 </ol>
 <pre class="r"><code>data(&quot;phosphate&quot;, package = &quot;HSAUR3&quot;)
@@ -1004,7 +1004,7 @@ knitr::kable(summary(resp_sub_gee4)$coef, caption = &quot;Summary coeff of GEE b
 </tbody>
 </table>
 <p>Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.</p>
-<pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). 
+<pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models we tried in part (a). 
 (Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)</code></pre>
 <pre><code>## Warning: package &#39;MESS&#39; was built under R version 4.0.5
 ## 

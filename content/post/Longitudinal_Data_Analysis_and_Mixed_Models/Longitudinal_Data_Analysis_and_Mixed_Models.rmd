@@ -181,7 +181,7 @@ Now, consider the $\textbf{phosphate}$ data from the package `HSAUR3`. This data
  
 a. Construct boxplots by group and discuss. 
 b. Produce separate plots of the profiles of the individuals in each group.
-c. Guided by how these plots fit, which linear mixed effects models do you think might be sensible? (Discuss intercept and slope, intercept and interaction).
+c. Guided by how these plots fit, which linear mixed effects models do we think might be sensible? We will discuss intercept and slope, intercept and interaction.
 d. Convert the data to long version and fit the model of your choice and discuss the results. 
 
       
@@ -365,7 +365,7 @@ knitr::kable(summary(resp_sub_gee4)$coef, caption = "Summary coeff of GEE binomi
 Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.
 
 
-    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models you tried in part (a). 
+    b. Which model is the best? Compare the following models: independent, exchangable, and what ever models we tried in part (a). 
     (Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)
     
 ```{r,echo=FALSE}

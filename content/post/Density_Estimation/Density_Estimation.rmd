@@ -19,7 +19,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 </script>
  
 
-1. The `galaxies` data from `MASS` contains the velocities of 82 galaxies from six well-separated conic sections of space (Postman et al., 1986, Roeder, 1990). The data are intended to shed light on whether or not the observable universe contains superclusters of galaxies surrounded by large voids. The evidence for the existence of superclusters would be the multimodality of the distribution of velocities.(8.1 Handbook)
+1. The `galaxies` data from `MASS` contains the velocities of 82 galaxies from six well-separated conic sections of space (Postman et al., 1986, Roeder, 1990). The data are intended to shed light on whether or not the observable universe contains superclusters of galaxies surrounded by large voids. The evidence for the existence of superclusters would be the multimodality of the distribution of velocities.
 
     a.) Construct histograms using the following functions: 
     
