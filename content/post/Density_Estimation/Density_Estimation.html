@@ -12,8 +12,10 @@ summary: Statistics series
 
 
 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 <ol style="list-style-type: decimal">
-<li><p>The  data from  contains the velocities of 82 galaxies from six well-separated conic sections of space (Postman et al., 1986, Roeder, 1990). The data is intended to shed light on whether or not the observable universe contains superclusters of galaxies surrounded by large voids. The evidence for the existence of superclusters would be the multimodality of the distribution of velocities. Here, we will:</p>
+<li><p>The <code>galaxies</code> data from <code>MASS</code> contains the velocities of 82 galaxies from six well-separated conic sections of space (Postman et al., 1986, Roeder, 1990). The data are intended to shed light on whether or not the observable universe contains superclusters of galaxies surrounded by large voids. The evidence for the existence of superclusters would be the multimodality of the distribution of velocities.(8.1 Handbook)</p>
 <p>a.) Construct histograms using the following functions:</p>
 <pre><code> -hist() and ggplot()+geom_histogram()
 
@@ -322,7 +324,7 @@ mclustBIC(galaxies)
 <p>1.d. From the figures found in part (c), we can assume that there are four clusters in the data set with unequal variances. It was hard to determine manually, but my guess was that there are about three or four clusters with almost equal possiblity.</p>
 <p>1.e. The mclust() found four clusters of unequal variance for the best fit. However, the density plot of the model indicates there are three clusters. Based on this information, we can say that there are at least 3 or 4 clusters that can be determined from this analysis.</p>
 <ol start="2" style="list-style-type: decimal">
-<li><p>The  data from  gives the birth and death rates for 69 countries (from Hartigan, 1975). Now, we will work on the following:</p>
+<li><p>The <code>birthdeathrates</code> data from <code>HSAUR3</code> gives the birth and death rates for 69 countries (from Hartigan, 1975). Now, we will work on the following:</p>
 <p>a.) Produce a scatterplot of the data and overlay a contour plot of the estimated bivariate density.</p>
 <p>b.) Does the plot give us any interesting insights into the possible structure of the data?</p>
 <p>c.) Construct the perspective plot (persp() in R, GGplot is not required for this question).</p>
@@ -527,7 +529,7 @@ ggplot(birthdeathrates, aes(x = birth, y = death)) +
 <p>2.b. Comparaing data for birth rates from 10 to about 50 with the death rates, we can tell that the death rate is relatively slow. I would say twice as many people are being born than they are dying (i.e., 2:1 birth to death ratio). The countour appears to show the majority of countries grouping around a birthrate of 20 and a death rate of 10.</p>
 <p>2.e. The BIC plot indicates that there are 4 clusters. The classification plot seems to indicate the groupings of the data. The table of means indicate that the birth rates group along ~ 20, 34, 44, and 56. The death rates group around 9, 8, 12 and 30.</p>
 <ol start="3" style="list-style-type: decimal">
-<li>A sex difference in the age of onset of schizophrenia was noted by Kraepelin (1919). Subsequent epidemiological studies of the disorder have consistently shown an earlier onset in men than in women. One model that has been suggested to explain this observed difference is known as the subtype model which postulates two types of schizophrenia, one characterized by early onset, typical symptoms and poor premorbid competence; and the other by late onset, atypical symptoms and good premorbid competence. The early onset type is assumed to be largely a disorder of men and the late onset largely a disorder of women. Fit finite mixutres of normal densities separately to the onset data for men and women given in the  data from . See if we can produce some evidence for or against the subtype model.</li>
+<li>A sex difference in the age of onset of schizophrenia was noted by Kraepelin (1919). Subsequent epidemiological studies of the disorder have consistently shown an earlier onset in men than in women. One model that has been suggested to explain this observed difference is known as the subtype model which postulates two types of schizophrenia, one characterized by early onset, typical symptoms and poor premorbid competence; and the other by late onset, atypical symptoms and good premorbid competence. The early onset type is assumed to be largely a disorder of men and the late onset largely a disorder of women. Fit finite mixutres of normal densities separately to the onset data for men and women given in the <code>schizophrenia</code> data from <code>HSAUR3</code>. See if we can produce some evidence for or against the subtype model.</li>
 </ol>
 <p>Answer:</p>
 <p>Based on this density plot faceted by gender, we can tell that the distribution in diagnosis of disease is centered towards 20 years (age) in males whereas, for females, its more uniform thoughout the life.</p>
