@@ -16,11 +16,11 @@ summary: Statistics series
 
 In statistics, a generalized additive model (GAM) is a generalized linear model in which the linear response variable depends linearly on unknown smooth functions of some predictor variables, and interest focuses on inference about these smooth functions.
 
-GAMs were originally developed by Trevor Hastie and Robert Tibshirani[1] to blend properties of generalized linear models with additive models.
+GAMs were originally developed by Trevor Hastie and Robert Tibshirani to blend properties of generalized linear models with additive models.
 
 The model relates a univariate response variable, Y, to some predictor variables, xi. An exponential family distribution is specified for Y (for example normal, binomial or Poisson distributions) along with a link function g (for example the identity or log functions) relating the expected value of Y to the predictor variables.
 
-More from this wiki article: https://en.wikipedia.org/wiki/Generalized_additive_model
+More on this from this wiki article: https://en.wikipedia.org/wiki/Generalized_additive_model
 
 
 Here, we will use the body fat data (\textbf{ bodyfat} data from \textbf{TH.data}  package) for the analysis. Then we will do the following:
@@ -29,9 +29,6 @@ Here, we will use the body fat data (\textbf{ bodyfat} data from \textbf{TH.data
     
 
    
-    
-  
-      
 ```{r, eval = TRUE}
 library(ggplot2)
 library(mgcv)
@@ -41,19 +38,16 @@ library(gamclass)
 library (TH.data)
 data ("bodyfat")
 head(bodyfat)
-NROW(bodyfat) # 71
+NROW(bodyfat) 
 library(DescTools)
 names(bodyfat)
 library(ggplot2)
 library(GGally)
 library(knitr)
 
-
-#
 cat("# 1A")
-#
 
-# plot the variables to see which variables are correlated with which
+# plot the variables to see which variables are correlated
 # base plot
 pairs(bodyfat, main = "base R: plots showing correlation of variables")
 
@@ -72,7 +66,7 @@ bf_step
 kable(summary(bf_step)$coefficients, caption = "Coefficients from step function")
 ```
 
-From the plot, it appears that age and elbowbreadth  don’t correlate with DEXfat. 
+From the plot, it appears that the variables age and elbowbreadth  don’t correlate with DEXfat. 
 However, waistcirc, hipcirc, and all four anthro variables appear to correlate with DEXfat. Based on the plot, I would select waistcirc, hipcirc, anthro3a and anthro3c.  However, I would also test the model using anthro3b rather than anthro3a to see which yields a better model. 
 Additionally, stepwise regression using step() function recommended: kneebreadth, waistcirc, hipcirc and anthro3b. This also confirm that the anthro variables are sufficiently correlated to be represented by one variable which in this case is anthro3b.
 
@@ -179,7 +173,6 @@ variance, but as stated previously the model can improve.
 
 ```{r, eval = TRUE}
 cat("# 1C")
-#
 # Removing insignificant elbowbreadth including age variables
 bodyfat_gam2 <- gam(DEXfat ~ waistcirc + s(hipcirc) +
                       s(kneebreadth) + s(anthro3a) + s(anthro3c),      
@@ -354,7 +347,7 @@ library("GGally")
 library("mboost")
 library("rpart")
 library("wordcloud")
-# data("bodyfat", package = "TH.data")
+
 data("hubble", package = "gamair")
 head(hubble)
 sorted_value<-hubble[order(hubble$x),]
