@@ -10,11 +10,15 @@ tags:
 summary: Statistics series
 ---
 
+```{r global options, include = T}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
+
 ## Part 1 ##
 
-In this exercise, I will be analyzing agronomic datasets from four fields. This data comes from four different farm fields and we try to investigate the effects of variable seeding rates in overall yield.
+In this exercise, I will be analyzing agronomic datasets from four fields. Using this data and we try to investigate the effects of variable seeding rates in overall yield.
 
-The table summarizes data from four corn fields. The top row is target seeding rates, in seeds per acre, the bottom row is
+The top row is target seeding rates, in seeds per acre, the bottom row is
 corn yields in bushels per acre.
 This table summarizes all four fields at the Control Rate interval of 1000 which was also reproduced below in my anaysis. More importantly, we are interested in exploring the EffectSize and Required Replicates for properly examining any statistical evidence for the yield and variable seeding rates relationships. 
 
@@ -67,11 +71,9 @@ We willl also perform ANOVA analysis with Tukey Test for paired comparision of m
 ```{r}
 # Create function to get the labels for Tukey HSD:
 generate_label_df <- function(TUKEY, variable){
-  
   # Extract labels and factor levels from Tukey post-hoc 
   Tukey.levels <- TUKEY[[variable]][,4]
   Tukey.labels <- data.frame(multcompLetters(Tukey.levels)['Letters'])
-  
   #I need to put the labels in the same order as in the boxplot :
   Tukey.labels$treatment=rownames(Tukey.labels)
   Tukey.labels=Tukey.labels[order(Tukey.labels$treatment) , ]
@@ -84,21 +86,16 @@ This function does ANOVA and makes boxplots with Tukey statistics for comparing 
 get_my_box_plot <- function (field, plot_name = "the Field") {
   model = lm(field$Yield ~ field$ControlRate.Levels)
   ANOVA = aov(model)
-  
   # Tukey test to study each pair of treatment :
   TUKEY <- TukeyHSD(x = ANOVA, 'field$ControlRate.Levels', conf.level = 0.95)
-  
   # generate labels using function
   labels <- generate_label_df(TUKEY , "field$ControlRate.Levels")
-  
   # rename columns for merging
   names(labels) <- c('Letters', 'ControlRate.Levels')
-  
   # Obtain letter positions for y axis using means
   yvalue <- aggregate(. ~ ControlRate.Levels, data = field, mean)
   
   part2 <- merge(labels, yvalue) #merge dataframes
-  
   p <- ggplot(field, aes(x = ControlRate.Levels, y = Yield)) +
   geom_blank() +
   theme_bw() +
@@ -129,8 +126,7 @@ four fields. To analyze single field set `Single.Field.Analysis = TRUE`, and to 
 
 ```{r}
 calculate_field_mean_SD_and_get_RR_EffSize <- 
-  function(
-    field, intervals, Single.Field.Analysis = TRUE, printplot = FALSE){
+  function(field, intervals, Single.Field.Analysis = TRUE, printplot = FALSE){
   plot_NAME <- (deparse(substitute(field)))
   if(Single.Field.Analysis > 0){
   # removing rows with NAs in Yield
@@ -139,10 +135,11 @@ calculate_field_mean_SD_and_get_RR_EffSize <-
   field <- field[!is.na(field$Yield),]
   # as.factor(fieldA$ControlRate)
   table.field <- table(as.factor(field$ControlRate))
-  field$ControlRate.Levels <- as.factor(intervals * ceiling(field$ControlRate/intervals))
+  field$ControlRate.Levels <- as.factor(intervals *   ceiling(field$ControlRate/intervals))
   field.Count <- setNames(aggregate(field$ControlRate, 
           by = list(field$ControlRate.Levels), FUN = length), c("ControlRate", "Count"))
   # Degree of freedome = n * k - k
+  
   field.Count$degree.Freedom <- 
     (field.Count$Count * length(field.Count$ControlRate)) -length(field.Count$ControlRate)
   
@@ -169,7 +166,6 @@ calculate_field_mean_SD_and_get_RR_EffSize <-
   }
   # Else we work on the merged data with SD pooled; no need to calculate mean
   # and SD as we will be doing it below
-  
   } else {
     temp.Field <- field
     colnames(temp.Field)[colnames(temp.Field) == "ControlRate"] <- "ControlRate.Levels"
@@ -213,7 +209,7 @@ for (i in 1:nrow(field.SD)){
     RequiredReplicates = tmp.req.reps
     )
       
-      Req.Rep.table.field <- rbind(Req.Rep.table.field, tmp.table)
+    Req.Rep.table.field <- rbind(Req.Rep.table.field, tmp.table)
 }
 if (Single.Field.Analysis > 0) {
   return(

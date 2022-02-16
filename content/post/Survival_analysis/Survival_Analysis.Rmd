@@ -10,8 +10,8 @@ tags:
 summary: Statistics series
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
+```{r global options, include = T}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
 
 We have data on survival of patients with lung cancer at Mayo Clinic. We want to answer the following questions and provide some graphs. We will use the \textbf{cancer} data located in the \textbf{survival} package to answer the following:

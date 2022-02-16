@@ -10,8 +10,8 @@ tags:
 summary: Statistics series
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
+```{r global options, include = T}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">

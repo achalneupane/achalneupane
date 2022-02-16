@@ -13,19 +13,23 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
+```{r global options, include = T}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
 
 In statistics, a generalized additive model (GAM) is a generalized linear model in which the linear response variable depends linearly on unknown smooth functions of some predictor variables, and interest focuses on inference about these smooth functions.
 
 GAMs were originally developed by Trevor Hastie and Robert Tibshirani to blend properties of generalized linear models with additive models.
 
-The model relates a univariate response variable, Y, to some predictor variables, xi. An exponential family distribution is specified for Y (for example normal, binomial or Poisson distributions) along with a link function g (for example the identity or log functions) relating the expected value of Y to the predictor variables.
+The model relates a univariate response variable, Y, to some predictor variables, x$i$. An exponential family distribution is specified for Y (for example normal, binomial or Poisson distributions) along with a link function g (for example the identity or log functions) relating the expected value of Y to the predictor variables.
 
 More on this from this wiki article: https://en.wikipedia.org/wiki/Generalized_additive_model
 
 
-Here, we will use the body fat data (\textbf{ bodyfat} data from \textbf{TH.data}  package) for the analysis. Then we will do the following:
+Here, we will use the body fat data ($\textbf{ bodyfat}$ data from $\textbf{TH.data}$  package) for the analysis. Then we will do the following:
 
-    a) Explore the data graphically. What variables do you think need to be included for predicting bodyfat? (Hint: Are there correlated predictors).
+  
+  a) Explore the data graphically. What variables do you think need to be included for predicting bodyfat? (Hint: Are there correlated predictors).
     
 
    
@@ -72,25 +76,22 @@ Additionally, stepwise regression using step() function recommended: kneebreadth
 
 
 
-    b) Fit a generalised additive model assuming normal errors using the following code. 
+  b) Fit a generalised additive model assuming normal errors using the following code. 
 
-       \begin{verbatim}
-         bodyfat_gam <- gam(DEXfat~ s(age) + s(waistcirc) + s(hipcirc) + 
+    bodyfat_gam <- gam(DEXfat~ s(age) + s(waistcirc) + s(hipcirc) + 
                   s(elbowbreadth) + s(kneebreadth)+ s(anthro3a) +
                   s(anthro3c), data = bodyfat)
-       \end{verbatim}
+
       
-        - Assess the \textbf{summary()} and \textbf{plot()} of the model (don't need GGPLOT). Are all covariates informative? Should all covariates be smoothed or should some be included as a linear effect? 
+  - Assess the $\textbf{summary()}$ and $\textbf{plot()}$ of the model (don't need GGPLOT). Are all covariates informative? Should all covariates be smoothed or should some be included as a linear effect? 
         
-        - Report GCV, AIC, adj-R$^2$, and total model degrees of freedom. 
+        - Report GCV, AIC, adj-R$^2$, and the total model degrees of freedom. 
         
-        - Use \textbf{gam.check()} function to look at the diagnostic plot. Does it appear that the normality assumption is violated? 
+        - Use $\textbf{gam.check()}$ function to look at the diagnostic plot. Does it appear that the normality assumption is violated? 
 
 
 ```{r, eval = TRUE}
-
 cat("# 1B")
-#
 
 bodyfat_gam <- gam(DEXfat ~ s(age) + s(waistcirc) + s(hipcirc) +
                      s(elbowbreadth) + s(kneebreadth) + s(anthro3a) + s(anthro3c),      
@@ -111,7 +112,6 @@ plot(bodyfat_gam)
 
 # Question: How do we evaluate a covariate's 'informative'-ness?
 # Annwer: Look at the p-values of the covariates.
-
 
 # Report model attributes
 cat("GCV")
@@ -165,11 +165,11 @@ variance, but as stated previously the model can improve.
 
  c) Now remove insignificant variables and remove smoothing for some variables. Report the summary, plot, GCV, AIC,         adj-R$^2$.
       
-      \begin{verbatim}
-        bodyfat_gam2 <- gam(DEXfat~ waistcirc + s(hipcirc) + 
+
+    bodyfat_gam2 <- gam(DEXfat~ waistcirc + s(hipcirc) + 
                      s(kneebreadth)+ anthro3a +
                      s(anthro3c), data = bodyfat)
-      \end{verbatim}
+
 
 ```{r, eval = TRUE}
 cat("# 1C")
@@ -214,7 +214,7 @@ Total Degrees of freedom of bodyfat_gam2:
 20.52
 
 
-    d) Again fit an additive model to the body fat data, but this time for a log-transformed response. Compare the three        models, which one is more appropriate? (Hint: use Adj-R$^2$, residual plots, etc. to compare models).
+    d) Again fit an additive model to the body fat data, but this time for a log-transformed response. Compare the three models, which one is more appropriate? (Hint: use Adj-R$^2$, residual plots, etc. to compare models).
   
 
 
