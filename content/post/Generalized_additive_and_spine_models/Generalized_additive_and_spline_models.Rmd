@@ -60,8 +60,6 @@ p <- ggpairs(bodyfat)
 p + labs(title = "ggplot: plots showing correlation of variables")
 
 cat("all of the anthros correlate with each other")
-
-
 body_f <- glm(DEXfat ~ ., data=bodyfat)
 bf_step <- step(body_f, trace = 0)
 
@@ -71,7 +69,7 @@ kable(summary(bf_step)$coefficients, caption = "Coefficients from step function"
 ```
 
 From the plot, it appears that the variables age and elbowbreadth  don’t correlate with DEXfat. 
-However, waistcirc, hipcirc, and all four anthro variables appear to correlate with DEXfat. Based on the plot, I would select waistcirc, hipcirc, anthro3a and anthro3c.  However, I would also test the model using anthro3b rather than anthro3a to see which yields a better model. 
+However, waistcirc, hipcirc, and all four anthro variables appear to correlate with DEXfat. Based on the plot, I would select waistcirc, hipcirc, anthro3a and anthro3c. I would also test the model using anthro3b rather than anthro3a to see which yields a better model. 
 Additionally, stepwise regression using step() function recommended: kneebreadth, waistcirc, hipcirc and anthro3b. This also confirm that the anthro variables are sufficiently correlated to be represented by one variable which in this case is anthro3b.
 
 
