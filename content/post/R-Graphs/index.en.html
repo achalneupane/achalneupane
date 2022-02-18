@@ -1,16 +1,20 @@
 ---
 title: "R-Graphs"
 author: "Achal Neupane"
-date: 2020-12-01T21:13:14-05:00
-categories: ["R"]
-tags: ["R Markdown", "plot"]
+date: 2018-12-01T21:13:14-05:00
+tags:
+- R
+- Statistics
+summary: Statistics series
 ---
 
 
 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<pre class="r"><code>knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)</code></pre>
 <p>We will start by loading the <code>ncaa2018.csv</code> data set and create histograms, QQ-norm and box-whisker plots for <code>ELO</code>.</p>
 <pre class="r"><code>library(&quot;moments&quot;)
-## Warning: package &#39;moments&#39; was built under R version 4.0.3
 ncaa2018.dat = read.table(
   &quot;https://raw.githubusercontent.com/achalneupane/data/master/ncaa2018.csv&quot;,
   header = T,
@@ -23,8 +27,7 @@ hist(ncaa2018.dat$ELO, xlab = &quot;ELO&quot;, main = &quot;Histogram of ELO&quo
 <pre class="r"><code># QQ plot
 qqnorm(ncaa2018.dat$ELO, main = &quot;Normal QQ plot&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<pre class="r"><code>
-# box-whisker plot
+<pre class="r"><code># box-whisker plot
 boxplot(ncaa2018.dat$ELO, main = &quot;Box-whisker of ELO&quot;, ylab = &quot;ELO&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
 <p>A common recommendation to address issues of non-normality is to transform data to correct for skewness. One common transformation is the log transform.</p>
@@ -34,8 +37,7 @@ boxplot(ncaa2018.dat$ELO, main = &quot;Box-whisker of ELO&quot;, ylab = &quot;EL
 <pre class="r"><code># QQ plot
 qqnorm(log(ncaa2018.dat$ELO), main = &quot;Normal QQ plot of log transformed ELO&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
-<pre class="r"><code>
-# box-whisker plot
+<pre class="r"><code># box-whisker plot
 boxplot(log(ncaa2018.dat$ELO), main = &quot;Box-whisker of log transformed ELO&quot;, ylab = &quot;ELO&quot;)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-2-3.png" width="672" />
 The values are less skewed now. Log transformation is a good way to display plot with skewedness in data.</p>
@@ -53,30 +55,29 @@ rexp.1000 &lt;- rexp(1000) - rexp(1000)
 library(moments)
 
 norm.sample.kurt &lt;- kurtosis(norm.sample, na.rm = TRUE)
-norm.sample.kurt
-## [1] 2.874161
-dcauchy.1000.kurt &lt;- kurtosis(dcauchy.1000, na.rm = TRUE)
-dcauchy.1000.kurt
-## [1] 691.1374
-dweibull.1000.kurt &lt;- kurtosis(dweibull.1000, na.rm = TRUE)
-dweibull.1000.kurt
-## [1] 4.463278
-rexp.1000.kurt &lt;- kurtosis(rexp.1000, na.rm = TRUE)
-rexp.1000.kurt
-## [1] 6.505127
-
-norm.sample.skew &lt;- skewness(norm.sample, na.rm = TRUE)
-norm.sample.skew
-## [1] -0.02206819
-dcauchy.1000.skew &lt;- skewness(dcauchy.1000, na.rm = TRUE)
-dcauchy.1000.skew
-## [1] -23.11365
-dweibull.1000.skew &lt;- skewness(dweibull.1000, na.rm = TRUE)
-dweibull.1000.skew
-## [1] 1.114134
-rexp.1000.skew &lt;- skewness(rexp.1000, na.rm = TRUE)
-rexp.1000.skew
-## [1] -0.5988252</code></pre>
+norm.sample.kurt</code></pre>
+<pre><code>## [1] 2.862555</code></pre>
+<pre class="r"><code>dcauchy.1000.kurt &lt;- kurtosis(dcauchy.1000, na.rm = TRUE)
+dcauchy.1000.kurt</code></pre>
+<pre><code>## [1] 359.1321</code></pre>
+<pre class="r"><code>dweibull.1000.kurt &lt;- kurtosis(dweibull.1000, na.rm = TRUE)
+dweibull.1000.kurt</code></pre>
+<pre><code>## [1] 5.154675</code></pre>
+<pre class="r"><code>rexp.1000.kurt &lt;- kurtosis(rexp.1000, na.rm = TRUE)
+rexp.1000.kurt</code></pre>
+<pre><code>## [1] 5.616441</code></pre>
+<pre class="r"><code>norm.sample.skew &lt;- skewness(norm.sample, na.rm = TRUE)
+norm.sample.skew</code></pre>
+<pre><code>## [1] -0.08506479</code></pre>
+<pre class="r"><code>dcauchy.1000.skew &lt;- skewness(dcauchy.1000, na.rm = TRUE)
+dcauchy.1000.skew</code></pre>
+<pre><code>## [1] 13.82269</code></pre>
+<pre class="r"><code>dweibull.1000.skew &lt;- skewness(dweibull.1000, na.rm = TRUE)
+dweibull.1000.skew</code></pre>
+<pre><code>## [1] 1.219393</code></pre>
+<pre class="r"><code>rexp.1000.skew &lt;- skewness(rexp.1000, na.rm = TRUE)
+rexp.1000.skew</code></pre>
+<pre><code>## [1] 0.1858416</code></pre>
 <p>Now, we will plot the histograms for each distribution. We will use <code>par(mfrow=c(2,2))</code> in our code chunk to combine the four histogram in a single plot. We add titles to the histograms indicating the distribution. Set the x-axis label to show the calculated skewness and kurtosis, i.e. <code>skewness = ####, kurtosis = ####</code></p>
 <pre class="r"><code>par(mfrow=c(2,2))
 hist(norm.sample, xlab = paste0(&quot;skewness = &quot;, norm.sample.skew , &quot;, kurtosis = &quot;, norm.sample.kurt), main = &quot;Histogram of Normal Distribution&quot;)
@@ -125,8 +126,7 @@ boxplot(rpois_values, main = paste0(&quot;Box-whisker with skewness = &quot;, rp
 mu &lt;- mu*2
 }</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-1.png" width="1152" /><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-2.png" width="1152" /><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-3.png" width="1152" /><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-4.png" width="1152" /><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-5.png" width="1152" /><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-6.png" width="1152" /></p>
-<pre class="r"><code>
-plot(rpois_skew_collect)</code></pre>
+<pre class="r"><code>plot(rpois_skew_collect)</code></pre>
 <p><img src="{{< blogdown/postref >}}index.en_files/figure-html/unnamed-chunk-8-7.png" width="1152" /></p>
 <p>It looks like the skewness starts to diminish significantly after mean size 32 (lambda) for poisson data.</p>
 <p>Now, we write a function that accepts a vector <code>vec</code>, a vector of integers, a main axis label and an x axis label. This function will
@@ -153,8 +153,8 @@ hidalgo.dat = read.table(&quot;https://raw.githubusercontent.com/achalneupane/da
                    sep = &quot;,&quot;
 )</code></pre>
 <p>Here, we test our function with the <code>hidalgo</code> data set (see below), using bin numbers 12, 36, and 60. We should be able to call our function with something like</p>
-<pre class="r"><code>plot.histograms(hidalgo.dat[,1],c(12,36,60), main=&quot;1872 Hidalgo issue&quot;,xlab= &quot;Thickness (mm)&quot;)
-## $breaks
+<pre class="r"><code>plot.histograms(hidalgo.dat[,1],c(12,36,60), main=&quot;1872 Hidalgo issue&quot;,xlab= &quot;Thickness (mm)&quot;)</code></pre>
+<pre><code>## $breaks
 ##  [1] 0.060 0.065 0.070 0.075 0.080 0.085 0.090 0.095 0.100 0.105 0.110 0.115
 ## [13] 0.120 0.125 0.130 0.135
 ## 
@@ -177,8 +177,8 @@ hidalgo.dat = read.table(&quot;https://raw.githubusercontent.com/achalneupane/da
 ## [1] TRUE
 ## 
 ## attr(,&quot;class&quot;)
-## [1] &quot;histogram&quot;
-## $breaks
+## [1] &quot;histogram&quot;</code></pre>
+<pre><code>## $breaks
 ##  [1] 0.064 0.066 0.068 0.070 0.072 0.074 0.076 0.078 0.080 0.082 0.084 0.086
 ## [13] 0.088 0.090 0.092 0.094 0.096 0.098 0.100 0.102 0.104 0.106 0.108 0.110
 ## [25] 0.112 0.114 0.116 0.118 0.120 0.122 0.124 0.126 0.128 0.130 0.132
@@ -342,8 +342,8 @@ with <span class="math inline">\(\text{Servings per Recipe} = 1/\beta_1\)</span>
 <p>and fit linear models</p>
 <pre class="r"><code>Assumption1.lm &lt;- lm(Assumption1 ~ CaloriesPerRecipe,data=Assumptions.dat)
 Assumption2.lm &lt;- lm(Assumption2 ~ CaloriesPerRecipe,data=Assumptions.dat)
-summary(Assumption1.lm)
-## 
+summary(Assumption1.lm)</code></pre>
+<pre><code>## 
 ## Call:
 ## lm(formula = Assumption1 ~ CaloriesPerRecipe, data = Assumptions.dat)
 ## 
@@ -360,9 +360,9 @@ summary(Assumption1.lm)
 ## 
 ## Residual standard error: 6.163 on 5 degrees of freedom
 ## Multiple R-squared:  0.9802, Adjusted R-squared:  0.9763 
-## F-statistic: 247.9 on 1 and 5 DF,  p-value: 1.879e-05
-summary(Assumption2.lm)
-## 
+## F-statistic: 247.9 on 1 and 5 DF,  p-value: 1.879e-05</code></pre>
+<pre class="r"><code>summary(Assumption2.lm)</code></pre>
+<pre><code>## 
 ## Call:
 ## lm(formula = Assumption2 ~ CaloriesPerRecipe, data = Assumptions.dat)
 ## 

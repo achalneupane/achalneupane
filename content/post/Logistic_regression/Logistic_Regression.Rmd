@@ -13,7 +13,7 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-```{r global options, include = T}
+```{r global options, include = F}
 knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
 
@@ -23,7 +23,7 @@ Logistic regression is a statistical model that in its basic form uses a logisti
 
 In a binary logistic regression model, the dependent variable has two levels (categorical). Outputs with more than two values are modeled by multinomial logistic regression and, if the multiple categories are ordered, by ordinal logistic regression (for example the proportional odds ordinal logistic model). The logistic regression model itself simply models probability of output in terms of input and does not perform statistical classification (it is not a classifier), though it can be used to make a classifier, for instance by choosing a cutoff value and classifying inputs with probability greater than the cutoff as one class, below the cutoff as the other; this is a common way to make a binary classifier. 
 
-More from this wiki article: https://en.wikipedia.org/wiki/Logistic_regression#:~:text=Logistic%20regression%20is%20a%20statistical,a%20form%20of%20binary%20regression).
+More from this wiki article: https://en.wikipedia.org/wiki/Logistic_regression.
 
 
 In this tutorial, we will start off with the analysis of $\textbf{plasma}$ dataset. 
@@ -68,10 +68,10 @@ ggplot(data = model2, aes(x = model2$model$x, y = model2$model$y)) +
 
 ```
     
-Next, we will add the simple linear regression fit (fitted in class) on this plot. We use different color and line type to differentiate the two and add a legend to our plot.
+Next, we will add the simple linear regression fit on this plot. We use different color and line type to differentiate the two and add a legend to our plot.
     
 ```{r}    
-# Simple lm fitted in class
+# Simple lm
 hmod <- lm(y~x - 1 , data = hubble)
 plot.new()
 par(mfrow = c(1, 1), pty = "s")

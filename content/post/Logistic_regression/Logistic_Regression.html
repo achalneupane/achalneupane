@@ -14,11 +14,10 @@ summary: Statistics series
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-<pre class="r"><code>knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)</code></pre>
 <p>In statistics, the logistic model (or logit model) is used to model the probability of a certain class or event existing such as pass/fail, win/lose, alive/dead or healthy/sick. This can be extended to model several classes of events such as determining whether an image contains a cat, dog, lion, etc. Each object being detected in the image would be assigned a probability between 0 and 1, with a sum of one.</p>
 <p>Logistic regression is a statistical model that in its basic form uses a logistic function to model a binary dependent variable, although many more complex extensions exist. In regression analysis, logistic regression is estimating the parameters of a logistic model (a form of binary regression). Mathematically, a binary logistic model has a dependent variable with two possible values, such as pass/fail which is represented by an indicator variable, where the two values are labeled “0” and “1”. In the logistic model, the log-odds (the logarithm of the odds) for the value labeled “1” is a linear combination of one or more independent variables (“predictors”); the independent variables can each be a binary variable (two classes, coded by an indicator variable) or a continuous variable (any real value). The corresponding probability of the value labeled “1” can vary between 0 (certainly the value “0”) and 1 (certainly the value “1”), hence the labeling; the function that converts log-odds to probability is the logistic function, hence the name. The unit of measurement for the log-odds scale is called a logit, from logistic unit, hence the alternative names. Analogous models with a different sigmoid function instead of the logistic function can also be used, such as the probit model; the defining characteristic of the logistic model is that increasing one of the independent variables multiplicatively scales the odds of the given outcome at a constant rate, with each independent variable having its own parameter; for a binary dependent variable this generalizes the odds ratio.</p>
 <p>In a binary logistic regression model, the dependent variable has two levels (categorical). Outputs with more than two values are modeled by multinomial logistic regression and, if the multiple categories are ordered, by ordinal logistic regression (for example the proportional odds ordinal logistic model). The logistic regression model itself simply models probability of output in terms of input and does not perform statistical classification (it is not a classifier), though it can be used to make a classifier, for instance by choosing a cutoff value and classifying inputs with probability greater than the cutoff as one class, below the cutoff as the other; this is a common way to make a binary classifier.</p>
-<p>More from this wiki article: <a href="https://en.wikipedia.org/wiki/Logistic_regression#" class="uri">https://en.wikipedia.org/wiki/Logistic_regression#</a>:~:text=Logistic%20regression%20is%20a%20statistical,a%20form%20of%20binary%20regression).</p>
+<p>More from this wiki article: <a href="https://en.wikipedia.org/wiki/Logistic_regression" class="uri">https://en.wikipedia.org/wiki/Logistic_regression</a>.</p>
 <p>In this tutorial, we will start off with the analysis of <span class="math inline">\(\textbf{plasma}\)</span> dataset.</p>
 <p>We will first fit a quadratic regression model, i.e., a model of the form
 <span class="math display">\[\text{Model 2:   } velocity = \beta_1 \times distance + \beta_2 \times distance^2 +\epsilon\]</span></p>
@@ -80,8 +79,8 @@ lines(data$x[order(data$x)], data$predicted[order(data$predicted)], col = &quot;
   geom_line(aes(x = model2$model$x, y = model2$fitted.values), colour = &quot;green&quot;) +
   labs(title = &quot;ggplot: Scatter plot with fitted curve from Model2&quot;, x = &quot;Distance&quot;, y = &quot;velocity&quot;)</code></pre>
 <p><img src="/post/Logistic_regression/Logistic_Regression_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
-<p>Next, we will add the simple linear regression fit (fitted in class) on this plot. We use different color and line type to differentiate the two and add a legend to our plot.</p>
-<pre class="r"><code># Simple lm fitted in class
+<p>Next, we will add the simple linear regression fit on this plot. We use different color and line type to differentiate the two and add a legend to our plot.</p>
+<pre class="r"><code># Simple lm
 hmod &lt;- lm(y~x - 1 , data = hubble)
 plot.new()
 par(mfrow = c(1, 1), pty = &quot;s&quot;)
@@ -1083,9 +1082,9 @@ err.rate1&lt;- mean((pred1&gt;0.5 &amp; val$default==0) | (pred1&lt;0.5 &amp; va
 err.rate2&lt;- mean((pred2&gt;0.5 &amp; val$default==0) | (pred2&lt;0.5 &amp; val$default==1))
 
 cat(&quot;Error rate of model1 =&quot;, err.rate1)</code></pre>
-<pre><code>## Error rate of model1 = 0.0295</code></pre>
+<pre><code>## Error rate of model1 = 0.02525</code></pre>
 <pre class="r"><code>cat(&quot;Error rate of model2 =&quot;, err.rate2)</code></pre>
-<pre><code>## Error rate of model2 = 0.0295</code></pre>
+<pre><code>## Error rate of model2 = 0.027</code></pre>
 <p>Here, we split the data into 60/40 between the training and validation data sets and made sure the default rate was similar between the two dataset. Then fitted the models to the training data and used the validation set to calculate the error rate using 0.5 as out threshold.</p>
 <p>For model 1, the MSE is 0.023.
 For model 2, the MSE is 0.024.</p>
@@ -1117,11 +1116,11 @@ cv.err2.10 &lt;- cv.glm(Default, mod.log2, cost ,K=10)$delta
 cat(&quot;10-fold cross validation of Model1&quot;)</code></pre>
 <pre><code>## 10-fold cross validation of Model1</code></pre>
 <pre class="r"><code>cv.err1.10</code></pre>
-<pre><code>## [1] 0.02670 0.02667</code></pre>
+<pre><code>## [1] 0.02670 0.02669</code></pre>
 <pre class="r"><code>cat(&quot;10-fold cross validation of Model2&quot;)</code></pre>
 <pre><code>## 10-fold cross validation of Model2</code></pre>
 <pre class="r"><code>cv.err2.10</code></pre>
-<pre><code>## [1] 0.02750 0.02748</code></pre>
+<pre><code>## [1] 0.02770 0.02768</code></pre>
 <p>Using K=10 for the 10-fold cross-validation approach, we obtain the following error rates:
 For model 1, the CV error rate is 0.02667
 For model 2, the CV error rate is 0.0278</p>

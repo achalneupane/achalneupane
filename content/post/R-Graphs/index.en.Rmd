@@ -1,13 +1,18 @@
 ---
 title: "R-Graphs"
 author: "Achal Neupane"
-date: 2020-12-01T21:13:14-05:00
-categories: ["R"]
-tags: ["R Markdown", "plot"]
+date: 2018-12-01T21:13:14-05:00
+tags:
+- R
+- Statistics
+summary: Statistics series
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+```{r global options, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
 
 We will start by loading the `ncaa2018.csv` data set and create histograms, QQ-norm and box-whisker plots for `ELO`. 
