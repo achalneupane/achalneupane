@@ -12,8 +12,10 @@ summary: Statistics series
 
 
 
+<pre class="r"><code>knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)</code></pre>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
+<p>To understanding the overall progression of diseases is critical to the timing of therapeutic interventions and design of effective clinical trials. Disease progression can be assessed with longitudinal study designs in which outcomes are measured repeatedly over time and are assessed with respect to risk factors, either measured repeatedly or at baseline.</p>
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
 <p>To examine the data <code>Beat the Blues</code> from package <code>HSAUR3</code>, we will do the following:</p>
@@ -25,56 +27,17 @@ summary: Statistics series
 <li><p>Construct a plot of the mean profiles of both treatment groups in the Beat the Blues data, showing also standard deviation bars at each time point.</p></li>
 </ol>
 <pre class="r"><code>library(&quot;gee&quot;)
-## Warning: package &#39;gee&#39; was built under R version 4.0.5
 library(&quot;lme4&quot;)
-## Warning: package &#39;lme4&#39; was built under R version 4.0.2
-## Loading required package: Matrix
-## Warning: package &#39;Matrix&#39; was built under R version 4.0.5
 library(&quot;Matrix&quot;)
 library(&quot;multcomp&quot;)
-## Warning: package &#39;multcomp&#39; was built under R version 4.0.5
-## Loading required package: mvtnorm
-## Warning: package &#39;mvtnorm&#39; was built under R version 4.0.5
-## Loading required package: survival
-## Warning: package &#39;survival&#39; was built under R version 4.0.5
-## Loading required package: TH.data
-## Warning: package &#39;TH.data&#39; was built under R version 4.0.5
-## Loading required package: MASS
-## 
-## Attaching package: &#39;TH.data&#39;
-## The following object is masked from &#39;package:MASS&#39;:
-## 
-##     geyser
 library (HSAUR3)
-## Warning: package &#39;HSAUR3&#39; was built under R version 4.0.5
-## Loading required package: tools
-## 
-## Attaching package: &#39;HSAUR3&#39;
-## The following object is masked from &#39;package:TH.data&#39;:
-## 
-##     birds
 library(ggplot2)
-## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5
-## Registered S3 methods overwritten by &#39;tibble&#39;:
-##   method     from  
-##   format.tbl pillar
-##   print.tbl  pillar
-## Warning: replacing previous import &#39;vctrs::data_frame&#39; by &#39;tibble::data_frame&#39;
-## when loading &#39;dplyr&#39;
 library(plyr)
-## Warning: package &#39;plyr&#39; was built under R version 4.0.2
 library(tidyr)
-## Warning: package &#39;tidyr&#39; was built under R version 4.0.5
-## 
-## Attaching package: &#39;tidyr&#39;
-## The following objects are masked from &#39;package:Matrix&#39;:
-## 
-##     expand, pack, unpack
 
-cat(&quot;# 1.a&quot;) 
-## # 1.a
-
-# a. Construct boxplots to compare the factor variable \textbf{drug} in an
+cat(&quot;# 1.a&quot;) </code></pre>
+<pre><code>## # 1.a</code></pre>
+<pre class="r"><code># a. Construct boxplots to compare the factor variable \textbf{drug} in an
 # analogous way to how we constructed boxplots for the treatment
 # variable.
 data(&quot;BtheB&quot;)
@@ -94,11 +57,9 @@ boxplot(no, main=&quot;Drugs Not Used&quot;, ylab=&quot;BDI&quot;,
         xlab=&quot;Time (in Months)&quot;, names=c(0,2,3,5,8), 
         ylim=ylim)</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<pre class="r"><code>
-
-cat(&quot;#1.b&quot;)
-## #1.b
-# b. Repeat (a) for the \textbf{length} variable. Discuss the results.
+<pre class="r"><code>cat(&quot;#1.b&quot;)</code></pre>
+<pre><code>## #1.b</code></pre>
+<pre class="r"><code># b. Repeat (a) for the \textbf{length} variable. Discuss the results.
 
 layout(matrix(1:2, nrow = 1))
 lengthlow&lt;-subset(BtheB,length==&quot;&lt;6m&quot;)[,grep(&quot;bdi&quot;,names(BtheB))]
@@ -107,19 +68,17 @@ boxplot(lengthlow, main =&quot;Length&lt;6m&quot;, ylab= &quot;BDI&quot;, xlab =
 lengthhigh&lt;-subset(BtheB,length==&quot;&gt;6m&quot;)[,grep(&quot;bdi&quot;,names(BtheB))]
 boxplot(lengthhigh, main =&quot;Length&gt;6m&quot;, ylab= &quot;BDI&quot;, xlab = &quot;Time (in months)&quot;,names=c(0,2,3,5,8))</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<pre class="r"><code>
-
-cat(&quot;#1.c&quot;)
-## #1.c
-# c. Use the \textit{lm} function to fit a model to the Beat the Blues
+<pre class="r"><code>cat(&quot;#1.c&quot;)</code></pre>
+<pre><code>## #1.c</code></pre>
+<pre class="r"><code># c. Use the \textit{lm} function to fit a model to the Beat the Blues
 # data that assumes that the repeated measurements are independent.
 
 
 BtheB$subject=factor(rownames(BtheB))
 nobs=nrow(BtheB)
-cat(&quot;Let change the data in wide format&quot;)
-## Let change the data in wide format
-BtheB_long=reshape(BtheB, idvar = &quot;subject&quot;,
+cat(&quot;Let change the data in wide format&quot;)</code></pre>
+<pre><code>## Let change the data in wide format</code></pre>
+<pre class="r"><code>BtheB_long=reshape(BtheB, idvar = &quot;subject&quot;,
                    varying = c(&quot;bdi.2m&quot;, &quot;bdi.3m&quot;, &quot;bdi.5m&quot;, &quot;bdi.8m&quot;),
                    direction = &quot;long&quot;)
 BtheB_long$time=rep(c(2, 3, 5, 8), rep(nobs, 4))
@@ -128,8 +87,8 @@ BtheB_long$time=rep(c(2, 3, 5, 8), rep(nobs, 4))
 BtheB_lm=lm(bdi ~ bdi.pre + time + treatment + drug + 
               length, data=BtheB_long, na.action=na.omit)
 
-summary(BtheB_lm)
-## 
+summary(BtheB_lm)</code></pre>
+<pre><code>## 
 ## Call:
 ## lm(formula = bdi ~ bdi.pre + time + treatment + drug + length, 
 ##     data = BtheB_long, na.action = na.omit)
@@ -152,14 +111,13 @@ summary(BtheB_lm)
 ## Residual standard error: 8.674 on 274 degrees of freedom
 ##   (120 observations deleted due to missingness)
 ## Multiple R-squared:  0.395,  Adjusted R-squared:  0.384 
-## F-statistic: 35.78 on 5 and 274 DF,  p-value: &lt; 2.2e-16
-
-BtheB_lmer1=lmer(bdi ~ bdi.pre + time + treatment + drug +
+## F-statistic: 35.78 on 5 and 274 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>BtheB_lmer1=lmer(bdi ~ bdi.pre + time + treatment + drug +
                    length + (1 | subject), data=BtheB_long,
                  REML=FALSE, na.action=na.omit)
 
-cftest(BtheB_lmer1)
-## 
+cftest(BtheB_lmer1)</code></pre>
+<pre><code>## 
 ##   Simultaneous Tests for General Linear Hypotheses
 ## 
 ## Fit: lmer(formula = bdi ~ bdi.pre + time + treatment + drug + length + 
@@ -175,12 +133,11 @@ cftest(BtheB_lmer1)
 ## length&gt;6m == 0       0.19708    1.63832   0.120   0.9043    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## (Univariate p values reported)
-
-cat(&quot;Comparison of lm and lmer&quot;)
-## Comparison of lm and lmer
-anova(BtheB_lmer1,BtheB_lm)
-## Data: BtheB_long
+## (Univariate p values reported)</code></pre>
+<pre class="r"><code>cat(&quot;Comparison of lm and lmer&quot;)</code></pre>
+<pre><code>## Comparison of lm and lmer</code></pre>
+<pre class="r"><code>anova(BtheB_lmer1,BtheB_lm)</code></pre>
+<pre><code>## Data: BtheB_long
 ## Models:
 ## BtheB_lm: bdi ~ bdi.pre + time + treatment + drug + length
 ## BtheB_lmer1: bdi ~ bdi.pre + time + treatment + drug + length + (1 | subject)
@@ -188,23 +145,19 @@ anova(BtheB_lmer1,BtheB_lm)
 ## BtheB_lm       7 2012.3 2037.7 -999.15   1998.3                        
 ## BtheB_lmer1    8 1887.5 1916.6 -935.75   1871.5 126.8  1  &lt; 2.2e-16 ***
 ## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-
-
-cat(&quot;We can plot the residuals from Linear model&quot;)
-## We can plot the residuals from Linear model
-plot(BtheB_lm, which=2)
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>cat(&quot;We can plot the residuals from Linear model&quot;)</code></pre>
+<pre><code>## We can plot the residuals from Linear model</code></pre>
+<pre class="r"><code>plot(BtheB_lm, which=2)
 # Assumptions for Mixed-model
 
 residuals &lt;- function(object, obs) obs-predict(object) 
-cat(&quot;We can also plot the residuals from linear mixed-model&quot;)
-## We can also plot the residuals from linear mixed-model
-layout(matrix(1:2, ncol = 2))</code></pre>
+cat(&quot;We can also plot the residuals from linear mixed-model&quot;)</code></pre>
+<pre><code>## We can also plot the residuals from linear mixed-model</code></pre>
+<pre class="r"><code>layout(matrix(1:2, ncol = 2))</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
 <pre class="r"><code>qint &lt;- ranef(BtheB_lmer1)$subject[[&quot;(Intercept)&quot;]]
 qres &lt;- residuals(BtheB_lmer1,BtheB_long$bdi.pre)
-## Warning in obs - predict(object): longer object length is not a multiple of
-## shorter object length
 qqnorm(qint, ylab = &quot;Estimated random intercepts&quot;,
      xlim = c(-3, 3), ylim = c(-20, 20),
      main = &quot;Random intercepts&quot;)
@@ -214,23 +167,18 @@ qqnorm(qres, xlim = c(-3, 3), ylim = c(-20, 20),
      main = &quot;Residuals&quot;)
 qqline(qres, col=&quot;red&quot;, lwd=3)</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
-<pre class="r"><code>
-
-
-cat(&quot;#1.d&quot;)
-## #1.d
-# d. Investigate and discuss whether there is any evidence of an interaction
+<pre class="r"><code>cat(&quot;#1.d&quot;)</code></pre>
+<pre><code>## #1.d</code></pre>
+<pre class="r"><code># d. Investigate and discuss whether there is any evidence of an interaction
 # between treatment and time for the Beat the Blues data.
 
-cat(&quot;Testing fitted linear model with lm&quot;)
-## Testing fitted linear model with lm
-BtheB_lm2=lm(bdi ~ bdi.pre + time + treatment + drug +
+cat(&quot;Testing fitted linear model with lm&quot;)</code></pre>
+<pre><code>## Testing fitted linear model with lm</code></pre>
+<pre class="r"><code>BtheB_lm2=lm(bdi ~ bdi.pre + time + treatment + drug +
                    length + time*treatment + subject, 
                  data=BtheB_long, REML=FALSE, na.action=na.omit)
-## Warning: In lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) :
-##  extra argument &#39;REML&#39; will be disregarded
-summary(BtheB_lm2)
-## 
+summary(BtheB_lm2)</code></pre>
+<pre><code>## 
 ## Call:
 ## lm(formula = bdi ~ bdi.pre + time + treatment + drug + length + 
 ##     time * treatment + subject, data = BtheB_long, na.action = na.omit, 
@@ -351,16 +299,15 @@ summary(BtheB_lm2)
 ## Residual standard error: 4.994 on 181 degrees of freedom
 ##   (120 observations deleted due to missingness)
 ## Multiple R-squared:  0.8675, Adjusted R-squared:  0.7958 
-## F-statistic:  12.1 on 98 and 181 DF,  p-value: &lt; 2.2e-16
-
-cat(&quot;Testing fitted linear mixed-model with lmer subject as a random effect&quot;)
-## Testing fitted linear mixed-model with lmer subject as a random effect
-BtheB_lmer2=lmer(bdi ~ bdi.pre + time + treatment + drug +
+## F-statistic:  12.1 on 98 and 181 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>cat(&quot;Testing fitted linear mixed-model with lmer subject as a random effect&quot;)</code></pre>
+<pre><code>## Testing fitted linear mixed-model with lmer subject as a random effect</code></pre>
+<pre class="r"><code>BtheB_lmer2=lmer(bdi ~ bdi.pre + time + treatment + drug +
                    length + time*treatment + (1 | subject), 
                  data=BtheB_long, REML=FALSE, na.action=na.omit)
 
-cftest(BtheB_lmer2)
-## 
+cftest(BtheB_lmer2)</code></pre>
+<pre><code>## 
 ##   Simultaneous Tests for General Linear Hypotheses
 ## 
 ## Fit: lmer(formula = bdi ~ bdi.pre + time + treatment + drug + length + 
@@ -378,11 +325,10 @@ cftest(BtheB_lmer2)
 ## time:treatmentBtheB == 0  0.49000    0.28959   1.692  0.09064 .  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## (Univariate p values reported)
-
-cat(&quot;#1.e&quot;)
-## #1.e
-# e. Construct a plot of the mean profiles of both treatment groups in the Beat
+## (Univariate p values reported)</code></pre>
+<pre class="r"><code>cat(&quot;#1.e&quot;)</code></pre>
+<pre><code>## #1.e</code></pre>
+<pre class="r"><code># e. Construct a plot of the mean profiles of both treatment groups in the Beat
 # the Blues data, showing also standard deviation bars at each time point.
 
 data_sum=ddply(BtheB_long, c(&quot;time&quot;, &quot;treatment&quot;), summarise, 
@@ -418,9 +364,9 @@ library(multcomp)
 attach(phosphate)
 par(mfrow = c(1,2))
 ylim &lt;-range(phosphate[,-1], na.rm = TRUE)
-cat(&quot;#2.a&quot;)
-## #2.a
-# a. Construct boxplots by group and discuss. 
+cat(&quot;#2.a&quot;)</code></pre>
+<pre><code>## #2.a</code></pre>
+<pre class="r"><code># a. Construct boxplots by group and discuss. 
 boxplot(phosphate[group == &quot;control&quot;, -1], 
         xlab = &quot;time&quot;, ylab = &quot;Phosphate level&quot;,
         main = &quot;base R: Control group&quot;, ylim = ylim)
@@ -428,8 +374,7 @@ boxplot(phosphate[group == &quot;obese&quot;,-1],
         xlab = &quot;time&quot;, ylab = &quot;Phosphate level&quot;,
         main = &quot;Obese group&quot;, ylim = ylim)</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<pre class="r"><code>
-# ggplot version:
+<pre class="r"><code># ggplot version:
 
 phosphate %&gt;%
   gather(time,phosphate_level, 2:9) %&gt;%
@@ -442,10 +387,9 @@ ggplot(aes(x=time,y=phosphate_level)) +
        y=&#39;Phosphate level&#39;) +
   theme_classic()</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
-<pre class="r"><code>
-cat(&quot;#2.b&quot;)
-## #2.b
-# b. Produce separate plots of the profiles of the individuals in each group
+<pre class="r"><code>cat(&quot;#2.b&quot;)</code></pre>
+<pre><code>## #2.b</code></pre>
+<pre class="r"><code># b. Produce separate plots of the profiles of the individuals in each group
 layout(matrix(1:2, nrow=1))
 
 rg=range(phosphate[ ,-1])
@@ -461,9 +405,7 @@ for(i in 1:sum(phosphate$group==&quot;obese&quot;)){
   lines(1:8, phosphate[nrow(phosphate)-i, -1])
 }</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-3.png" width="672" /></p>
-<pre class="r"><code>
-
-phosphate_t &lt;- phosphate
+<pre class="r"><code>phosphate_t &lt;- phosphate
 phosphate_t$subject &lt;- factor(rownames(phosphate_t))
 
 phosphate_t %&gt;%
@@ -477,10 +419,9 @@ ggplot(aes(x=time,y=phosphate_level)) +
        y=&#39;Phosphate Level&#39;) +
   theme_classic()</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-4.png" width="672" /></p>
-<pre class="r"><code>
-cat(&quot;#2.d&quot;) 
-## #2.d
-#d. Convert the data to long version and fit the model of your choice and
+<pre class="r"><code>cat(&quot;#2.d&quot;) </code></pre>
+<pre><code>## #2.d</code></pre>
+<pre class="r"><code>#d. Convert the data to long version and fit the model of your choice and
 #discuss the results.
 data(phosphate)
 ph=phosphate
@@ -513,17 +454,13 @@ ph_inter=lmer(p_level~time+group+t0+time*group+(1|subject),
 ph_cept_slope=lmer(p_level~time+group+t0+
                      (time|subject),
               data=ph_long,REML=FALSE,na.actio=na.omit)
-## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, :
-## unable to evaluate scaled gradient
-## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, :
-## Model failed to converge: degenerate Hessian with 1 negative eigenvalues
 
 ph_cept_slope_inter=lmer(p_level~time+group+t0+time*group+
                            (time|subject),
                          data=ph_long,REML=FALSE,na.actio=na.omit)
 
-print(summary(ph_cept_slope_inter))
-## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
+print(summary(ph_cept_slope_inter))</code></pre>
+<pre><code>## Linear mixed model fit by maximum likelihood  [&#39;lmerMod&#39;]
 ## Formula: p_level ~ time + group + t0 + time * group + (time | subject)
 ##    Data: ph_long
 ## 
@@ -554,9 +491,9 @@ print(summary(ph_cept_slope_inter))
 ## time        -0.145                     
 ## groupobese   0.149  0.356              
 ## t0          -0.970  0.000 -0.304       
-## time:gropbs  0.091 -0.628 -0.568  0.000
-print(cftest(ph_cept_slope_inter))
-## 
+## time:gropbs  0.091 -0.628 -0.568  0.000</code></pre>
+<pre class="r"><code>print(cftest(ph_cept_slope_inter))</code></pre>
+<pre><code>## 
 ##   Simultaneous Tests for General Linear Hypotheses
 ## 
 ## Fit: lmer(formula = p_level ~ time + group + t0 + time * group + (time | 
@@ -571,9 +508,9 @@ print(cftest(ph_cept_slope_inter))
 ## time:groupobese == 0 -0.211030   0.050297  -4.196 2.72e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## (Univariate p values reported)
-anova(ph_inter,ph_non_inter,ph_cept_slope,ph_cept_slope_inter)
-## Data: ph_long
+## (Univariate p values reported)</code></pre>
+<pre class="r"><code>anova(ph_inter,ph_non_inter,ph_cept_slope,ph_cept_slope_inter)</code></pre>
+<pre><code>## Data: ph_long
 ## Models:
 ## ph_non_inter: p_level ~ time + group + t0 + (1 | subject)
 ## ph_inter: p_level ~ time + group + t0 + time * group + (1 | subject)
@@ -590,14 +527,11 @@ anova(ph_inter,ph_non_inter,ph_cept_slope,ph_cept_slope_inter)
 ## ph_cept_slope          
 ## ph_cept_slope_inter ***
 ## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-
-pred=predict(ph_cept_slope_inter)
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>pred=predict(ph_cept_slope_inter)
 MSE=mean((pred-ph_long$p_level)^2)
 message(&quot;Mean Squared Error: &quot;,MSE)
-## Mean Squared Error: 0.225594030964195
-message(&quot;Mean Phosphate Level: &quot;,mean(ph_long$p_level))
-## Mean Phosphate Level: 3.48744588744589</code></pre>
+message(&quot;Mean Phosphate Level: &quot;,mean(ph_long$p_level))</code></pre>
 <p>Based on the plot, the control group has the median level of phosphate falling rapidly from a higher level of 4.3 to midway between t1 and t2 and starts to rise more rapidly over time. The obese group reached a relatively higher median phosphate rate close to 5 and dropped and grew steadily over time. The Obese group also has two outliers.</p>
 <p>I think linear mixed model would be suitable because the slopes and intercepts in each group vary widely. Additionally, there is an interaction between control and obese groups based on time. So fitting something of the form <span class="math inline">\(\textit{lmer(phosphatelevel t0+time∗group+(1= phos)}\)</span> would be suitable.</p>
 <p>In the fixed effect model, we see that there is a positive relation between the time and the phosphate level. It makes sense sinse we saw that after decreasing for a while the phosphate level increases for longer than decreasing time period. Based on the f-test with cftest , time, group, baseline phosphate level and the interaction between time and group all are significant.</p>
@@ -610,83 +544,55 @@ message(&quot;Mean Phosphate Level: &quot;,mean(ph_long$p_level))
 <pre class="r"><code>library(HSAUR3)
 library(gee)
 library(geepack)
-## Warning: package &#39;geepack&#39; was built under R version 4.0.5
-## 
-## Attaching package: &#39;geepack&#39;
-## The following object is masked from &#39;package:HSAUR3&#39;:
-## 
-##     respiratory
 library(lme4)
 library(MuMIn)
-## Warning: package &#39;MuMIn&#39; was built under R version 4.0.5
-## 
-## Attaching package: &#39;MuMIn&#39;
-## The following object is masked from &#39;package:geepack&#39;:
-## 
-##     QIC
 library(multcomp)
 
-cat(&quot;1a&quot;)
-## 1a
-
-data(&quot;respiratory&quot;, package=&quot;HSAUR3&quot;)
-head(respiratory)
-##     centre treatment gender age status month subject
+cat(&quot;1a&quot;)</code></pre>
+<pre><code>## 1a</code></pre>
+<pre class="r"><code>data(&quot;respiratory&quot;, package=&quot;HSAUR3&quot;)
+head(respiratory)</code></pre>
+<pre><code>##     centre treatment gender age status month subject
 ## 1        1   placebo female  46   poor     0       1
 ## 112      1   placebo female  46   poor     1       1
 ## 223      1   placebo female  46   poor     2       1
 ## 334      1   placebo female  46   poor     3       1
 ## 445      1   placebo female  46   poor     4       1
-## 2        1   placebo female  28   poor     0       2
-dim(respiratory)
-## [1] 555   7
-
-resp_sub &lt;- subset(respiratory, month &gt; &quot;0&quot;)
+## 2        1   placebo female  28   poor     0       2</code></pre>
+<pre class="r"><code>dim(respiratory)</code></pre>
+<pre><code>## [1] 555   7</code></pre>
+<pre class="r"><code>resp_sub &lt;- subset(respiratory, month &gt; &quot;0&quot;)
 resp_sub$baseline &lt;- rep(subset(respiratory, month == &quot;0&quot;)$status,rep(4, 111))
 
 resp_sub$nstat &lt;- as.numeric(resp_sub$status == &quot;good&quot;)
 resp_sub$month &lt;- resp_sub$month[, drop = TRUE]
-head(resp_sub, n = 3)
-##     centre treatment gender age status month subject baseline nstat
+head(resp_sub, n = 3)</code></pre>
+<pre><code>##     centre treatment gender age status month subject baseline nstat
 ## 112      1   placebo female  46   poor     1       1     poor     0
 ## 223      1   placebo female  46   poor     2       1     poor     0
-## 334      1   placebo female  46   poor     3       1     poor     0
-
-
-names(resp_sub)[names(resp_sub) == &quot;treatment&quot;] &lt;- &quot;trt&quot;
+## 334      1   placebo female  46   poor     3       1     poor     0</code></pre>
+<pre class="r"><code>names(resp_sub)[names(resp_sub) == &quot;treatment&quot;] &lt;- &quot;trt&quot;
 levels(resp_sub$trt)[2] &lt;- &quot;trt&quot;
 
-cat(&quot;Now, fitting the models&quot;)
-## Now, fitting the models
-resp_sub_glm &lt;- glm(status ~ centre + trt + gender + baseline + age, data = resp_sub, family = &quot;binomial&quot;)
+cat(&quot;Now, fitting the models&quot;)</code></pre>
+<pre><code>## Now, fitting the models</code></pre>
+<pre class="r"><code>resp_sub_glm &lt;- glm(status ~ centre + trt + gender + baseline + age, data = resp_sub, family = &quot;binomial&quot;)
 
-resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;independence&quot;, scale.fix = TRUE, scale.value = 1)
-## Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27
-## running glm to get initial regression estimate
-##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
-##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588
-
-resp_sub_gee2 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;exchangeable&quot;, scale.fix = TRUE, scale.value = 1)
-## Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27
-## running glm to get initial regression estimate
-##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
-##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588
-
-resp_sub_gee3 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;unstructured&quot;, scale.fix = TRUE, scale.value = 1)
-## Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27
-## running glm to get initial regression estimate
-##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
-##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588
-
-resp_sub_gee4 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;AR-M&quot;, scale.fix = TRUE, scale.value = 1)
-## Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27
-## running glm to get initial regression estimate
-##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
-##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588
-
-cat(&quot; Summary&quot;)
-##  Summary
-knitr::kable(summary(resp_sub_glm)$coeff, caption = &quot;Summary coeff of GLM binomial&quot;)</code></pre>
+resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;independence&quot;, scale.fix = TRUE, scale.value = 1)</code></pre>
+<pre><code>##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
+##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588</code></pre>
+<pre class="r"><code>resp_sub_gee2 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;exchangeable&quot;, scale.fix = TRUE, scale.value = 1)</code></pre>
+<pre><code>##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
+##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588</code></pre>
+<pre class="r"><code>resp_sub_gee3 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;unstructured&quot;, scale.fix = TRUE, scale.value = 1)</code></pre>
+<pre><code>##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
+##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588</code></pre>
+<pre class="r"><code>resp_sub_gee4 &lt;- gee(nstat ~ centre + trt + gender + baseline + age, data =resp_sub, family = &quot;binomial&quot;, id = subject, corstr = &quot;AR-M&quot;, scale.fix = TRUE, scale.value = 1)</code></pre>
+<pre><code>##  (Intercept)      centre2       trttrt   gendermale baselinegood          age 
+##  -0.90017133   0.67160098   1.29921589   0.11924365   1.88202860  -0.01816588</code></pre>
+<pre class="r"><code>cat(&quot; Summary&quot;)</code></pre>
+<pre><code>##  Summary</code></pre>
+<pre class="r"><code>knitr::kable(summary(resp_sub_glm)$coeff, caption = &quot;Summary coeff of GLM binomial&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GLM binomial</caption>
 <thead>
@@ -743,8 +649,7 @@ knitr::kable(summary(resp_sub_glm)$coeff, caption = &quot;Summary coeff of GLM b
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>
-knitr::kable(summary(resp_sub_gee1)$coef, caption = &quot;Summary coeff of GEE binomial independent&quot;)</code></pre>
+<pre class="r"><code>knitr::kable(summary(resp_sub_gee1)$coef, caption = &quot;Summary coeff of GEE binomial independent&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial independent</caption>
 <thead>
@@ -808,8 +713,7 @@ knitr::kable(summary(resp_sub_gee1)$coef, caption = &quot;Summary coeff of GEE b
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>
-knitr::kable(summary(resp_sub_gee2)$coef, caption = &quot;Summary coeff of GEE binomial exchangeable&quot;)</code></pre>
+<pre class="r"><code>knitr::kable(summary(resp_sub_gee2)$coef, caption = &quot;Summary coeff of GEE binomial exchangeable&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial exchangeable</caption>
 <thead>
@@ -873,8 +777,7 @@ knitr::kable(summary(resp_sub_gee2)$coef, caption = &quot;Summary coeff of GEE b
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>
-knitr::kable(summary(resp_sub_gee3)$coef, caption = &quot;Summary coeff of GEE binomial unstructured&quot;)</code></pre>
+<pre class="r"><code>knitr::kable(summary(resp_sub_gee3)$coef, caption = &quot;Summary coeff of GEE binomial unstructured&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial unstructured</caption>
 <thead>
@@ -938,8 +841,7 @@ knitr::kable(summary(resp_sub_gee3)$coef, caption = &quot;Summary coeff of GEE b
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>
-knitr::kable(summary(resp_sub_gee4)$coef, caption = &quot;Summary coeff of GEE binomial AR-M&quot;)</code></pre>
+<pre class="r"><code>knitr::kable(summary(resp_sub_gee4)$coef, caption = &quot;Summary coeff of GEE binomial AR-M&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial AR-M</caption>
 <thead>
@@ -1006,16 +908,7 @@ knitr::kable(summary(resp_sub_gee4)$coef, caption = &quot;Summary coeff of GEE b
 <p>Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.</p>
 <pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models we tried in part (a). 
 (Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)</code></pre>
-<pre><code>## Warning: package &#39;MESS&#39; was built under R version 4.0.5
-## 
-## Attaching package: &#39;MESS&#39;
-## The following object is masked from &#39;package:MuMIn&#39;:
-## 
-##     QIC
-## The following object is masked from &#39;package:geepack&#39;:
-## 
-##     QIC
-## Fitting GEE Independent</code></pre>
+<pre><code>## Fitting GEE Independent</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-4">Table 2: </span>QIC from GGE independent</caption>
 <thead>
@@ -1172,29 +1065,7 @@ b. the GEE approach
 c. mixed effects model (lmer) from previous chapter
 
 d. Is there a difference? What model(s) work best? Describe your results.</code></pre>
-<pre><code>## Warning: package &#39;vcd&#39; was built under R version 4.0.5
-## Loading required package: grid
-## Warning: package &#39;printr&#39; was built under R version 4.0.5
-## Registered S3 method overwritten by &#39;printr&#39;:
-##   method                from     
-##   knit_print.data.frame rmarkdown
-## Warning: package &#39;dplyr&#39; was built under R version 4.0.2
-## 
-## Attaching package: &#39;dplyr&#39;
-## The following objects are masked from &#39;package:plyr&#39;:
-## 
-##     arrange, count, desc, failwith, id, mutate, rename, summarise,
-##     summarize
-## The following object is masked from &#39;package:MASS&#39;:
-## 
-##     select
-## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag
-## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union
-## Calculating percentage data</code></pre>
+<pre><code>## Calculating percentage data</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-5">Table 3: </span>Summary statistics for presence of younger onset data</caption>
 <thead>
@@ -1353,14 +1224,12 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 <p>Discussions:</p>
 <p>In exchangeable and unstructured model, the QIC score is the lowest. So for the selection of model, either model can be a good choice. However, comparing parameters such as CIC, QICu and QICC, I think the exchangeable model seems better.</p>
 <p>Mixed effects model (lmer)</p>
-<pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, :
-## Model failed to converge with max|grad| = 0.00574242 (tol = 0.002, component 1)
-## [1] &quot;Without interaction term:&quot;
-## [1] &quot;BIC: Fixed Slope :  179.591302394191&quot;
-## [1] &quot;BIC: Random Slope:  184.624562858509&quot;
-## [1] &quot;With interaction term: month v. onset:&quot;
-## [1] &quot;BIC: Fixed Slope :  184.587333241198&quot;
-## [1] &quot;BIC: Random Slope:  189.62089162902&quot;</code></pre>
+<pre><code>## [1] &quot;Without interaction term:&quot;</code></pre>
+<pre><code>## [1] &quot;BIC: Fixed Slope :  179.591302394191&quot;</code></pre>
+<pre><code>## [1] &quot;BIC: Random Slope:  184.624562858509&quot;</code></pre>
+<pre><code>## [1] &quot;With interaction term: month v. onset:&quot;</code></pre>
+<pre><code>## [1] &quot;BIC: Fixed Slope :  184.587333241198&quot;</code></pre>
+<pre><code>## [1] &quot;BIC: Random Slope:  189.62089162902&quot;</code></pre>
 <p>** Model comparison with ANOVA**</p>
 <pre><code>## Fixed Slope v. Random Slope (no intaction term)</code></pre>
 <table>

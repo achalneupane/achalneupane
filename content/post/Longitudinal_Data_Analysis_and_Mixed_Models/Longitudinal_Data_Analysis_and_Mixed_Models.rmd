@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
+To understanding the overall progression of diseases is critical to the timing of therapeutic interventions and design of effective clinical trials. Disease progression can be assessed with longitudinal study designs in which outcomes are measured repeatedly over time and are assessed with respect to risk factors, either measured repeatedly or at baseline.
+
 ## Part 1 ##
 
 To examine the data `Beat the Blues` from package `HSAUR3`, we will do the following:

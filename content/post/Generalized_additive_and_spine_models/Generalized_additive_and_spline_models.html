@@ -14,7 +14,6 @@ summary: Statistics series
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-<pre class="r"><code>knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)</code></pre>
 <p>In statistics, a generalized additive model (GAM) is a generalized linear model in which the linear response variable depends linearly on unknown smooth functions of some predictor variables, and interest focuses on inference about these smooth functions.</p>
 <p>GAMs were originally developed to blend properties of generalized linear models with additive models.The model relates a univariate response variable, Y, to some predictor variables, x<span class="math inline">\(i\)</span>. An exponential family distribution is specified for Y (for example normal, binomial or Poisson distributions) along with a link function g (for example the identity or log functions) relating the expected value of Y to the predictor variables.</p>
 <p>More on this from wiki article: <a href="https://en.wikipedia.org/wiki/Generalized_additive_model" class="uri">https://en.wikipedia.org/wiki/Generalized_additive_model</a></p>
@@ -210,13 +209,13 @@ Based on this plot, it looks like we don’t need to smooth all variables. Varia
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                   k&#39;  edf k-index p-value  
-## s(age)          9.00 1.00    0.81   0.035 *
-## s(waistcirc)    9.00 1.00    0.94   0.305  
-## s(hipcirc)      9.00 1.78    1.02   0.555  
-## s(elbowbreadth) 9.00 1.00    0.81   0.030 *
-## s(kneebreadth)  9.00 8.75    1.08   0.730  
-## s(anthro3a)     9.00 1.00    1.09   0.710  
-## s(anthro3c)     9.00 7.04    0.89   0.135  
+## s(age)          9.00 1.00    0.81    0.07 .
+## s(waistcirc)    9.00 1.00    0.94    0.29  
+## s(hipcirc)      9.00 1.78    1.02    0.50  
+## s(elbowbreadth) 9.00 1.00    0.81    0.02 *
+## s(kneebreadth)  9.00 8.75    1.08    0.70  
+## s(anthro3a)     9.00 1.00    1.09    0.76  
+## s(anthro3c)     9.00 7.04    0.89    0.15  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>cat(&quot;Additionally we can also check for the train() method. Note that
@@ -342,10 +341,10 @@ gam.check(bodyfat_gam2)</code></pre>
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                  k&#39;  edf k-index p-value
-## s(hipcirc)     9.00 1.61    1.01    0.44
-## s(kneebreadth) 9.00 8.79    1.06    0.62
+## s(hipcirc)     9.00 1.61    1.01    0.48
+## s(kneebreadth) 9.00 8.79    1.06    0.59
 ## s(anthro3a)    9.00 1.00    1.11    0.76
-## s(anthro3c)    9.00 7.12    0.91    0.17</code></pre>
+## s(anthro3c)    9.00 7.12    0.91    0.21</code></pre>
 <p>Based on the plot, it looks like we don’t need to smooth all variables. Variables <code>anthro3a</code> and “possibly” <code>hipcirc</code> appear linear.</p>
 <p>GCV of bodyfat_gam2:
 7.946447
@@ -431,10 +430,10 @@ gam.check(bodyfat_gam3)</code></pre>
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                  k&#39;  edf k-index p-value  
-## s(hipcirc)     9.00 2.91    0.86   0.085 .
-## s(kneebreadth) 9.00 2.33    0.83   0.050 *
-## s(anthro3a)    9.00 1.00    1.00   0.465  
-## s(anthro3c)    9.00 7.36    0.99   0.435  
+## s(hipcirc)     9.00 2.91    0.86   0.075 .
+## s(kneebreadth) 9.00 2.33    0.83   0.070 .
+## s(anthro3a)    9.00 1.00    1.00   0.475  
+## s(anthro3c)    9.00 7.36    0.99   0.335  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>cat(&quot;Plots for the model with log transferred response&quot;)</code></pre>
