@@ -210,12 +210,12 @@ Based on this plot, it looks like we don’t need to smooth all variables. Varia
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                   k&#39;  edf k-index p-value  
-## s(age)          9.00 1.00    0.81   0.025 *
-## s(waistcirc)    9.00 1.00    0.94   0.280  
-## s(hipcirc)      9.00 1.78    1.02   0.540  
-## s(elbowbreadth) 9.00 1.00    0.81   0.040 *
-## s(kneebreadth)  9.00 8.75    1.08   0.710  
-## s(anthro3a)     9.00 1.00    1.09   0.775  
+## s(age)          9.00 1.00    0.81   0.035 *
+## s(waistcirc)    9.00 1.00    0.94   0.305  
+## s(hipcirc)      9.00 1.78    1.02   0.555  
+## s(elbowbreadth) 9.00 1.00    0.81   0.030 *
+## s(kneebreadth)  9.00 8.75    1.08   0.730  
+## s(anthro3a)     9.00 1.00    1.09   0.710  
 ## s(anthro3c)     9.00 7.04    0.89   0.135  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
@@ -342,10 +342,10 @@ gam.check(bodyfat_gam2)</code></pre>
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                  k&#39;  edf k-index p-value
-## s(hipcirc)     9.00 1.61    1.01    0.54
-## s(kneebreadth) 9.00 8.79    1.06    0.70
-## s(anthro3a)    9.00 1.00    1.11    0.79
-## s(anthro3c)    9.00 7.12    0.91    0.19</code></pre>
+## s(hipcirc)     9.00 1.61    1.01    0.44
+## s(kneebreadth) 9.00 8.79    1.06    0.62
+## s(anthro3a)    9.00 1.00    1.11    0.76
+## s(anthro3c)    9.00 7.12    0.91    0.17</code></pre>
 <p>Based on the plot, it looks like we don’t need to smooth all variables. Variables <code>anthro3a</code> and “possibly” <code>hipcirc</code> appear linear.</p>
 <p>GCV of bodyfat_gam2:
 7.946447
@@ -432,8 +432,8 @@ gam.check(bodyfat_gam3)</code></pre>
 ## 
 ##                  k&#39;  edf k-index p-value  
 ## s(hipcirc)     9.00 2.91    0.86   0.085 .
-## s(kneebreadth) 9.00 2.33    0.83   0.080 .
-## s(anthro3a)    9.00 1.00    1.00   0.410  
+## s(kneebreadth) 9.00 2.33    0.83   0.050 *
+## s(anthro3a)    9.00 1.00    1.00   0.465  
 ## s(anthro3c)    9.00 7.36    0.99   0.435  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
@@ -657,4 +657,4 @@ lines(sorted_value$x, predict(lm_value))</code></pre>
   geom_line(aes(x = sorted_value$x, y = predict(lm_value))) +
     labs(title = &quot;ggplot: Quadratic scatterplot smoother&quot;)</code></pre>
 <p><img src="/post/Generalized_additive_and_spine_models/Generalized_additive_and_spline_models_files/figure-html/unnamed-chunk-9-6.png" width="672" /></p>
-<p>Based on our analysis, the three different smoothers line show that quadratic is higher than cubic and lowess, while cubic is higher than lowess. However, we may not be quite sure if it would be logical to say whether the smoother one fits better.</p>
+<p>Based on our analysis, the three different smoother lines show that the quadratic is higher than cubic and lowess, while cubic is higher than the lowess. However, we may not be quite sure if it would be logical to say whether the smoother one fits better.</p>

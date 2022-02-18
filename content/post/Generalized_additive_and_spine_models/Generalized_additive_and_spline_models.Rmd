@@ -13,7 +13,7 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-```{r global options, include = T}
+```{r global options, include = F}
 knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
 
