@@ -37,7 +37,7 @@ Show that we can write:
 
 What is $a_{i'}$ ?
 
-Note: We interpret this result by saying that the fitted values from
+Note: we interpret this result by saying that the fitted values from
 linear regression are linear combinations of the response values.
 
 ```{r echo=FALSE, results='hide'}
@@ -54,8 +54,8 @@ $$\hat{y}_i = c_{i'}{\sum_{i=1}^n x_iy_i} = {\sum_{i=1}^n c_{i'}x_iy_i}$$
 
 When we combine  $c_{i'}$ with $x_i$, we get $a_{i'}$. We could determine $a_{i'}$ as weight function over the $Y$ set to estimate the $y_i$ element.
 
-This question should be answered using the Carseats data set.
-(a) Fit a multiple regression model to predict Sales using Price, Urban, and US.
+This question should be answered using the Carseats dataset.
+First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.
 
 ```{r}
 
@@ -75,19 +75,19 @@ plot(model_3.7.10.a,pch=16,col=4,cex=0.8)
 ```
 
 
-(b) Provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!
+Then we will provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!
 
 *Given the Unit sales (which is in thousands) at each location, we can interpret the result as follows: if there is 1 dollar change in price, `r abs(summary(model_3.7.10.a)$coef[2, 1]) * 1000` units in sales will go down keeping all other predictors fixed. We can also say that the unit sales in urban location are `r abs(summary(model_3.7.10.a)$coef[3, 1]) * 1000` units less than in rural location keeping all other predictors fixed. Likewise, we can also say that on average the unit sales in a US store are `r abs(summary(model_3.7.10.a)$coef[4, 1]) * 1000` units more than in a non US store keeping other predictors fixed.*
 
 
-(c) Write out the model in equation form, being careful to handle the qualitative variables properly.
+Now, we Write out the model in equation form, being careful to handle the qualitative variables properly.
 
 \[Sales = `r summary(model_3.7.10.a)$coef[1, 1]` + (`r summary(model_3.7.10.a)$coef[2, 1]`)\times Price + (`r summary(model_3.7.10.a)$coef[3, 1]`)\times Urban + (`r summary(model_3.7.10.a)$coef[4, 1]`)\times US + \varepsilon\]
 
 with $Urban = 1$ if the store is in an urban location and $0$ if not, and $US = 1$ if the store is in the US and $0$ if not.*
 
 
-(d) For which of the predictors can you reject the null hypothesis
+Now, we will try to find out for which of the predictors we can reject the null hypothesis
 $H_0 : \beta_j = 0$ ?
 
 
@@ -96,7 +96,7 @@ $H_0 : \beta_j = 0$ ?
 For Price and US, we can reject the Null Hypothesis at any significance level. The p-value (P<0.05) is the threshold value at which we can reject the Null hypothesis. 
 
 
-(e) On the basis of your response to the previous question, fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.
+On the basis of our response to the previous question, we will fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.
 
 ```{r}
 
@@ -107,9 +107,9 @@ plot(model_3.7.10.e,pch=16,col=4,cex=0.8)
 
 ```
 
-In this model above, we removed the Urban variable. Urban variable did not have enough evidence of linear association with Sales. The summary statistics from this model show that both Price and US have nearly zero p-values, suggesting good linear association. We can also tell that the estimates of the coefficients are almost the same as the previous model, but the adjusted R-squared value now has slightly gone up.
+In this previous model, we removed the Urban variable. Urban variable did not have enough evidence of linear association with Sales. The summary statistics from this model show that both Price and US have nearly zero p-values, suggesting good linear association. We can also tell that the estimates of the coefficients are almost the same as the previous model, but the adjusted R-squared value now has slightly gone up.
 
-(f) How well do the models in (a) and (e) fit the data?
+Now, see how well the models fit the data.
 
 ```{r}
 
@@ -153,7 +153,7 @@ The adjusted R-squared values from the two models are 0.2335 (larger model) and 
 In this figure above, we can visualize the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting  they are not different.
 
 
-(g) Using the model from (e), obtain 95% confidence intervals for the coefficient(s).
+Next, using the model built previously, obtain 95% confidence intervals for the coefficient(s).
 
 ```{r}
 
@@ -176,7 +176,7 @@ kable(confint(model_3.7.10.e, level = 0.95), caption = "95% confidence intervals
 ```
 
 
-(h) Is there evidence of outliers or high leverage observations in the model from (e)?
+Check if there is any evidence of outliers or high leverage observations in the model?
 
 ```{r}
 # par(mfrow = c(2, 2))
@@ -210,14 +210,12 @@ which(hii>2*mean(hii))
 
 
 
-This problem involves the Boston data set. We will now try to predict per capita crime rate using the other variables in this data set. In other words, per capita
+This problem involves the Boston dataset. We will now try to predict per capita crime rate using the other variables in this dataset. In other words, per capita
 crime rate is the response, and the other variables are the predictors.
 
-(a) For each predictor, fit a simple linear regression model to predict the response. Describe your results. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions.
+For each predictor, we will fit a simple linear regression model to predict the response. We will then find out in which of the models there is a statistically significant association between the predictor and the response. For this, we will create some plots to back up our assertions.
 
 ```{r}
-
-
 library(MASS)
 attach(Boston)
 
@@ -259,9 +257,9 @@ plot(crim ~ . - crim, data = Boston)
 *Additionally,  The formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv*
 
 
-(b) Fit a multiple regression model to predict the response using
-all of the predictors. Describe your results. For which predictors
-can we reject the null hypothesis $H_0 : \beta_j = 0$ ?
+Here, we will fit a multiple regression model to predict the response using
+all of the predictors. We wil find out for which predictors
+we can reject the null hypothesis $H_0 : \beta_j = 0$.
 
 
 ```{r}
@@ -278,20 +276,12 @@ plot(fullmodel, pch=16, col=j+2,cex=0.6,lwd=2)
 
 It looks like we can reject the null hypothesis for predictors zn and black at P<0.05; medv at P<0.01; dis and rad at p<0.001. For the rest of the predictors we fail to reject the null hypothesis.
 
-
-(c) How do your results from (a) compare to your results from (b)?
-Create a plot displaying the univariate regression coefficients
-from (a) on the x-axis, and the multiple regression coefficients
-from (b) on the y-axis. That is, each predictor is displayed as a
-single point in the plot. Its coefficient in a simple linear regression
-model is shown on the x-axis, and its coefficient estimate
-in the multiple linear regression model is shown on the y-axis.
+We will also create a plot displaying the univariate regression coefficients on the x-axis, and the multiple regression coefficients on the y-axis. That is, each predictor is displayed as a single point in the plot. Its coefficient in a simple linear regression model is shown on the x-axis, and its coefficient estimate in the multiple linear regression model is shown on the y-axis.
 
 ```{r}
 
 fullmodel=lm(crim~.,data=Boston)
-
-# Create a dummy dataframe first with multiple and univariate variables"
+cat("Create a dummy dataframe first with multiple and univariate variables")
 multiple=rep(1, 13)
 univariate=rep(1, 13)
 
@@ -301,9 +291,6 @@ for(i in 1:13){
   coeffs$multiple[i]=fullmodel$coeff[i+1]
 }
 
-# for(i in 2:14){
-#   print(i)
-# }
 
 for(i in 2:14){
   model=lm(Boston$crim~Boston[,i])
@@ -326,9 +313,8 @@ abline(cmodel$coeff[1],cmodel$coeff[2],col=4,lty=2, lwd=2)
 *Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.*
 
 
-(d) Is there evidence of non-linear association between any of the
-predictors and the response? To answer this question, for each
-predictor X, fit a model of the form
+Now, check if there is any evidence of non-linear association between any of the
+predictors and the response. In this case, we will need to fit a model of the form below for each predictor X.
 
 $$Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \varepsilon.$$
 
@@ -396,14 +382,12 @@ $$\frac{p(X)}{1-p(X)} = e^{\beta_0 + \beta_1 X}$$
 
 
 
-This next question should be answered using the Weekly data set, which
-is part of the ISLR package. This data is similar in nature to the
-Smarket data from this chapter’s lab, except that it contains 1, 089
-weekly returns for 21 years, from the beginning of 1990 to the end of
-2010.
+This next question should be answered using the ${Weekly}$ dataset, which
+is part of the ${ISLR}$ package. This data is similar in nature to the
+${Smarket}$ data, except that it contains ${1, 089}$ weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
 
-(a) Produce some numerical and graphical summaries of the Weekly
-data. Do there appear to be any patterns?
+So, we will first produce some numerical and graphical summaries of the Weekly
+data to if any pattern exists.
 
 ```{r}
 
@@ -419,7 +403,7 @@ class(cor(Weekly[,-9]))
 
 sort(unlist(list(cor(Weekly[,-9]))),decreasing = T)[-c(1:8)]
 
-## there is great postive linear association with volume and year (volume increases with the time). seeing the different nature now:
+cat("There is great postive linear association with volume and year (volume increases with the time). seeing the different nature now:")
 
 plot(Volume~Year,data=Weekly,pch=16,cex=0.7,col=2,main="Weekly Data Plot")
 data=Weekly[,c(1,7)]
@@ -455,12 +439,7 @@ In the figure above (`Weekly Data Plot`), the green line indicates the mean Volu
 
 This analysis indicates that Year and Volume are highly correlated particularly after Year 1995 until the curve starts to decline after year 2010. Also, the variance change with respect to the change in mean volumne showing some positive relation with the mean Volume.
 
-
-(b) Use the full data set to perform a logistic regression with
-Direction as the response and the five lag variables plus Volume
-as predictors. Use the summary function to print the results. Do
-any of the predictors appear to be statistically significant? If so,
-which ones?
+Now, we will use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. We will use the summary function to print the results and also examine if any of the predictors appear to be statistically significant. If so, we will also find them below.
 
 ```{r}
 
@@ -472,15 +451,11 @@ summary(model.4.7.10.b)
 Based on the summary of the model, only Lag2 variable is statistically significant (at P<0.05). The estimated coefficient for this variable is 0.05844, which means we would expect mean increase of the log odd in favor of the market going up by a unit increase in Lag2 variable, keeping other predictors in the model constant. 
 
 
-(c) Compute the confusion matrix and overall fraction of correct
-predictions. Explain what the confusion matrix is telling you
-about the types of mistakes made by logistic regression.
+Here, we will compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
 
 
 ```{r}
 
-# model = model.4.7.10.b
-# data = Weekly
 computeIT=function(TH,model,data){
   preds=rep("Down",dim(data)[1])
   vals=predict(model,newdata=data,type="response")
@@ -490,14 +465,14 @@ computeIT=function(TH,model,data){
     }
   }
   ## Confusion matrix
-  message("Confusion Matrix:")
+  cat("Confusion Matrix:")
   con=table(preds,data$Direction)
   print(con)
-  message("Model Accuracy (Percentage):")
+  cat("Model Accuracy (Percentage):")
   print(round(sum(preds==data$Direction)/dim(data)[1]*100,2))
-  message("True Postive Rate, TPR (percentage):")
+  cat("True Postive Rate, TPR (percentage):")
   print(round(con[2,2]/(con[2,2]+con[1,2])*100,2))
-  message("False Postive Rate, FPR (percentage):")
+  cat("False Postive Rate, FPR (percentage):")
   spec=con[1,1]/(con[1,1]+con[2,1])*100
   print(round((100-spec),2))
   
@@ -508,10 +483,7 @@ computeIT(0.5,model.4.7.10.b,Weekly)
 
 In a good model we would expect large TPR and low FPR. In this analysis, using a threshold value of 0.5, the overall accuracy of the model is only 56.11%. Based on the confusion matrix, the True Positive Rate (TPR) of the model was calculated to be  92.07%, which is very good. The model gives 92.07% of the time right prediction, when the market goes up. But the thing that makes model very bad is the False Positive Rate (FRP). FPR for the model was calculated to be 88.84% (Specificity=11.16%) which means when the market is going Down, 88.84% of the time the model is predicting market to be going up, falsely. 
 
-(d) Now fit the logistic regression model using a training data period
-from 1990 to 2008, with Lag2 as the only predictor. Compute the
-confusion matrix and the overall fraction of correct predictions
-for the held out data (that is, the data from 2009 and 2010).
+Now, we will fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Then compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
 
 ```{r}
 
@@ -529,15 +501,10 @@ For the held out data (data from 2009 and 2010), the calculations were done as b
 
 
 
-In this problem, we will develop a model to predict whether a given
-car gets high or low gas mileage based on the Auto data set.
+In this problem, we will develop a model to predict whether a given car gets high or low gas mileage based on the Auto data set.
 
-(a) Create a binary variable, mpg01, that contains a 1 if mpg contains
-a value above its median, and a 0 if mpg contains a value below
-its median. You can compute the median using the median()
-function. Note you may find it helpful to use the data.frame()
-function to create a single data set containing both mpg01 and
-the other Auto variables.
+We will first, create a binary variable, mpg01, that contains a 1 if mpg contains
+a value above its median, and a 0 if mpg contains a value below its median. You can compute the median using the median() function. Note we may find it helpful to use the data.frame() function to create a single data set containing both mpg01 and the other Auto variables.
 
 ```{r}
 library(ISLR)
@@ -549,11 +516,8 @@ df=as.data.frame(cbind(Auto, mpg01))
 
 ```
 
-(b) Explore the data graphically in order to investigate the association
-between mpg01 and the other features. Which of the other
-features seem most likely to be useful in predicting mpg01? Scatterplots
-and boxplots may be useful tools to answer this question.
-Describe your findings.
+Here, we will explore the data graphically in order to investigate the association
+between mpg01 and the other features. We will try to find the features that seem most likely to be useful in predicting mpg01. Scatterplots and boxplots may be useful tools to answer this question.
 
 ```{r}
 k=c(2,3,4,5,6,7,8) ## taking just the relevant variables
@@ -576,8 +540,7 @@ str(newdf)
 
 Based on the plots, we see that there is a clear distinction between the distribution of cylinders in two groups. So is the case for horsepower, acceleration, origin, displacement, weight and year. US based cars are mostly condensed at lower mpg, whereas European and Japanese cars tend to be well distributed. Also, older cars tend to have lower mpg, and modern cars tend to have higher. We also expect correlation between the mechanical features of the cars, so from scatter plots it seems that there is very high correlations between the physical quantities.
 
-
-(c) Split the data into a training set and a test set.
+Now, we will split the data into a training set and a test set.
 
 ```{r}
 
@@ -596,11 +559,7 @@ test=rbind(test1,test2)
 
 ```
 
-The test and training data were created in the ration of 50:50 from high mpg and low mpg groups. 
-
-(f) Perform logistic regression on the training data in order to predict
-mpg01 using the variables that seemed most associated with
-mpg01 in (b). What is the test error of the model obtained?
+The test and training data were created in the ration of 50:50 from high mpg and low mpg groups. Now, we will perform logistic regression on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01. We will then calculate the test errors of the model obtained.
 
 ```{r}
 
@@ -616,21 +575,20 @@ showStats=function(cutoff,model,test){
     }
   }
   cm=table(preds, test$mpg01)
-  message("Confusion Matrix:");print(cm)
+  cat("Confusion Matrix:");print(cm)
   ac=((cm[1,1]+cm[2,2])/sum(cm))*100
-  message("Overall test accuracy (percentage) : ", round(ac,2))
-  message("Misclassification rate (percantage): ",round((100-ac),2))
-  message("True Postive Rate, TPR/Sensitivity (percentage): ",
+  cat("Overall test accuracy (percentage) : ", round(ac,2))
+  cat("Misclassification rate (percantage): ",round((100-ac),2))
+  cat("True Postive Rate, TPR/Sensitivity (percentage): ",
           round(cm[2,2]/(cm[2,2]+cm[1,2])*100,2))
   spec=cm[1,1]/(cm[1,1]+cm[2,1])*100
-  message("Specificity (percantage): ",round(spec,2))
-  message("False Postive Rate, FPR (percentage): ",round((100-spec),2))
+  cat("Specificity (percantage): ",round(spec,2))
+  cat("False Postive Rate, FPR (percentage): ",round((100-spec),2))
 }
 
 showStats(0.5,model.4.7.11.f.1, test)
 
-
-## looking for influential correlation
+cat("Looking for influential correlation")
 library(car)
 kable(vif(model.4.7.11.f.1), caption = "VIF of model.4.7.11.f.1")
 model.4.7.11.f.2=glm(mpg01~.-displacement-cylinders,train,family=binomial)
@@ -641,12 +599,11 @@ kable(vif(model.4.7.11.f.2), caption = "VIF of model.4.7.11.f.2")
 
 showStats(0.5,model.4.7.11.f.2, test)
 
-## model with weight and year
+cat("model with weight and year")
 model.4.7.11.f.3=glm(mpg01~weight+year,train,family=binomial)
 kable(vif(model.4.7.11.f.3), caption = "VIF of model.4.7.11.f.3")
 summary(model.4.7.11.f.3)
 showStats(0.5,model.4.7.11.f.3, test)
-
 
 ```
 
@@ -654,7 +611,7 @@ For first model (`model.4.7.11.f.1`, selecting all variables), the summary stati
 
 The third model (`model.4.7.11.f.1`) was built, with only year and weight. Both were the only two variables significant in the previous two models. The estimated coefficients were not dramatically different from previous two, but there is a good improvement in the standard errors of the estimated coefficients. In this third model, we see some improvement in the overall prediction. Overall accuracy on the test data was found to be 91.84%, whereas previously it was 90.31%. TPR remained same. But FPR reduced to 8.16% from 11.22%.
 
-4. Write a function in RMD that calculates the misclassification rate, sensitivity, and specificity. The inputs for this function are a cutoff point, predicted probabilities, and original binary response. Test your function using the model from 4.7.10 b. (Post any questions you might have regarding this on the discussion board, this needs to be an actual function, using the function() command, not just a chunk of code). This will be something you will want to use throughout the semester, since we will be calculating these a lot! \textit{Show the function code you wrote in your final write-up.}
+Here, we will write a function in RMD that calculates the misclassification rate, sensitivity, and specificity. The inputs for this function are a cutoff point, predicted probabilities, and original binary response. 
 
 ```{r,echo=TRUE,warning=FALSE}
 
@@ -692,7 +649,8 @@ Function.for.Q.4(cutoff, pred_prob, original)
 ## Part 3 ##
 
 We now examine the differences between LDA and QDA.
-(a) If the Bayes decision boundary is linear, do we expect LDA or
+
+If the Bayes decision boundary is linear, do we expect LDA or
 QDA to perform better on the training set? On the test set?
 
 Answer:
@@ -700,14 +658,14 @@ Answer:
 we expect QDA to perform better on the training set if the Bayes decision boundary is linear because its higher flexiblity may yield a closer fit. On the test set, we expect LDA to perform better than QDA, because QDA could overfit the linearity on the Bayes decision boundary.
 
 
-(b) If the Bayes decision boundary is non-linear, do we expect LDA
+If the Bayes decision boundary is non-linear, do we expect LDA
 or QDA to perform better on the training set? On the test set?
 
 Answer:
 
 We should expect QDA to perform better both on the training and test sets if the Bayes decision boundary is non-linear.
 
-(c) In general, as the sample size n increases, do we expect the test
+In general, as the sample size n increases, do we expect the test
 prediction accuracy of QDA relative to LDA to improve, decline,
 or be unchanged? Why?
 
@@ -720,7 +678,7 @@ Note: This exercise will need in-depth understanding of https://en.wikipedia.org
 
 
 
-Next, we will compare the logistic regression we performed in Part 2(d) above with the LDA analysis below using Lag2 as th only predictor.
+Next, we will compare the logistic regression we performed in Part 2 above with the LDA analysis below using `Lag2` as th only predictor.
 
 Before we perform this analysis, there are few things we need to understand. Such as, discriminant analysis assumes a multivariate normal distribution because what we usually consider to be predictors are really a multivariate dependent variable, and the grouping variable is considered to be a predictor. This means that categorical variables that are to be treated as predictors in the sense you wish are not handled well. This is one reason that many, including myself, consider discriminant analysis to have been made obsolete by logistic regression. Logistic regression makes no distributional assumptions of any kind, on either the left hand or the right hand side of the model. Logistic regression is a direct probability model and doesn't require one to use Bayes' rule to convert results to probabilities as does discriminant analysis.
 
@@ -745,15 +703,14 @@ model4.7.10.e=lda(Direction~Lag2,data=train)
 
 computeLDA=function(model,data){
   preds=(predict(model,newdata=data,type="response"))$class
-  ## Confusion matrix
-  print("Confusion Matrix:")
+  cat("Confusion matrix:")
   con=table(preds,data$Direction)
   print(con)
-  print("Model Accuracy (Percentage):")
+  cat("Model Accuracy (Percentage):")
   print(round(sum(preds==data$Direction)/dim(data)[1]*100,2))
-  print("True Positive Rate, TPR (percentage):")
+  cat("True Positive Rate, TPR (percentage):")
   print(round(con[2,2]/(con[2,2]+con[1,2])*100,2))
-  print("False Postive Rate, FPR (percentage):")
+  cat("False Postive Rate, FPR (percentage):")
   spec=con[1,1]/(con[1,1]+con[2,1])*100
   print(round((100-spec),2))
   
@@ -888,9 +845,6 @@ computeLDA(qdamodel6,test)
 computeLDA(qdamodel7,test)
 computeLDA(qdamodel8,test)
 
-
-
-
 ## KNN
 i=1
 ks=c(1,3,5,10,20,50,100)
@@ -1013,7 +967,6 @@ We will try to analyze this data using the KNN or k-nearest neighbors. We can fi
 iris <- read.csv(url("http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"), header = FALSE) 
 
 str(iris)
-
 
 # Add column names
 names(iris) <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species")

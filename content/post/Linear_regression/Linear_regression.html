@@ -25,14 +25,14 @@ summary: Statistics series
 <p>Show that we can write:</p>
 <p><span class="math display">\[\hat{y}_i = \sum_{i=1}^na_iy_i.\]</span></p>
 <p>What is <span class="math inline">\(a_{i&#39;}\)</span> ?</p>
-<p>Note: We interpret this result by saying that the fitted values from
+<p>Note: we interpret this result by saying that the fitted values from
 linear regression are linear combinations of the response values.</p>
 <p>Here, we can write: <span class="math display">\[\hat{y}_i = x_i\frac{\sum_{i=1}^n x_iy_i}{\sum_{i&#39;=1}^nx_{i&#39;}^2}\]</span></p>
 <p>Where <span class="math display">\[\frac{x_i}{\sum_{i&#39;=1}^nx_{i&#39;}^2}\]</span> is a constant value for each <span class="math inline">\(i^{th}\)</span> which can be represented as <span class="math inline">\(c_{i&#39;}\)</span>. If we have this on the equation above, we get:</p>
 <p><span class="math display">\[\hat{y}_i = c_{i&#39;}{\sum_{i=1}^n x_iy_i} = {\sum_{i=1}^n c_{i&#39;}x_iy_i}\]</span></p>
 <p>When we combine <span class="math inline">\(c_{i&#39;}\)</span> with <span class="math inline">\(x_i\)</span>, we get <span class="math inline">\(a_{i&#39;}\)</span>. We could determine <span class="math inline">\(a_{i&#39;}\)</span> as weight function over the <span class="math inline">\(Y\)</span> set to estimate the <span class="math inline">\(y_i\)</span> element.</p>
-<p>This question should be answered using the Carseats data set.
-(a) Fit a multiple regression model to predict Sales using Price, Urban, and US.</p>
+<p>This question should be answered using the Carseats dataset.
+First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.</p>
 <pre class="r"><code>### Q 2 a
 library(ISLR)
 library(knitr)
@@ -79,24 +79,16 @@ summary(model_3.7.10.a)</code></pre>
 <pre class="r"><code>layout(matrix(1:4,nrow=2))
 plot(model_3.7.10.a,pch=16,col=4,cex=0.8)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>Provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!</li>
-</ol>
+<p>Then we will provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!</p>
 <p><em>Given the Unit sales (which is in thousands) at each location, we can interpret the result as follows: if there is 1 dollar change in price, 54.4588492 units in sales will go down keeping all other predictors fixed. We can also say that the unit sales in urban location are 21.9161508 units less than in rural location keeping all other predictors fixed. Likewise, we can also say that on average the unit sales in a US store are 1200.5726978 units more than in a non US store keeping other predictors fixed.</em></p>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>Write out the model in equation form, being careful to handle the qualitative variables properly.</li>
-</ol>
+<p>Now, we Write out the model in equation form, being careful to handle the qualitative variables properly.</p>
 <p><span class="math display">\[Sales = 13.0434689 + (-0.0544588)\times Price + (-0.0219162)\times Urban + (1.2005727)\times US + \varepsilon\]</span></p>
 <p>with <span class="math inline">\(Urban = 1\)</span> if the store is in an urban location and <span class="math inline">\(0\)</span> if not, and <span class="math inline">\(US = 1\)</span> if the store is in the US and <span class="math inline">\(0\)</span> if not.*</p>
-<ol start="4" style="list-style-type: lower-alpha">
-<li>For which of the predictors can you reject the null hypothesis
-<span class="math inline">\(H_0 : \beta_j = 0\)</span> ?</li>
-</ol>
+<p>Now, we will try to find out for which of the predictors we can reject the null hypothesis
+<span class="math inline">\(H_0 : \beta_j = 0\)</span> ?</p>
 <p><strong>Answer:</strong></p>
 <p>For Price and US, we can reject the Null Hypothesis at any significance level. The p-value (P&lt;0.05) is the threshold value at which we can reject the Null hypothesis.</p>
-<ol start="5" style="list-style-type: lower-alpha">
-<li>On the basis of your response to the previous question, fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.</li>
-</ol>
+<p>On the basis of our response to the previous question, we will fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.</p>
 <pre class="r"><code>model_3.7.10.e=lm(Sales~Price+US,data=Carseats)
 summary(model_3.7.10.e)</code></pre>
 <pre><code>## 
@@ -121,10 +113,8 @@ summary(model_3.7.10.e)</code></pre>
 <pre class="r"><code>layout(matrix(1:4,nrow=2))
 plot(model_3.7.10.e,pch=16,col=4,cex=0.8)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<p>In this model above, we removed the Urban variable. Urban variable did not have enough evidence of linear association with Sales. The summary statistics from this model show that both Price and US have nearly zero p-values, suggesting good linear association. We can also tell that the estimates of the coefficients are almost the same as the previous model, but the adjusted R-squared value now has slightly gone up.</p>
-<ol start="6" style="list-style-type: lower-alpha">
-<li>How well do the models in (a) and (e) fit the data?</li>
-</ol>
+<p>In this previous model, we removed the Urban variable. Urban variable did not have enough evidence of linear association with Sales. The summary statistics from this model show that both Price and US have nearly zero p-values, suggesting good linear association. We can also tell that the estimates of the coefficients are almost the same as the previous model, but the adjusted R-squared value now has slightly gone up.</p>
+<p>Now, see how well the models fit the data.</p>
 <pre class="r"><code>## plots:
 data=Carseats[order(Carseats$Sales),]
 model_3.7.10.a=lm(Sales~Price+Urban+US,data=data)
@@ -197,9 +187,7 @@ hist(data$Sales)</code></pre>
 </table>
 <p>The adjusted R-squared values from the two models are 0.2335 (larger model) and 0.2354 (smaller model). So roughly 23.9262888% (for smaller model) and 23.9275392% (for larger model) of the variability of the sales is explained by the models which means it doesnot explain alot.</p>
 <p>In this figure above, we can visualize the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting they are not different.</p>
-<ol start="7" style="list-style-type: lower-alpha">
-<li>Using the model from (e), obtain 95% confidence intervals for the coefficient(s).</li>
-</ol>
+<p>Next, using the model built previously, obtain 95% confidence intervals for the coefficient(s).</p>
 <pre class="r"><code>cat(&quot;For beta0: &quot;)</code></pre>
 <pre><code>## For beta0:</code></pre>
 <pre class="r"><code>model_3.7.10.e$coeff[1]-0.63098*qt(0.95, 397)</code></pre>
@@ -254,9 +242,7 @@ hist(data$Sales)</code></pre>
 </tr>
 </tbody>
 </table>
-<ol start="8" style="list-style-type: lower-alpha">
-<li>Is there evidence of outliers or high leverage observations in the model from (e)?</li>
-</ol>
+<p>Check if there is any evidence of outliers or high leverage observations in the model?</p>
 <pre class="r"><code># par(mfrow = c(2, 2))
 # plot(model_3.7.10.e)
 layout(matrix(1:4,nrow=2))
@@ -288,11 +274,9 @@ legend(&quot;topright&quot;,&quot;Threshold&quot;,bty=&quot;n&quot;,col=2, lwd=2
 <pre><code>## 175 166 204 357 270 387 316 366 192 157 156 209 160 314 126 384  43 172 273 368 
 ##   1   3   8  27  78  96 145 157 165 200 218 224 299 302 303 304 336 382 389 397</code></pre>
 <p><em>The plot of standardized residuals versus leverage indicates the presence of a few outliers (at threshold of higher than 2 or lower than -2) which are . We can also use studentized residuals to determine any outliers. It also indicates some high leverage observations because some points exceed (p + 1)/n i.e., (0.01)</em></p>
-<p>This problem involves the Boston data set. We will now try to predict per capita crime rate using the other variables in this data set. In other words, per capita
+<p>This problem involves the Boston dataset. We will now try to predict per capita crime rate using the other variables in this dataset. In other words, per capita
 crime rate is the response, and the other variables are the predictors.</p>
-<ol style="list-style-type: lower-alpha">
-<li>For each predictor, fit a simple linear regression model to predict the response. Describe your results. In which of the models is there a statistically significant association between the predictor and the response? Create some plots to back up your assertions.</li>
-</ol>
+<p>For each predictor, we will fit a simple linear regression model to predict the response. We will then find out in which of the models there is a statistically significant association between the predictor and the response. For this, we will create some plots to back up our assertions.</p>
 <pre class="r"><code>library(MASS)
 attach(Boston)
 
@@ -578,11 +562,9 @@ for(i in 2:(dim(Boston)[2])){
 <p><em>Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn’t a random cloud of data.</em></p>
 <p><em>It is also important to note that although almost every variable is statistically significant, R-squared value is very low indicating that these predictors describe only a small amount of the variation in the response.</em></p>
 <p><em>Additionally, The formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv</em></p>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>Fit a multiple regression model to predict the response using
-all of the predictors. Describe your results. For which predictors
-can we reject the null hypothesis <span class="math inline">\(H_0 : \beta_j = 0\)</span> ?</li>
-</ol>
+<p>Here, we will fit a multiple regression model to predict the response using
+all of the predictors. We wil find out for which predictors
+we can reject the null hypothesis <span class="math inline">\(H_0 : \beta_j = 0\)</span>.</p>
 <pre class="r"><code>library(MASS)
 attach(Boston)
 fullmodel=lm(crim~.,data=Boston)
@@ -621,19 +603,11 @@ summary(fullmodel)</code></pre>
 plot(fullmodel, pch=16, col=j+2,cex=0.6,lwd=2)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>It looks like we can reject the null hypothesis for predictors zn and black at P&lt;0.05; medv at P&lt;0.01; dis and rad at p&lt;0.001. For the rest of the predictors we fail to reject the null hypothesis.</p>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>How do your results from (a) compare to your results from (b)?
-Create a plot displaying the univariate regression coefficients
-from (a) on the x-axis, and the multiple regression coefficients
-from (b) on the y-axis. That is, each predictor is displayed as a
-single point in the plot. Its coefficient in a simple linear regression
-model is shown on the x-axis, and its coefficient estimate
-in the multiple linear regression model is shown on the y-axis.</li>
-</ol>
+<p>We will also create a plot displaying the univariate regression coefficients on the x-axis, and the multiple regression coefficients on the y-axis. That is, each predictor is displayed as a single point in the plot. Its coefficient in a simple linear regression model is shown on the x-axis, and its coefficient estimate in the multiple linear regression model is shown on the y-axis.</p>
 <pre class="r"><code>fullmodel=lm(crim~.,data=Boston)
-
-# Create a dummy dataframe first with multiple and univariate variables&quot;
-multiple=rep(1, 13)
+cat(&quot;Create a dummy dataframe first with multiple and univariate variables&quot;)</code></pre>
+<pre><code>## Create a dummy dataframe first with multiple and univariate variables</code></pre>
+<pre class="r"><code>multiple=rep(1, 13)
 univariate=rep(1, 13)
 
 
@@ -642,9 +616,6 @@ for(i in 1:13){
   coeffs$multiple[i]=fullmodel$coeff[i+1]
 }
 
-# for(i in 2:14){
-#   print(i)
-# }
 
 for(i in 2:14){
   model=lm(Boston$crim~Boston[,i])
@@ -662,11 +633,8 @@ cmodel=(lm(multiple~univariate,data=coeffs))
 abline(cmodel$coeff[1],cmodel$coeff[2],col=4,lty=2, lwd=2)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p><em>Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.</em></p>
-<ol start="4" style="list-style-type: lower-alpha">
-<li>Is there evidence of non-linear association between any of the
-predictors and the response? To answer this question, for each
-predictor X, fit a model of the form</li>
-</ol>
+<p>Now, check if there is any evidence of non-linear association between any of the
+predictors and the response. In this case, we will need to fit a model of the form below for each predictor X.</p>
 <p><span class="math display">\[Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \varepsilon.\]</span></p>
 <pre class="r"><code>attach(Boston)
 mod.fit.zn2 &lt;- lm(crim ~ poly(zn, 3))
@@ -950,15 +918,11 @@ for the logistic regression model are equivalent.</p>
 <p><span class="math display">\[p(X) = Y(X) -  p(X) Y(X) = \left(1 - p(X)\right) Y(X)\]</span></p>
 <p>If we then divide both sides by <span class="math inline">\(1 - p(X)\)</span> and replace the original value of <span class="math inline">\(Y(X)\)</span>, we then get equation 4.3.</p>
 <p><span class="math display">\[\frac{p(X)}{1-p(X)} = e^{\beta_0 + \beta_1 X}\]</span></p>
-<p>This next question should be answered using the Weekly data set, which
-is part of the ISLR package. This data is similar in nature to the
-Smarket data from this chapter’s lab, except that it contains 1, 089
-weekly returns for 21 years, from the beginning of 1990 to the end of
-2010.</p>
-<ol style="list-style-type: lower-alpha">
-<li>Produce some numerical and graphical summaries of the Weekly
-data. Do there appear to be any patterns?</li>
-</ol>
+<p>This next question should be answered using the <span class="math inline">\({Weekly}\)</span> dataset, which
+is part of the <span class="math inline">\({ISLR}\)</span> package. This data is similar in nature to the
+<span class="math inline">\({Smarket}\)</span> data, except that it contains <span class="math inline">\({1, 089}\)</span> weekly returns for 21 years, from the beginning of 1990 to the end of 2010.</p>
+<p>So, we will first produce some numerical and graphical summaries of the Weekly
+data to if any pattern exists.</p>
 <pre class="r"><code>library(ISLR)
 
 data(Weekly)
@@ -1030,9 +994,9 @@ head(Weekly)</code></pre>
 ## [46] -0.074853051 -0.075031842 -0.075031842 -0.075395865 -0.075395865
 ## [51] -0.075675027 -0.075675027 -0.075720913 -0.075720913 -0.085513141
 ## [56] -0.085513141</code></pre>
-<pre class="r"><code>## there is great postive linear association with volume and year (volume increases with the time). seeing the different nature now:
-
-plot(Volume~Year,data=Weekly,pch=16,cex=0.7,col=2,main=&quot;Weekly Data Plot&quot;)
+<pre class="r"><code>cat(&quot;There is great postive linear association with volume and year (volume increases with the time). seeing the different nature now:&quot;)</code></pre>
+<pre><code>## There is great postive linear association with volume and year (volume increases with the time). seeing the different nature now:</code></pre>
+<pre class="r"><code>plot(Volume~Year,data=Weekly,pch=16,cex=0.7,col=2,main=&quot;Weekly Data Plot&quot;)
 data=Weekly[,c(1,7)]
 library(plyr)
 group=ddply(data,~Year,summarise,mean=mean(Volume),sd=sd(Volume))
@@ -1103,13 +1067,7 @@ plot(Volume)</code></pre>
 <pre class="r"><code>#ggplot(Volume,aes(x=Index, y=Volume))+geom_point(size=1.5)</code></pre>
 <p>In the figure above (<code>Weekly Data Plot</code>), the green line indicates the mean Volume in each Year, red dots are the original observations, and the blue lines indicate the standard deviations of the Volumes for each Year.</p>
 <p>This analysis indicates that Year and Volume are highly correlated particularly after Year 1995 until the curve starts to decline after year 2010. Also, the variance change with respect to the change in mean volumne showing some positive relation with the mean Volume.</p>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>Use the full data set to perform a logistic regression with
-Direction as the response and the five lag variables plus Volume
-as predictors. Use the summary function to print the results. Do
-any of the predictors appear to be statistically significant? If so,
-which ones?</li>
-</ol>
+<p>Now, we will use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. We will use the summary function to print the results and also examine if any of the predictors appear to be statistically significant. If so, we will also find them below.</p>
 <pre class="r"><code>model.4.7.10.b=glm(Direction~.-Year-Today,data=Weekly,family = binomial)
 summary(model.4.7.10.b)</code></pre>
 <pre><code>## 
@@ -1141,14 +1099,8 @@ summary(model.4.7.10.b)</code></pre>
 ## 
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <p>Based on the summary of the model, only Lag2 variable is statistically significant (at P&lt;0.05). The estimated coefficient for this variable is 0.05844, which means we would expect mean increase of the log odd in favor of the market going up by a unit increase in Lag2 variable, keeping other predictors in the model constant.</p>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>Compute the confusion matrix and overall fraction of correct
-predictions. Explain what the confusion matrix is telling you
-about the types of mistakes made by logistic regression.</li>
-</ol>
-<pre class="r"><code># model = model.4.7.10.b
-# data = Weekly
-computeIT=function(TH,model,data){
+<p>Here, we will compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.</p>
+<pre class="r"><code>computeIT=function(TH,model,data){
   preds=rep(&quot;Down&quot;,dim(data)[1])
   vals=predict(model,newdata=data,type=&quot;response&quot;)
   for(i in 1:dim(data)[1]){
@@ -1157,33 +1109,28 @@ computeIT=function(TH,model,data){
     }
   }
   ## Confusion matrix
-  message(&quot;Confusion Matrix:&quot;)
+  cat(&quot;Confusion Matrix:&quot;)
   con=table(preds,data$Direction)
   print(con)
-  message(&quot;Model Accuracy (Percentage):&quot;)
+  cat(&quot;Model Accuracy (Percentage):&quot;)
   print(round(sum(preds==data$Direction)/dim(data)[1]*100,2))
-  message(&quot;True Postive Rate, TPR (percentage):&quot;)
+  cat(&quot;True Postive Rate, TPR (percentage):&quot;)
   print(round(con[2,2]/(con[2,2]+con[1,2])*100,2))
-  message(&quot;False Postive Rate, FPR (percentage):&quot;)
+  cat(&quot;False Postive Rate, FPR (percentage):&quot;)
   spec=con[1,1]/(con[1,1]+con[2,1])*100
   print(round((100-spec),2))
   
 }
 computeIT(0.5,model.4.7.10.b,Weekly)</code></pre>
-<pre><code>##       
+<pre><code>## Confusion Matrix:      
 ## preds  Down  Up
 ##   Down   54  48
 ##   Up    430 557
-## [1] 56.11
-## [1] 92.07
-## [1] 88.84</code></pre>
+## Model Accuracy (Percentage):[1] 56.11
+## True Postive Rate, TPR (percentage):[1] 92.07
+## False Postive Rate, FPR (percentage):[1] 88.84</code></pre>
 <p>In a good model we would expect large TPR and low FPR. In this analysis, using a threshold value of 0.5, the overall accuracy of the model is only 56.11%. Based on the confusion matrix, the True Positive Rate (TPR) of the model was calculated to be 92.07%, which is very good. The model gives 92.07% of the time right prediction, when the market goes up. But the thing that makes model very bad is the False Positive Rate (FRP). FPR for the model was calculated to be 88.84% (Specificity=11.16%) which means when the market is going Down, 88.84% of the time the model is predicting market to be going up, falsely.</p>
-<ol start="4" style="list-style-type: lower-alpha">
-<li>Now fit the logistic regression model using a training data period
-from 1990 to 2008, with Lag2 as the only predictor. Compute the
-confusion matrix and the overall fraction of correct predictions
-for the held out data (that is, the data from 2009 and 2010).</li>
-</ol>
+<p>Now, we will fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Then compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).</p>
 <pre class="r"><code>index=c(which(Weekly$Year==2009), which(Weekly$Year==2010))
 train=Weekly[-index,]
 test=Weekly[index,]
@@ -1216,37 +1163,25 @@ summary(test$Direction)</code></pre>
 <pre><code>## Down   Up 
 ##   43   61</code></pre>
 <pre class="r"><code>computeIT(0.5,model.4.7.10.d,test)</code></pre>
-<pre><code>##       
+<pre><code>## Confusion Matrix:      
 ## preds  Down Up
 ##   Down    9  5
 ##   Up     34 56
-## [1] 62.5
-## [1] 91.8
-## [1] 79.07</code></pre>
+## Model Accuracy (Percentage):[1] 62.5
+## True Postive Rate, TPR (percentage):[1] 91.8
+## False Postive Rate, FPR (percentage):[1] 79.07</code></pre>
 <p>For the held out data (data from 2009 and 2010), the calculations were done as before. At a threshold value of 0.5, the model accuracy was 62.5%. There were 43 Down and 61 Up cases in the held out data. The model gave a decent TPR value of 91.8%. However, it was reasonably bad in the sense of FPR, with a value of 79.07%.</p>
-<p>In this problem, we will develop a model to predict whether a given
-car gets high or low gas mileage based on the Auto data set.</p>
-<ol style="list-style-type: lower-alpha">
-<li>Create a binary variable, mpg01, that contains a 1 if mpg contains
-a value above its median, and a 0 if mpg contains a value below
-its median. You can compute the median using the median()
-function. Note you may find it helpful to use the data.frame()
-function to create a single data set containing both mpg01 and
-the other Auto variables.</li>
-</ol>
+<p>In this problem, we will develop a model to predict whether a given car gets high or low gas mileage based on the Auto data set.</p>
+<p>We will first, create a binary variable, mpg01, that contains a 1 if mpg contains
+a value above its median, and a 0 if mpg contains a value below its median. You can compute the median using the median() function. Note we may find it helpful to use the data.frame() function to create a single data set containing both mpg01 and the other Auto variables.</p>
 <pre class="r"><code>library(ISLR)
 data(Auto)
 mpg01=rep(NA,dim(Auto)[1])
 med=median(Auto$mpg)
 mpg01=ifelse(Auto$mpg&lt;med,0,1)
 df=as.data.frame(cbind(Auto, mpg01))</code></pre>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>Explore the data graphically in order to investigate the association
-between mpg01 and the other features. Which of the other
-features seem most likely to be useful in predicting mpg01? Scatterplots
-and boxplots may be useful tools to answer this question.
-Describe your findings.</li>
-</ol>
+<p>Here, we will explore the data graphically in order to investigate the association
+between mpg01 and the other features. We will try to find the features that seem most likely to be useful in predicting mpg01. Scatterplots and boxplots may be useful tools to answer this question.</p>
 <pre class="r"><code>k=c(2,3,4,5,6,7,8) ## taking just the relevant variables
 layout(matrix(1:4,nrow = 2))
 for(i in k){
@@ -1275,9 +1210,7 @@ pairs(newdf) #pairwise correlation</code></pre>
 ##  $ origin      : num  1 1 1 1 1 1 1 1 1 1 ...
 ##  $ mpg01       : num  0 0 0 0 0 0 0 0 0 0 ...</code></pre>
 <p>Based on the plots, we see that there is a clear distinction between the distribution of cylinders in two groups. So is the case for horsepower, acceleration, origin, displacement, weight and year. US based cars are mostly condensed at lower mpg, whereas European and Japanese cars tend to be well distributed. Also, older cars tend to have lower mpg, and modern cars tend to have higher. We also expect correlation between the mechanical features of the cars, so from scatter plots it seems that there is very high correlations between the physical quantities.</p>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>Split the data into a training set and a test set.</li>
-</ol>
+<p>Now, we will split the data into a training set and a test set.</p>
 <pre class="r"><code>lowmpg=subset(newdf,mpg01==0)
 highmpg=subset(newdf,mpg01==1)
 
@@ -1290,12 +1223,7 @@ test1=lowmpg[-index1,];   test2=highmpg[-index2,] # test dataset 50%
 
 train=rbind(train1,train2)
 test=rbind(test1,test2)</code></pre>
-<p>The test and training data were created in the ration of 50:50 from high mpg and low mpg groups.</p>
-<ol start="6" style="list-style-type: lower-alpha">
-<li>Perform logistic regression on the training data in order to predict
-mpg01 using the variables that seemed most associated with
-mpg01 in (b). What is the test error of the model obtained?</li>
-</ol>
+<p>The test and training data were created in the ration of 50:50 from high mpg and low mpg groups. Now, we will perform logistic regression on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01. We will then calculate the test errors of the model obtained.</p>
 <pre class="r"><code>model.4.7.11.f.1=glm(mpg01~.,train,family=binomial)
 summary(model.4.7.11.f.1)</code></pre>
 <pre><code>## 
@@ -1335,24 +1263,26 @@ summary(model.4.7.11.f.1)</code></pre>
     }
   }
   cm=table(preds, test$mpg01)
-  message(&quot;Confusion Matrix:&quot;);print(cm)
+  cat(&quot;Confusion Matrix:&quot;);print(cm)
   ac=((cm[1,1]+cm[2,2])/sum(cm))*100
-  message(&quot;Overall test accuracy (percentage) : &quot;, round(ac,2))
-  message(&quot;Misclassification rate (percantage): &quot;,round((100-ac),2))
-  message(&quot;True Postive Rate, TPR/Sensitivity (percentage): &quot;,
+  cat(&quot;Overall test accuracy (percentage) : &quot;, round(ac,2))
+  cat(&quot;Misclassification rate (percantage): &quot;,round((100-ac),2))
+  cat(&quot;True Postive Rate, TPR/Sensitivity (percentage): &quot;,
           round(cm[2,2]/(cm[2,2]+cm[1,2])*100,2))
   spec=cm[1,1]/(cm[1,1]+cm[2,1])*100
-  message(&quot;Specificity (percantage): &quot;,round(spec,2))
-  message(&quot;False Postive Rate, FPR (percentage): &quot;,round((100-spec),2))
+  cat(&quot;Specificity (percantage): &quot;,round(spec,2))
+  cat(&quot;False Postive Rate, FPR (percentage): &quot;,round((100-spec),2))
 }
 
 showStats(0.5,model.4.7.11.f.1, test)</code></pre>
-<pre><code>##      
+<pre><code>## Confusion Matrix:     
 ## preds  0  1
 ##     0 83 10
-##     1 15 88</code></pre>
-<pre class="r"><code>## looking for influential correlation
-library(car)
+##     1 15 88
+## Overall test accuracy (percentage) :  87.24Misclassification rate (percantage):  12.76True Postive Rate, TPR/Sensitivity (percentage):  89.8Specificity (percantage):  84.69False Postive Rate, FPR (percentage):  15.31</code></pre>
+<pre class="r"><code>cat(&quot;Looking for influential correlation&quot;)</code></pre>
+<pre><code>## Looking for influential correlation</code></pre>
+<pre class="r"><code>library(car)
 kable(vif(model.4.7.11.f.1), caption = &quot;VIF of model.4.7.11.f.1&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-18">Table 3: </span>VIF of model.4.7.11.f.1</caption>
@@ -1455,12 +1385,14 @@ summary(model.4.7.11.f.2)</code></pre>
 </tbody>
 </table>
 <pre class="r"><code>showStats(0.5,model.4.7.11.f.2, test)</code></pre>
-<pre><code>##      
+<pre><code>## Confusion Matrix:     
 ## preds  0  1
 ##     0 85  9
-##     1 13 89</code></pre>
-<pre class="r"><code>## model with weight and year
-model.4.7.11.f.3=glm(mpg01~weight+year,train,family=binomial)
+##     1 13 89
+## Overall test accuracy (percentage) :  88.78Misclassification rate (percantage):  11.22True Postive Rate, TPR/Sensitivity (percentage):  90.82Specificity (percantage):  86.73False Postive Rate, FPR (percentage):  13.27</code></pre>
+<pre class="r"><code>cat(&quot;model with weight and year&quot;)</code></pre>
+<pre><code>## model with weight and year</code></pre>
+<pre class="r"><code>model.4.7.11.f.3=glm(mpg01~weight+year,train,family=binomial)
 kable(vif(model.4.7.11.f.3), caption = &quot;VIF of model.4.7.11.f.3&quot;)</code></pre>
 <table>
 <caption><span id="tab:unnamed-chunk-18">Table 3: </span>VIF of model.4.7.11.f.3</caption>
@@ -1506,15 +1438,14 @@ kable(vif(model.4.7.11.f.3), caption = &quot;VIF of model.4.7.11.f.3&quot;)</cod
 ## 
 ## Number of Fisher Scoring iterations: 7</code></pre>
 <pre class="r"><code>showStats(0.5,model.4.7.11.f.3, test)</code></pre>
-<pre><code>##      
+<pre><code>## Confusion Matrix:     
 ## preds  0  1
 ##     0 87  8
-##     1 11 90</code></pre>
+##     1 11 90
+## Overall test accuracy (percentage) :  90.31Misclassification rate (percantage):  9.69True Postive Rate, TPR/Sensitivity (percentage):  91.84Specificity (percantage):  88.78False Postive Rate, FPR (percentage):  11.22</code></pre>
 <p>For first model (<code>model.4.7.11.f.1</code>, selecting all variables), the summary statistics showed statistical significance of just two variables, year (p-value nearly 0) and weight (p-value 0.007). No statistical significance was found for others at any default level. Still, an attempt was made to use this model for prediction on the test data. With a cutoff 0.5, the overall accuracy of the model on the test data was 90.31%. TPR and FPR were also reasonable, with values of 91.84% and 11.22% respectively. As seen earlier, there was correlation between the variables. To treat this, variance inflation factor (VIF) of the full model was examined. Using a cutoff of 10 for VIF, two variables, cylinders and displacement were deleted from the model because their corresponding VIFs were 6.05 and 8.94, respectively. Here as well (<code>model.4.7.11.f.1</code>), we see that year and weight variables were statistically significant. The VIF values looked okay this time. This model returned identical prediction as before. But there was decrease in the standard errors of the estimated coefficients as expected since we made collinearity treatment by deleting cylinders and displacement from the model.</p>
 <p>The third model (<code>model.4.7.11.f.1</code>) was built, with only year and weight. Both were the only two variables significant in the previous two models. The estimated coefficients were not dramatically different from previous two, but there is a good improvement in the standard errors of the estimated coefficients. In this third model, we see some improvement in the overall prediction. Overall accuracy on the test data was found to be 91.84%, whereas previously it was 90.31%. TPR remained same. But FPR reduced to 8.16% from 11.22%.</p>
-<ol start="4" style="list-style-type: decimal">
-<li>Write a function in RMD that calculates the misclassification rate, sensitivity, and specificity. The inputs for this function are a cutoff point, predicted probabilities, and original binary response. Test your function using the model from 4.7.10 b. (Post any questions you might have regarding this on the discussion board, this needs to be an actual function, using the function() command, not just a chunk of code). This will be something you will want to use throughout the semester, since we will be calculating these a lot! </li>
-</ol>
+<p>Here, we will write a function in RMD that calculates the misclassification rate, sensitivity, and specificity. The inputs for this function are a cutoff point, predicted probabilities, and original binary response.</p>
 <pre class="r"><code>cutoff &lt;- 0.5
 pred_prob &lt;- predict(model.4.7.10.b,newdata=Weekly, type=&quot;response&quot;)
 original &lt;- Weekly$Direction
@@ -1553,26 +1484,22 @@ Function.for.Q.4(cutoff, pred_prob, original)</code></pre>
 </div>
 <div id="part-3" class="section level2">
 <h2>Part 3</h2>
-<p>We now examine the differences between LDA and QDA.
-(a) If the Bayes decision boundary is linear, do we expect LDA or
+<p>We now examine the differences between LDA and QDA.</p>
+<p>If the Bayes decision boundary is linear, do we expect LDA or
 QDA to perform better on the training set? On the test set?</p>
 <p>Answer:</p>
 <p>we expect QDA to perform better on the training set if the Bayes decision boundary is linear because its higher flexiblity may yield a closer fit. On the test set, we expect LDA to perform better than QDA, because QDA could overfit the linearity on the Bayes decision boundary.</p>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>If the Bayes decision boundary is non-linear, do we expect LDA
-or QDA to perform better on the training set? On the test set?</li>
-</ol>
+<p>If the Bayes decision boundary is non-linear, do we expect LDA
+or QDA to perform better on the training set? On the test set?</p>
 <p>Answer:</p>
 <p>We should expect QDA to perform better both on the training and test sets if the Bayes decision boundary is non-linear.</p>
-<ol start="3" style="list-style-type: lower-alpha">
-<li>In general, as the sample size n increases, do we expect the test
+<p>In general, as the sample size n increases, do we expect the test
 prediction accuracy of QDA relative to LDA to improve, decline,
-or be unchanged? Why?</li>
-</ol>
+or be unchanged? Why?</p>
 <p>Answer:</p>
 <p>Generally, QDA (which is more flexible than LDA and so has higher variance) is recommended if the training set is very large, so that the variance of the classifier is not a major concern.</p>
 <p>Note: This exercise will need in-depth understanding of <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" class="uri">https://en.wikipedia.org/wiki/Sensitivity_and_specificity</a></p>
-<p>Next, we will compare the logistic regression we performed in Part 2(d) above with the LDA analysis below using Lag2 as th only predictor.</p>
+<p>Next, we will compare the logistic regression we performed in Part 2 above with the LDA analysis below using <code>Lag2</code> as th only predictor.</p>
 <p>Before we perform this analysis, there are few things we need to understand. Such as, discriminant analysis assumes a multivariate normal distribution because what we usually consider to be predictors are really a multivariate dependent variable, and the grouping variable is considered to be a predictor. This means that categorical variables that are to be treated as predictors in the sense you wish are not handled well. This is one reason that many, including myself, consider discriminant analysis to have been made obsolete by logistic regression. Logistic regression makes no distributional assumptions of any kind, on either the left hand or the right hand side of the model. Logistic regression is a direct probability model and doesn’t require one to use Bayes’ rule to convert results to probabilities as does discriminant analysis.</p>
 <p>Sources:
 (Dr. Harell: <a href="https://stats.stackexchange.com/questions/158772/can-we-use-categorical-independent-variable-in-discriminant-analysis" class="uri">https://stats.stackexchange.com/questions/158772/can-we-use-categorical-independent-variable-in-discriminant-analysis</a>)</p>
@@ -1590,47 +1517,38 @@ model4.7.10.e=lda(Direction~Lag2,data=train)
 
 computeLDA=function(model,data){
   preds=(predict(model,newdata=data,type=&quot;response&quot;))$class
-  ## Confusion matrix
-  print(&quot;Confusion Matrix:&quot;)
+  cat(&quot;Confusion matrix:&quot;)
   con=table(preds,data$Direction)
   print(con)
-  print(&quot;Model Accuracy (Percentage):&quot;)
+  cat(&quot;Model Accuracy (Percentage):&quot;)
   print(round(sum(preds==data$Direction)/dim(data)[1]*100,2))
-  print(&quot;True Positive Rate, TPR (percentage):&quot;)
+  cat(&quot;True Positive Rate, TPR (percentage):&quot;)
   print(round(con[2,2]/(con[2,2]+con[1,2])*100,2))
-  print(&quot;False Postive Rate, FPR (percentage):&quot;)
+  cat(&quot;False Postive Rate, FPR (percentage):&quot;)
   spec=con[1,1]/(con[1,1]+con[2,1])*100
   print(round((100-spec),2))
   
 }
 
 computeLDA(model4.7.10.e,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    9  5
 ##   Up     34 56
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 62.5
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 91.8
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 79.07</code></pre>
+## Model Accuracy (Percentage):[1] 62.5
+## True Positive Rate, TPR (percentage):[1] 91.8
+## False Postive Rate, FPR (percentage):[1] 79.07</code></pre>
 <p>In this case, Just like in Part 2(d) with logistic regression, at a threshold value of 0.5, the model accuracy or the percentage of correct prediction was 62.5%. In other words 37.5% is the test error rate. We could also say that for weeks when the market goes up, the model is right 91.8032787% of the time. For weeks when the market goes down, the model is right only 20.9302326% of the time. These results are very close to those obtained with the logistic regression model which is not surpising.</p>
 <p>Now we will repeat the analysis above, but with QDA.</p>
 <pre class="r"><code>model.4.7.10.f=qda(Direction~Lag2,data=train)
 computeLDA(model.4.7.10.f,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    0  0
 ##   Up     43 61
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 58.65
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 100
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 100</code></pre>
+## Model Accuracy (Percentage):[1] 58.65
+## True Positive Rate, TPR (percentage):[1] 100
+## False Postive Rate, FPR (percentage):[1] 100</code></pre>
 <pre class="r"><code># #check with caret function
 # tt &lt;- predict(model.4.7.10.f,newdata=test,type=&quot;response&quot;)
 # gg &lt;- confusionMatrix(tt$class, reference = test$Direction)
@@ -1716,101 +1634,69 @@ ldamodel7=lda(formula7,data=train)
 ldamodel8=lda(formula8,data=train)
 ## Results
 computeLDA(ldamodel1,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    4  6
 ##   Up     39 55
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 56.73
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 90.16
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 90.7</code></pre>
+## Model Accuracy (Percentage):[1] 56.73
+## True Positive Rate, TPR (percentage):[1] 90.16
+## False Postive Rate, FPR (percentage):[1] 90.7</code></pre>
 <pre class="r"><code>computeLDA(ldamodel2,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    9  5
 ##   Up     34 56
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 62.5
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 91.8
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 79.07</code></pre>
+## Model Accuracy (Percentage):[1] 62.5
+## True Positive Rate, TPR (percentage):[1] 91.8
+## False Postive Rate, FPR (percentage):[1] 79.07</code></pre>
 <pre class="r"><code>computeLDA(ldamodel3,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    7  8
 ##   Up     36 53
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 57.69
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 86.89
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 83.72</code></pre>
+## Model Accuracy (Percentage):[1] 57.69
+## True Positive Rate, TPR (percentage):[1] 86.89
+## False Postive Rate, FPR (percentage):[1] 83.72</code></pre>
 <pre class="r"><code>computeLDA(ldamodel4,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    7  8
 ##   Up     36 53
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 57.69
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 86.89
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 83.72</code></pre>
+## Model Accuracy (Percentage):[1] 57.69
+## True Positive Rate, TPR (percentage):[1] 86.89
+## False Postive Rate, FPR (percentage):[1] 83.72</code></pre>
 <pre class="r"><code>computeLDA(ldamodel5,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    6  5
 ##   Up     37 56
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 59.62
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 91.8
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 86.05</code></pre>
+## Model Accuracy (Percentage):[1] 59.62
+## True Positive Rate, TPR (percentage):[1] 91.8
+## False Postive Rate, FPR (percentage):[1] 86.05</code></pre>
 <pre class="r"><code>computeLDA(ldamodel6,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down   23 33
 ##   Up     20 28
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 49.04
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 45.9
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 46.51</code></pre>
+## Model Accuracy (Percentage):[1] 49.04
+## True Positive Rate, TPR (percentage):[1] 45.9
+## False Postive Rate, FPR (percentage):[1] 46.51</code></pre>
 <pre class="r"><code>computeLDA(ldamodel7,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down   20 25
 ##   Up     23 36
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 53.85
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 59.02
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 53.49</code></pre>
+## Model Accuracy (Percentage):[1] 53.85
+## True Positive Rate, TPR (percentage):[1] 59.02
+## False Postive Rate, FPR (percentage):[1] 53.49</code></pre>
 <pre class="r"><code>computeLDA(ldamodel8,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    7  4
 ##   Up     36 57
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 61.54
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 93.44
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 83.72</code></pre>
+## Model Accuracy (Percentage):[1] 61.54
+## True Positive Rate, TPR (percentage):[1] 93.44
+## False Postive Rate, FPR (percentage):[1] 83.72</code></pre>
 <pre class="r"><code>## All the QDA mdoels 
 qdamodel1=qda(formula1,data=train)
 qdamodel2=qda(formula2,data=train)
@@ -1822,101 +1708,69 @@ qdamodel7=qda(formula7,data=train)
 qdamodel8=qda(formula8,data=train)
 ## Results (we can use the same function here)
 computeLDA(qdamodel1,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    0  0
 ##   Up     43 61
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 58.65
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 100
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 100</code></pre>
+## Model Accuracy (Percentage):[1] 58.65
+## True Positive Rate, TPR (percentage):[1] 100
+## False Postive Rate, FPR (percentage):[1] 100</code></pre>
 <pre class="r"><code>computeLDA(qdamodel2,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    0  0
 ##   Up     43 61
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 58.65
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 100
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 100</code></pre>
+## Model Accuracy (Percentage):[1] 58.65
+## True Positive Rate, TPR (percentage):[1] 100
+## False Postive Rate, FPR (percentage):[1] 100</code></pre>
 <pre class="r"><code>computeLDA(qdamodel3,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    7 10
 ##   Up     36 51
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 55.77
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 83.61
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 83.72</code></pre>
+## Model Accuracy (Percentage):[1] 55.77
+## True Positive Rate, TPR (percentage):[1] 83.61
+## False Postive Rate, FPR (percentage):[1] 83.72</code></pre>
 <pre class="r"><code>computeLDA(qdamodel4,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down   23 36
 ##   Up     20 25
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 46.15
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 40.98
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 46.51</code></pre>
+## Model Accuracy (Percentage):[1] 46.15
+## True Positive Rate, TPR (percentage):[1] 40.98
+## False Postive Rate, FPR (percentage):[1] 46.51</code></pre>
 <pre class="r"><code>computeLDA(qdamodel5,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    3 11
 ##   Up     40 50
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 50.96
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 81.97
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 93.02</code></pre>
+## Model Accuracy (Percentage):[1] 50.96
+## True Positive Rate, TPR (percentage):[1] 81.97
+## False Postive Rate, FPR (percentage):[1] 93.02</code></pre>
 <pre class="r"><code>computeLDA(qdamodel6,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down   31 42
 ##   Up     12 19
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 48.08
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 31.15
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 27.91</code></pre>
+## Model Accuracy (Percentage):[1] 48.08
+## True Positive Rate, TPR (percentage):[1] 31.15
+## False Postive Rate, FPR (percentage):[1] 27.91</code></pre>
 <pre class="r"><code>computeLDA(qdamodel7,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down   32 44
 ##   Up     11 17
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 47.12
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 27.87
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 25.58</code></pre>
+## Model Accuracy (Percentage):[1] 47.12
+## True Positive Rate, TPR (percentage):[1] 27.87
+## False Postive Rate, FPR (percentage):[1] 25.58</code></pre>
 <pre class="r"><code>computeLDA(qdamodel8,test)</code></pre>
-<pre><code>## [1] &quot;Confusion Matrix:&quot;
-##       
+<pre><code>## Confusion matrix:      
 ## preds  Down Up
 ##   Down    7  3
 ##   Up     36 58
-## [1] &quot;Model Accuracy (Percentage):&quot;
-## [1] 62.5
-## [1] &quot;True Positive Rate, TPR (percentage):&quot;
-## [1] 95.08
-## [1] &quot;False Postive Rate, FPR (percentage):&quot;
-## [1] 83.72</code></pre>
+## Model Accuracy (Percentage):[1] 62.5
+## True Positive Rate, TPR (percentage):[1] 95.08
+## False Postive Rate, FPR (percentage):[1] 83.72</code></pre>
 <pre class="r"><code>## KNN
 i=1
 ks=c(1,3,5,10,20,50,100)
