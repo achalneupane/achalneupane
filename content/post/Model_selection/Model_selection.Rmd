@@ -11,16 +11,25 @@ tags:
 summary: Statistics series
 ---
 
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+```{r global options, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
+
+
 There are two main objectives in inference and learning from data. One is for scientific discovery, understanding of the underlying data-generating mechanism, and interpretation of the nature of the data. Another objective of learning from data is for predicting future or unseen observations. In the second objective, the data scientist does not necessarily concern an accurate probabilistic description of the data. Of course, one may also be interested in both directions.
 
-In line with the two different objectives, model selection can also have two directions: model selection for inference and model selection for prediction.[2] The first direction is to identify the best model for the data, which will preferably provide a reliable characterization of the sources of uncertainty for scientific interpretation. For this goal, it is significantly important that the selected model is not too sensitive to the sample size. Accordingly, an appropriate notion for evaluating model selection is the selection consistency, meaning that the most robust candidate will be consistently selected given sufficiently many data samples.
+In line with the two different objectives, model selection can also have two directions: model selection for inference and model selection for prediction. The first direction is to identify the best model for the data, which will preferably provide a reliable characterization of the sources of uncertainty for scientific interpretation. For this goal, it is significantly important that the selected model is not too sensitive to the sample size. Accordingly, an appropriate notion for evaluating model selection is the selection consistency, meaning that the most robust candidate will be consistently selected given sufficiently many data samples.
 
 Here, we will see some examples of model selection in this exercise.
 
 Suppose we estimate the regression coefficients in a linear regression
 model by minimizing
 
-$$\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2$$
+    $$\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2$$
 
 
 

@@ -13,12 +13,14 @@ summary: Statistics series
 
 
 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 <p>There are two main objectives in inference and learning from data. One is for scientific discovery, understanding of the underlying data-generating mechanism, and interpretation of the nature of the data. Another objective of learning from data is for predicting future or unseen observations. In the second objective, the data scientist does not necessarily concern an accurate probabilistic description of the data. Of course, one may also be interested in both directions.</p>
-<p>In line with the two different objectives, model selection can also have two directions: model selection for inference and model selection for prediction.[2] The first direction is to identify the best model for the data, which will preferably provide a reliable characterization of the sources of uncertainty for scientific interpretation. For this goal, it is significantly important that the selected model is not too sensitive to the sample size. Accordingly, an appropriate notion for evaluating model selection is the selection consistency, meaning that the most robust candidate will be consistently selected given sufficiently many data samples.</p>
+<p>In line with the two different objectives, model selection can also have two directions: model selection for inference and model selection for prediction. The first direction is to identify the best model for the data, which will preferably provide a reliable characterization of the sources of uncertainty for scientific interpretation. For this goal, it is significantly important that the selected model is not too sensitive to the sample size. Accordingly, an appropriate notion for evaluating model selection is the selection consistency, meaning that the most robust candidate will be consistently selected given sufficiently many data samples.</p>
 <p>Here, we will see some examples of model selection in this exercise.</p>
 <p>Suppose we estimate the regression coefficients in a linear regression
 model by minimizing</p>
-<p><span class="math display">\[\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2\]</span></p>
+<pre><code>$$\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2$$</code></pre>
 <p>for a particular value of <span class="math inline">\(\lambda\)</span>. For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.</p>
 <ol style="list-style-type: lower-alpha">
@@ -72,11 +74,6 @@ v. Remain constant.</p>
 <li>Fit a linear model using least squares on the training set, and
 report the test error obtained.</li>
 </ol>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## Loading required package: grid</code></pre>
-<pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
-##   method            from
-##   as.zoo.data.frame zoo</code></pre>
 <pre><code>## Error:</code></pre>
 <pre><code>##     mse 
 ## 1337616</code></pre>
@@ -86,8 +83,6 @@ report the test error obtained.</li>
 <li>Fit a ridge regression model on the training set, with <span class="math inline">\(\lambda\)</span> chosen
 by cross-validation. Report the test error obtained.</li>
 </ol>
-<pre><code>## Loading required package: Matrix</code></pre>
-<pre><code>## Loaded glmnet 4.1-3</code></pre>
 <pre><code>## [1] 15.34368</code></pre>
 <pre><code>## Error</code></pre>
 <pre><code>##     mse 
@@ -121,11 +116,6 @@ Test MSE: 1.445683510^{6}.</p>
 <ol start="5" style="list-style-type: lower-alpha">
 <li>Fit a PCR model on the training set, with M chosen by cross- validation. Report the test error obtained, along with the value of M selected by cross-validation.</li>
 </ol>
-<pre><code>## 
-## Attaching package: &#39;pls&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     loadings</code></pre>
 <p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre><code>## Data:    X dimension: 389 17 
 ##  Y dimension: 389 1
