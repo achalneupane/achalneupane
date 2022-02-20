@@ -7,7 +7,6 @@ output: html_document
 tags:
 - R
 - Statistics
-- Modern Applied Statistics I
 summary: Statistics series
 ---
 
@@ -25,7 +24,7 @@ Quantile regression is a type of regression analysis used in statistics and econ
 
 One advantage of quantile regression relative to ordinary least squares regression is that the quantile regression estimates are more robust against outliers in the response measurements. However, the main attraction of quantile regression goes beyond this and is advantageous when conditional quantile functions are of interest. Quantile regression has been proposed and used as a way to discover more useful predictive relationships between variables in cases where there is no relationship or only a weak relationship between the means of such variables.
 
-Beyond simple linear regression, there are several machine learning methods that can be extended to quantile regression. A switch from the squared error to the tilted absolute value loss function allows gradient descent based learning algorithms to learn a specified quantile instead of the mean. It means that we can apply all neural network and deep learning algorithms to quantile regression. Tree-based learning algorithms are also available for quantile regression (see, e.g., Quantile Regression Forests,[15] as a simple generalization of Random Forests).
+Beyond simple linear regression, there are several machine learning methods that can be extended to quantile regression. A switch from the squared error to the tilted absolute value loss function allows gradient descent based learning algorithms to learn a specified quantile instead of the mean. It means that we can apply all neural network and deep learning algorithms to quantile regression. Tree-based learning algorithms are also available for quantile regression (see, e.g., Quantile Regression Forests, as a simple generalization of Random Forests).
 
 Here, we will use some examples of quatile regression methods. First, we will use the {$\textbf{clouds}$} data from the {$\textbf{HSAUR3}$} package to review the linear model fitted to this data and report the model and findings. Then we will fit a median regression model and compare the two results. 
     
@@ -272,6 +271,4 @@ xyplot(head ~ age, data = db, main = "Head circumference curve with lambda=20",
 
 Here, lambda acts as a shinkage factor which causes the quantiles to become smoother (at higher lambda) rather than becoming wavy or rough with lower values of labda (lambda = 0). So, I found that by increasing the penalty term lambda, which is assigned to the slope of the coefficients, the overall fit of the additive quantile regression model can be smoothen.
  
-In conclusion, quantile regression allows large sample groups or population size into fractals distribution or smaller quantiles represented by a parameter 	\( \tau \) (tau) and maintaining the same 	\( \tau \) for observations above and below the quantile and minimizing the sum of weighted absolute residuals.Some distributions with longer tails can weigh the mean so that the regression of the least squares can provide a false representation of the results. A more precise description of the data and underlying patterns can be obtained using quantile regression. This is particularly useful in econometrics where there are often large outliers that can have a significant impact on a least squares model. Basically, we need to assess our needs when dealing with the datasets: 
-    i. Are we concerned about percentiles or median value? 
-    ii. Whether we are interested in average values and minimizing the residuals errors. 
+In conclusion, quantile regression allows large sample groups or population size into fractals distribution or smaller quantiles represented by a parameter 	\( \tau \) (tau) by maintaining the same 	\( \tau \) for observations above and below the quantile and minimizing the sum of weighted absolute residuals. Some distributions with longer tails can weigh the mean so that the regression of the least squares can provide a false representation of the results. A more precise description of the data and underlying patterns can be obtained using quantile regression. This is particularly useful in econometrics where there are often large outliers that can have a significant impact on a least squares model. Basically, when dealing with the datasets we need to assess our needs, such as, whether we are concerned about percentiles or median value or interested in average values and minimizing the residuals errors.

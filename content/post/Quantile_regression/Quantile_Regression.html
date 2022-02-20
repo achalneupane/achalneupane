@@ -7,7 +7,6 @@ output: html_document
 tags:
 - R
 - Statistics
-- Modern Applied Statistics I
 summary: Statistics series
 ---
 
@@ -17,7 +16,7 @@ summary: Statistics series
 </script>
 <p>Quantile regression is a type of regression analysis used in statistics and econometrics. While the method of <code>least squares</code> estimates the conditional mean of the response variable across values of the predictor variables, <code>quantile regression</code> estimates the conditional median (or other quantiles) of the response variable. Quantile regression is an extension of linear regression used when the conditions of linear regression are not met.</p>
 <p>One advantage of quantile regression relative to ordinary least squares regression is that the quantile regression estimates are more robust against outliers in the response measurements. However, the main attraction of quantile regression goes beyond this and is advantageous when conditional quantile functions are of interest. Quantile regression has been proposed and used as a way to discover more useful predictive relationships between variables in cases where there is no relationship or only a weak relationship between the means of such variables.</p>
-<p>Beyond simple linear regression, there are several machine learning methods that can be extended to quantile regression. A switch from the squared error to the tilted absolute value loss function allows gradient descent based learning algorithms to learn a specified quantile instead of the mean. It means that we can apply all neural network and deep learning algorithms to quantile regression. Tree-based learning algorithms are also available for quantile regression (see, e.g., Quantile Regression Forests,[15] as a simple generalization of Random Forests).</p>
+<p>Beyond simple linear regression, there are several machine learning methods that can be extended to quantile regression. A switch from the squared error to the tilted absolute value loss function allows gradient descent based learning algorithms to learn a specified quantile instead of the mean. It means that we can apply all neural network and deep learning algorithms to quantile regression. Tree-based learning algorithms are also available for quantile regression (see, e.g., Quantile Regression Forests, as a simple generalization of Random Forests).</p>
 <p>Here, we will use some examples of quatile regression methods. First, we will use the {<span class="math inline">\(\textbf{clouds}\)</span>} data from the {<span class="math inline">\(\textbf{HSAUR3}\)</span>} package to review the linear model fitted to this data and report the model and findings. Then we will fit a median regression model and compare the two results.</p>
 <pre class="r"><code>library(tidyverse)
 library(gridExtra)
@@ -131,8 +130,8 @@ cat(&quot;Summary of the model&quot;)</code></pre>
 ## 
 ## Coefficients:
 ##             Value    Std. Error t value  Pr(&gt;|t|)
-## (Intercept)  8.86133  3.74967    2.36323  0.02737
-## sne         -1.38667  1.10178   -1.25856  0.22138</code></pre>
+## (Intercept)  8.86133  3.75092    2.36244  0.02742
+## sne         -1.38667  1.07392   -1.29122  0.21003</code></pre>
 <pre class="r"><code>MSE.mrm &lt;- mean((predict(median.reg, data = clouds, type = &quot;response&quot;)-clouds$rainfall)^2)
 cat(&quot;MSE of median regression Model: &quot;,MSE.mrm)</code></pre>
 <pre><code>## MSE of median regression Model:  7.722559</code></pre>
@@ -181,13 +180,13 @@ summary(bodyfat_rp)</code></pre>
 ##   n= 71 
 ## 
 ##           CP nsplit  rel error    xerror       xstd
-## 1 0.66289544      0 1.00000000 1.0308030 0.17119086
-## 2 0.09376252      1 0.33710456 0.4129713 0.09423307
-## 3 0.07703606      2 0.24334204 0.4332941 0.09012624
-## 4 0.04507506      3 0.16630598 0.3574503 0.07384141
-## 5 0.01844561      4 0.12123092 0.2701483 0.06097016
-## 6 0.01818982      5 0.10278532 0.2730863 0.05899103
-## 7 0.01000000      6 0.08459549 0.2445821 0.05852079
+## 1 0.66289544      0 1.00000000 1.0093456 0.16694602
+## 2 0.09376252      1 0.33710456 0.4570823 0.09619508
+## 3 0.07703606      2 0.24334204 0.4670652 0.08949809
+## 4 0.04507506      3 0.16630598 0.3839835 0.07102298
+## 5 0.01844561      4 0.12123092 0.3444640 0.06293978
+## 6 0.01818982      5 0.10278532 0.2761502 0.06052892
+## 7 0.01000000      6 0.08459549 0.2677950 0.06062930
 ## 
 ## Variable importance
 ##    waistcirc      hipcirc  kneebreadth elbowbreadth          age 
@@ -305,13 +304,13 @@ plot(as.party(bodyfat_rp), tp_args = list(id=FALSE), main = &quot;Regression tre
 <pre><code>## Print CP-table</code></pre>
 <pre class="r"><code>print(bodyfat_rp$cptable)</code></pre>
 <pre><code>##           CP nsplit  rel error    xerror       xstd
-## 1 0.66289544      0 1.00000000 1.0308030 0.17119086
-## 2 0.09376252      1 0.33710456 0.4129713 0.09423307
-## 3 0.07703606      2 0.24334204 0.4332941 0.09012624
-## 4 0.04507506      3 0.16630598 0.3574503 0.07384141
-## 5 0.01844561      4 0.12123092 0.2701483 0.06097016
-## 6 0.01818982      5 0.10278532 0.2730863 0.05899103
-## 7 0.01000000      6 0.08459549 0.2445821 0.05852079</code></pre>
+## 1 0.66289544      0 1.00000000 1.0093456 0.16694602
+## 2 0.09376252      1 0.33710456 0.4570823 0.09619508
+## 3 0.07703606      2 0.24334204 0.4670652 0.08949809
+## 4 0.04507506      3 0.16630598 0.3839835 0.07102298
+## 5 0.01844561      4 0.12123092 0.3444640 0.06293978
+## 6 0.01818982      5 0.10278532 0.2761502 0.06052892
+## 7 0.01000000      6 0.08459549 0.2677950 0.06062930</code></pre>
 <pre class="r"><code>cat(&quot;CP value with lowest xerror&quot;)</code></pre>
 <pre><code>## CP value with lowest xerror</code></pre>
 <pre class="r"><code>min.cp &lt;- which.min(bodyfat_rp$cptable[,&#39;xerror&#39;])
@@ -552,6 +551,4 @@ xyplot(head ~ age, data = db, main = &quot;Head circumference curve with lambda=
        panel = pfun)</code></pre>
 <p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
 <p>Here, lambda acts as a shinkage factor which causes the quantiles to become smoother (at higher lambda) rather than becoming wavy or rough with lower values of labda (lambda = 0). So, I found that by increasing the penalty term lambda, which is assigned to the slope of the coefficients, the overall fit of the additive quantile regression model can be smoothen.</p>
-<p>In conclusion, quantile regression allows large sample groups or population size into fractals distribution or smaller quantiles represented by a parameter <span class="math inline">\(\tau\)</span> (tau) and maintaining the same <span class="math inline">\(\tau\)</span> for observations above and below the quantile and minimizing the sum of weighted absolute residuals.Some distributions with longer tails can weigh the mean so that the regression of the least squares can provide a false representation of the results. A more precise description of the data and underlying patterns can be obtained using quantile regression. This is particularly useful in econometrics where there are often large outliers that can have a significant impact on a least squares model. Basically, we need to assess our needs when dealing with the datasets:
-i. Are we concerned about percentiles or median value?
-ii. Whether we are interested in average values and minimizing the residuals errors.</p>
+<p>In conclusion, quantile regression allows large sample groups or population size into fractals distribution or smaller quantiles represented by a parameter <span class="math inline">\(\tau\)</span> (tau) by maintaining the same <span class="math inline">\(\tau\)</span> for observations above and below the quantile and minimizing the sum of weighted absolute residuals. Some distributions with longer tails can weigh the mean so that the regression of the least squares can provide a false representation of the results. A more precise description of the data and underlying patterns can be obtained using quantile regression. This is particularly useful in econometrics where there are often large outliers that can have a significant impact on a least squares model. Basically, when dealing with the datasets we need to assess our needs, such as, whether we are concerned about percentiles or median value or interested in average values and minimizing the residuals errors.</p>
