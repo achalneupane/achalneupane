@@ -29,7 +29,7 @@ Here, we will see some examples of model selection in this exercise.
 Suppose we estimate the regression coefficients in a linear regression
 model by minimizing
 
-    $$\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2$$
+$${\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \\sum_{j=1}^{p}\beta_j^2}$$
 
 
 
