@@ -29,11 +29,13 @@ Here, we will see some examples of model selection in this exercise.
 Suppose we estimate the regression coefficients in a linear regression
 model by minimizing
 
-$${\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \\sum_{j=1}^{p}\beta_j^2}$$
+$${\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2}$$
 
 
 
-for a particular value of $\lambda$. For parts (a) through (e), indicate which
+for a particular value of $\lambda$. 
+
+For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.
 
 (a) As we increase $\lambda$ from 0, the training  RSS will:
@@ -120,8 +122,6 @@ cat("Error: ")
 print(MSEb)
 
 ```
-
-Discussion:
 
 The test error was calculated to be `r MSEb`.
 
@@ -245,9 +245,6 @@ print(MSEf)
 
 
 ```
-
-
-Discussion:
 
 Partial least square regression (PLS) model was built. From the summary, we see that choosing M=10 yields the minimum error. So M=10 was chosen. The test MSE was `r MSEf`. This was slightly higher than lasso, but lower than ridge and pcr.
 

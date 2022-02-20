@@ -20,8 +20,9 @@ summary: Statistics series
 <p>Here, we will see some examples of model selection in this exercise.</p>
 <p>Suppose we estimate the regression coefficients in a linear regression
 model by minimizing</p>
-<p><span class="math display">\[{\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \\sum_{j=1}^{p}\beta_j^2}\]</span></p>
-<p>for a particular value of <span class="math inline">\(\lambda\)</span>. For parts (a) through (e), indicate which
+<p><span class="math display">\[{\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2}\]</span></p>
+<p>for a particular value of <span class="math inline">\(\lambda\)</span>.</p>
+<p>For parts (a) through (e), indicate which
 of i. through v. is correct. Justify your answer.</p>
 <ol style="list-style-type: lower-alpha">
 <li>As we increase <span class="math inline">\(\lambda\)</span> from 0, the training RSS will:</li>
@@ -77,7 +78,6 @@ report the test error obtained.</li>
 <pre><code>## Error:</code></pre>
 <pre><code>##     mse 
 ## 1337616</code></pre>
-<p>Discussion:</p>
 <p>The test error was calculated to be 1.337615510^{6}.</p>
 <ol start="3" style="list-style-type: lower-alpha">
 <li>Fit a ridge regression model on the training set, with <span class="math inline">\(\lambda\)</span> chosen
@@ -181,7 +181,6 @@ Test MSE: 1.445683510^{6}.</p>
 ## Apps     93.03     93.03</code></pre>
 <pre><code>##     mse 
 ## 1364515</code></pre>
-<p>Discussion:</p>
 <p>Partial least square regression (PLS) model was built. From the summary, we see that choosing M=10 yields the minimum error. So M=10 was chosen. The test MSE was 1.364514810^{6}. This was slightly higher than lasso, but lower than ridge and pcr.</p>
 <ol start="7" style="list-style-type: lower-alpha">
 <li>Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?</li>
