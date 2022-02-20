@@ -1,0 +1,334 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Model Selection"
+date: 2021-10-18T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+
+<p>There are two main objectives in inference and learning from data. One is for scientific discovery, understanding of the underlying data-generating mechanism, and interpretation of the nature of the data. Another objective of learning from data is for predicting future or unseen observations. In the second objective, the data scientist does not necessarily concern an accurate probabilistic description of the data. Of course, one may also be interested in both directions.</p>
+<p>In line with the two different objectives, model selection can also have two directions: model selection for inference and model selection for prediction.[2] The first direction is to identify the best model for the data, which will preferably provide a reliable characterization of the sources of uncertainty for scientific interpretation. For this goal, it is significantly important that the selected model is not too sensitive to the sample size. Accordingly, an appropriate notion for evaluating model selection is the selection consistency, meaning that the most robust candidate will be consistently selected given sufficiently many data samples.</p>
+<p>Here, we will see some examples of model selection in this exercise.</p>
+<p>Suppose we estimate the regression coefficients in a linear regression
+model by minimizing</p>
+<p><span class="math display">\[\sum_{i=1}^n ( y_i - \beta_0 - \sum_{j=1}^p \beta_j x_{ij} )^2 + \ \sum_{j=1}^{p}\beta_j^2\]</span></p>
+<p>for a particular value of <span class="math inline">\(\lambda\)</span>. For parts (a) through (e), indicate which
+of i. through v. is correct. Justify your answer.</p>
+<ol style="list-style-type: lower-alpha">
+<li>As we increase <span class="math inline">\(\lambda\)</span> from 0, the training RSS will:</li>
+</ol>
+<ol style="list-style-type: lower-roman">
+<li>Increase initially, and then eventually start decreasing in an
+inverted U shape.</li>
+<li>Decrease initially, and then eventually start increasing in a
+U shape.</li>
+<li>Steadily increase.</li>
+<li>Steadily decrease.</li>
+<li>Remain constant.</li>
+</ol>
+<p><strong>Answer:</strong>
+(iii) Steadily increase.</p>
+<p>As we increase <span class="math inline">\(\lambda\)</span>, the training residual sum of squares (RSS) will increase steadily. The term with lambda is often called ‘Penalty’ since it increases RSS. Increasing lambda places a heavier constraint on the model, which causes more <span class="math inline">\(\beta\)</span> coeficients to be set to 0 (this is a ridge or <span class="math inline">\(\ell_2\)</span> penalty).</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Repeat (a) for test RSS.</li>
+</ol>
+<p><strong>Answer:</strong>
+(ii) Decrease initially, and then eventually start increasing in a
+U shape.</p>
+<p>Initially test RSS will decrease as spurious coefficients are forced to 0 and the model has less overfitting. However eventually necessary coefficients will be removed from the model, and the test RSS will again increase. This will make it a U shape.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Repeat (a) for variance.</li>
+</ol>
+<p><strong>Answer:</strong>
+(iv) Steadily decrease</p>
+<p>This will cause the variance to decrease because more penalty will be placed on the model.</p>
+<ol start="4" style="list-style-type: lower-alpha">
+<li>Repeat (a) for (squared) bias.</li>
+</ol>
+<p><strong>Answer:</strong>
+(iii) Steadily increase</p>
+<p>As we increase the <span class="math inline">\(\lambda\)</span>, the squared bias will increase because the model becomes less flexible.</p>
+<ol start="5" style="list-style-type: lower-alpha">
+<li>Repeat (a) for the irreducible error.</li>
+</ol>
+<p><strong>Answer:</strong>
+v. Remain constant.</p>
+<p>In this exercise, we will predict the number of applications received using the other variables in the College data set.</p>
+<ol style="list-style-type: lower-alpha">
+<li>Split the data set into a training set and a test set.</li>
+</ol>
+<pre><code>## Partitioning 50/50</code></pre>
+<pre><code>## [1] 389  18</code></pre>
+<pre><code>## [1] 388  18</code></pre>
+<p>Here we are doing the 50/50 partitioning of test and train datasets.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Fit a linear model using least squares on the training set, and
+report the test error obtained.</li>
+</ol>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: grid</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
+##   method            from
+##   as.zoo.data.frame zoo</code></pre>
+<pre><code>## Error:</code></pre>
+<pre><code>##     mse 
+## 1337616</code></pre>
+<p>Discussion:</p>
+<p>The test error was calculated to be 1.337615510^{6}.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Fit a ridge regression model on the training set, with <span class="math inline">\(\lambda\)</span> chosen
+by cross-validation. Report the test error obtained.</li>
+</ol>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## Loaded glmnet 4.1-3</code></pre>
+<pre><code>## [1] 15.34368</code></pre>
+<pre><code>## Error</code></pre>
+<pre><code>##     mse 
+## 1400513</code></pre>
+<p>With 702 as seed, the <span class="math inline">\(\lambda\)</span> was found to be 15.3436841 by cross validation. Using this, the ridge regression MSE was found to be 1.400512710^{6}.</p>
+<ol start="4" style="list-style-type: lower-alpha">
+<li>Fit a lasso model on the training set, with <span class="math inline">\(\lambda\)</span> chosen by cross- validation. Report the test error obtained, along with the number of non-zero coefficient estimates.</li>
+</ol>
+<pre><code>## [1] 24.37444</code></pre>
+<pre><code>##  Error</code></pre>
+<pre><code>##     mse 
+## 1445683</code></pre>
+<pre><code>## ## gmlnet coefficients</code></pre>
+<pre><code>##        feature    coeficient
+## 1  (Intercept) -666.55589808
+## 2   PrivateYes -666.50770173
+## 3       Accept    1.19157554
+## 4    Top10perc   31.78493196
+## 5  F.Undergrad    0.06319749
+## 6  P.Undergrad    0.02430068
+## 7   Room.Board    0.14167927
+## 8        Books   -0.06219352
+## 9     Personal   -0.02783797
+## 10         PhD   -8.63523507
+## 11    Terminal   -1.62179895
+## 12 perc.alumni   -9.38248458
+## 13      Expend    0.05427295
+## 14   Grad.Rate    7.02652840</code></pre>
+<p>Using lasso, <span class="math inline">\(\lambda\)</span> chosen by CV was found to be 24.3744415.
+Test MSE: 1.445683510^{6}.</p>
+<ol start="5" style="list-style-type: lower-alpha">
+<li>Fit a PCR model on the training set, with M chosen by cross- validation. Report the test error obtained, along with the value of M selected by cross-validation.</li>
+</ol>
+<pre><code>## 
+## Attaching package: &#39;pls&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     loadings</code></pre>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre><code>## Data:    X dimension: 389 17 
+##  Y dimension: 389 1
+## Fit method: svdpc
+## Number of components considered: 17
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV            3761     3739     1772     1789     1502     1387     1326
+## adjCV         3761     3743     1769     1792     1477     1387     1322
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV        1328     1322     1292      1220      1223      1236      1240
+## adjCV     1325     1317     1288      1215      1219      1232      1236
+##        14 comps  15 comps  16 comps  17 comps
+## CV         1250      1282      1127      1107
+## adjCV      1245      1275      1120      1100
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps  8 comps
+## X      30.197    56.09    63.51    69.84    75.59    80.53    84.40    87.66
+## Apps    2.244    78.43    78.72    85.16    87.06    88.31    88.31    88.55
+##       9 comps  10 comps  11 comps  12 comps  13 comps  14 comps  15 comps
+## X       90.49     92.98     95.10     96.98     98.04     98.95     99.46
+## Apps    89.07     90.36     90.41     90.41     90.41     90.42     90.57
+##       16 comps  17 comps
+## X        99.85    100.00
+## Apps     92.48     93.03</code></pre>
+<pre><code>## Test error</code></pre>
+<pre><code>##     mse 
+## 1571949</code></pre>
+<p>Here, principal component regression (PCR) was build. M=16 gives the minimum error. So M=16 was chosen. M=16 is also only slightly less than M=17. The test MSE was 1.571949110^{6}. This is higher among all the errors we compared above.</p>
+<ol start="6" style="list-style-type: lower-alpha">
+<li>Fit a PLS model on the training set, with M chosen by cross- validation. Report the test error obtained, along with the value of M selected by cross-validation.</li>
+</ol>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre><code>## Data:    X dimension: 389 17 
+##  Y dimension: 389 1
+## Fit method: kernelpls
+## Number of components considered: 17
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV            3761     1591     1273     1218     1191     1181     1137
+## adjCV         3761     1588     1267     1215     1185     1173     1129
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV        1132     1123     1107      1096      1107      1106      1108
+## adjCV     1124     1116     1101      1090      1100      1099      1101
+##        14 comps  15 comps  16 comps  17 comps
+## CV         1107      1106      1107      1107
+## adjCV      1101      1100      1100      1100
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps  8 comps
+## X       25.92    36.67    61.79    65.45    70.01    73.09    77.78    81.66
+## Apps    82.96    89.30    90.40    91.36    91.92    92.66    92.86    92.89
+##       9 comps  10 comps  11 comps  12 comps  13 comps  14 comps  15 comps
+## X       85.32     86.94     88.98     90.56     92.47     93.83     97.11
+## Apps    92.93     93.00     93.02     93.02     93.03     93.03     93.03
+##       16 comps  17 comps
+## X        98.26    100.00
+## Apps     93.03     93.03</code></pre>
+<pre><code>##     mse 
+## 1364515</code></pre>
+<p>Discussion:</p>
+<p>Partial least square regression (PLS) model was built. From the summary, we see that choosing M=10 yields the minimum error. So M=10 was chosen. The test MSE was 1.364514810^{6}. This was slightly higher than lasso, but lower than ridge and pcr.</p>
+<ol start="7" style="list-style-type: lower-alpha">
+<li>Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?</li>
+</ol>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre><code>## Comparative analysis of Errors</code></pre>
+<pre><code>##     MSEb     MSEc     MSEd     MSEe    MSEf
+## mse    1 1.047022 1.080791 1.175188 1.02011</code></pre>
+<pre><code>## Rsquare</code></pre>
+<pre><code>##          MSEb      MSEc      MSEd      MSEe      MSEf
+## mse 0.9155094 0.9115365 0.9086833 0.9007077 0.9138103</code></pre>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<p>The test MSEs is obtained by the five methods. We see there is not much difference in the errors.</p>
+<p>Based on the error estimates it is difficult to predict which model performs best in terms of accuracy. So, instead of using MSE, R-square for the test data was calculated (<a href="http://www.people.vcu.edu/~nhenry/Rsq.htm" class="uri">http://www.people.vcu.edu/~nhenry/Rsq.htm</a>), which gives us a sense of how well the models are explaining the variabilities. From the results above, we see that all models have value over 92%. The models are predicting with reasonably high accuracy. There is very minimal difference in the values with PCR being the smallest Rsquare. Except PCR, all models predict college applications with high accuracy.</p>
+<p>We will now try to predict per capita crime rate in the Boston dataset.</p>
+<ol style="list-style-type: lower-alpha">
+<li>Try out some of the regression methods explored previously,
+such as best subset selection, the lasso, ridge regression, and
+PCR. Present and discuss results for the approaches that you
+consider.</li>
+</ol>
+<pre><code>## Best subset</code></pre>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre><code>## [1] 12</code></pre>
+<pre><code>## [1] 6.523381</code></pre>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(crim ~ ., data = Boston[folds != i, ], nvmax = p)
+## 13 Variables  (and intercept)
+##         Forced in Forced out
+## zn          FALSE      FALSE
+## indus       FALSE      FALSE
+## chas        FALSE      FALSE
+## nox         FALSE      FALSE
+## rm          FALSE      FALSE
+## age         FALSE      FALSE
+## dis         FALSE      FALSE
+## rad         FALSE      FALSE
+## tax         FALSE      FALSE
+## ptratio     FALSE      FALSE
+## black       FALSE      FALSE
+## lstat       FALSE      FALSE
+## medv        FALSE      FALSE
+## 1 subsets of each size up to 13
+## Selection Algorithm: exhaustive
+##           zn  indus chas nox rm  age dis rad tax ptratio black lstat medv
+## 1  ( 1 )  &quot; &quot; &quot; &quot;   &quot; &quot;  &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot; &quot;   &quot; &quot;   &quot; &quot; 
+## 2  ( 1 )  &quot; &quot; &quot; &quot;   &quot; &quot;  &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot; &quot;   &quot;*&quot;   &quot; &quot; 
+## 3  ( 1 )  &quot; &quot; &quot; &quot;   &quot; &quot;  &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot;*&quot;   &quot;*&quot;   &quot; &quot; 
+## 4  ( 1 )  &quot;*&quot; &quot; &quot;   &quot; &quot;  &quot; &quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot; &quot;   &quot; &quot;   &quot;*&quot; 
+## 5  ( 1 )  &quot;*&quot; &quot; &quot;   &quot; &quot;  &quot; &quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot;*&quot;   &quot; &quot;   &quot;*&quot; 
+## 6  ( 1 )  &quot;*&quot; &quot; &quot;   &quot; &quot;  &quot;*&quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot; &quot;     &quot;*&quot;   &quot; &quot;   &quot;*&quot; 
+## 7  ( 1 )  &quot;*&quot; &quot; &quot;   &quot; &quot;  &quot;*&quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot;     &quot;*&quot;   &quot; &quot;   &quot;*&quot; 
+## 8  ( 1 )  &quot;*&quot; &quot; &quot;   &quot; &quot;  &quot;*&quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot; 
+## 9  ( 1 )  &quot;*&quot; &quot;*&quot;   &quot; &quot;  &quot;*&quot; &quot; &quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot; 
+## 10  ( 1 ) &quot;*&quot; &quot;*&quot;   &quot; &quot;  &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot; 
+## 11  ( 1 ) &quot;*&quot; &quot;*&quot;   &quot;*&quot;  &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot; 
+## 12  ( 1 ) &quot;*&quot; &quot;*&quot;   &quot;*&quot;  &quot;*&quot; &quot;*&quot; &quot; &quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot; 
+## 13  ( 1 ) &quot;*&quot; &quot;*&quot;   &quot;*&quot;  &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot; &quot;*&quot;     &quot;*&quot;   &quot;*&quot;   &quot;*&quot;</code></pre>
+<pre><code>## Lasso</code></pre>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<pre><code>## 14 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                    s1
+## (Intercept) 1.0894283
+## zn          .        
+## indus       .        
+## chas        .        
+## nox         .        
+## rm          .        
+## age         .        
+## dis         .        
+## rad         0.2643196
+## tax         .        
+## ptratio     .        
+## black       .        
+## lstat       .        
+## medv        .</code></pre>
+<pre><code>## MSE</code></pre>
+<pre><code>## [1] 55.38184</code></pre>
+<pre><code>## Ridge</code></pre>
+<p><img src="/post/Model_selection/Model_selection_files/figure-html/unnamed-chunk-8-3.png" width="672" /></p>
+<pre><code>## coeffs</code></pre>
+<pre><code>## 14 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                       s1
+## (Intercept)  1.146730398
+## zn          -0.002889389
+## indus        0.033208330
+## chas        -0.209288622
+## nox          2.158437385
+## rm          -0.158326514
+## age          0.007072375
+## dis         -0.109819199
+## rad          0.056100087
+## tax          0.002508948
+## ptratio      0.082673533
+## black       -0.003147919
+## lstat        0.042243863
+## medv        -0.027678989</code></pre>
+<pre><code>## MSE</code></pre>
+<pre><code>## [1] 56.56269</code></pre>
+<pre><code>## PCR</code></pre>
+<pre><code>## Data:    X dimension: 506 13 
+##  Y dimension: 506 1
+## Fit method: svdpc
+## Number of components considered: 13
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV            8.61    7.186    7.185    6.765    6.765    6.760    6.771
+## adjCV         8.61    7.184    7.183    6.760    6.758    6.755    6.766
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV       6.760    6.627    6.639     6.638     6.631      6.61     6.546
+## adjCV    6.754    6.620    6.632     6.630     6.623      6.60     6.536
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps  8 comps
+## X       47.70    60.36    69.67    76.45    82.99    88.00    91.14    93.45
+## crim    30.69    30.87    39.27    39.61    39.61    39.86    40.14    42.47
+##       9 comps  10 comps  11 comps  12 comps  13 comps
+## X       95.40     97.04     98.46     99.52     100.0
+## crim    42.55     42.78     43.04     44.13      45.4</code></pre>
+<p>Best subset selection: Thirteen predictors were selected from the data and Best subset was determined to include 12 variables as “best” for 10 fold CV. The RMSEs of the best k-predictor model is shown in Figure 1. MSE here is 42.5545046</p>
+<p>Lasso: The lasso model forced all the coefficients to zero, except for the rad variable. Plot from Lasso for MSE against log(Lambda) is shown. MSE remains same for variables 4 to 13. Variables below 4, the MSE starts to increase.</p>
+<p>Ridge: Ridge method tends to keep all the variables and no variable was forced to zero. Plot shows the MSE against log(Lambda) as in Lasso.</p>
+<p>PCR: Based on the summary from PCR, using all 13 components yields the lowest MSE. The MSE in this case is 43.230625, slightly higher than the best subset selection.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Propose a model (or set of models) that seem to perform well on
+this data set, and justify your answer. Make sure that you are
+evaluating model performance using validation set error, crossvalidation,
+or some other reasonable alternative, as opposed to
+using training error.</li>
+</ol>
+<pre><code>##   subset_MSE Lasso_MSE Ridge_MSE  PCR_MSE
+## 1    42.5545  55.38184  56.56269 43.23063</code></pre>
+<p>Here, I am using Validation set MSE for evaluating model performance. Based on the MSE calculated in (a), I think Subset would have better performance followed by PCR model.</p>
+<ol start="3" style="list-style-type: lower-alpha">
+<li>Does your chosen model involve all of the features in the data
+set? Why or why not?</li>
+</ol>
+<p>For the model I chose (Subset), thirteen predictors were selected from the data and Best subset was determined to include 12 variables as “best” for 10 fold CV. This suggest that 12 predictor variables are contributing in predicting the response variable.</p>
