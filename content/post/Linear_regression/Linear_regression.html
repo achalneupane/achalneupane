@@ -185,7 +185,7 @@ hist(data$Sales)</code></pre>
 </tr>
 </tbody>
 </table>
-<p>The adjusted R-squared values from the two models are 0.2335 (larger model) and 0.2354 (smaller model). So roughly 23.9262888% (for smaller model) and 23.9275392% (for larger model) of the variability of the sales is explained by the models which means it doesnot explain alot.</p>
+<p>The adjusted R-squared values from the two models are 0.2335 (larger model) and 0.2354 (smaller model). So, i.e., [<code>summary(model_3.7.10.a)$r.sq</code> * <code>100</code>], which is roughly 23.9262888% (for smaller model) and 23.9275392% (for larger model) of the variability of the sales is explained by the models which means it doesn’t explain a lot.</p>
 <p>In this figure above, we can visualize the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting they are not different.</p>
 <p>Next, using the model built previously, obtain 95% confidence intervals for the coefficient(s).</p>
 <pre class="r"><code>cat(&quot;For beta0: &quot;)</code></pre>
