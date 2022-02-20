@@ -1,0 +1,557 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Quantile Regression"
+date: 2019-10-18T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Modern Applied Statistics I
+summary: Statistics series
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>Quantile regression is a type of regression analysis used in statistics and econometrics. While the method of <code>least squares</code> estimates the conditional mean of the response variable across values of the predictor variables, <code>quantile regression</code> estimates the conditional median (or other quantiles) of the response variable. Quantile regression is an extension of linear regression used when the conditions of linear regression are not met.</p>
+<p>One advantage of quantile regression relative to ordinary least squares regression is that the quantile regression estimates are more robust against outliers in the response measurements. However, the main attraction of quantile regression goes beyond this and is advantageous when conditional quantile functions are of interest. Quantile regression has been proposed and used as a way to discover more useful predictive relationships between variables in cases where there is no relationship or only a weak relationship between the means of such variables.</p>
+<p>Beyond simple linear regression, there are several machine learning methods that can be extended to quantile regression. A switch from the squared error to the tilted absolute value loss function allows gradient descent based learning algorithms to learn a specified quantile instead of the mean. It means that we can apply all neural network and deep learning algorithms to quantile regression. Tree-based learning algorithms are also available for quantile regression (see, e.g., Quantile Regression Forests,[15] as a simple generalization of Random Forests).</p>
+<p>Here, we will use some examples of quatile regression methods. First, we will use the {<span class="math inline">\(\textbf{clouds}\)</span>} data from the {<span class="math inline">\(\textbf{HSAUR3}\)</span>} package to review the linear model fitted to this data and report the model and findings. Then we will fit a median regression model and compare the two results.</p>
+<pre class="r"><code>library(tidyverse)
+library(gridExtra)
+library(HSAUR3)
+library(mboost)
+library(&quot;quantreg&quot;)
+library(&quot;rpart&quot;)
+library(&quot;TH.data&quot;)
+library(gamlss.data)
+library(lattice)
+data(clouds)
+head(clouds)</code></pre>
+<pre><code>##   seeding time  sne cloudcover prewetness echomotion rainfall
+## 1      no    0 1.75       13.4      0.274 stationary    12.85
+## 2     yes    1 2.70       37.9      1.267     moving     5.52
+## 3     yes    3 4.10        3.9      0.198 stationary     6.29
+## 4      no    4 2.35        5.3      0.526     moving     6.11
+## 5     yes    6 4.25        7.1      0.250     moving     2.45
+## 6      no    9 1.60        6.9      0.018 stationary     3.61</code></pre>
+<pre class="r"><code>cat(&quot;Fitting the linear model&quot;)</code></pre>
+<pre><code>## Fitting the linear model</code></pre>
+<pre class="r"><code>clouds_formula &lt;- rainfall ~ seeding + seeding:(sne + cloudcover + prewetness + echomotion) + time
+clouds.lm &lt;- glm(clouds_formula, data = clouds)
+summary(clouds.lm)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = clouds_formula, data = clouds)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.5259  -1.1486  -0.2704   1.0401   4.3913  
+## 
+## Coefficients:
+##                                 Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)                     -0.34624    2.78773  -0.124  0.90306   
+## seedingyes                      15.68293    4.44627   3.527  0.00372 **
+## time                            -0.04497    0.02505  -1.795  0.09590 . 
+## seedingno:sne                    0.41981    0.84453   0.497  0.62742   
+## seedingyes:sne                  -2.77738    0.92837  -2.992  0.01040 * 
+## seedingno:cloudcover             0.38786    0.21786   1.780  0.09839 . 
+## seedingyes:cloudcover           -0.09839    0.11029  -0.892  0.38854   
+## seedingno:prewetness             4.10834    3.60101   1.141  0.27450   
+## seedingyes:prewetness            1.55127    2.69287   0.576  0.57441   
+## seedingno:echomotionstationary   3.15281    1.93253   1.631  0.12677   
+## seedingyes:echomotionstationary  2.59060    1.81726   1.426  0.17757   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 4.860684)
+## 
+##     Null deviance: 222.335  on 23  degrees of freedom
+## Residual deviance:  63.189  on 13  degrees of freedom
+## AIC: 115.34
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+<pre class="r"><code>cat(&quot;It looks like the seedingyes variable is the most significant variable in the model followed by seedingyes:sne&quot;)</code></pre>
+<pre><code>## It looks like the seedingyes variable is the most significant variable in the model followed by seedingyes:sne</code></pre>
+<pre class="r"><code>cat(&quot;Now we choose continous variable sne to fit our linear model&quot;)</code></pre>
+<pre><code>## Now we choose continous variable sne to fit our linear model</code></pre>
+<pre class="r"><code>clouds.lm &lt;- glm(rainfall ~ sne, data = clouds)
+summary(clouds.lm)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = rainfall ~ sne, data = clouds)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -6.4927  -2.1116   0.0556   1.2295   6.5036  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   8.7430     2.1508   4.065 0.000515 ***
+## sne          -1.3695     0.6524  -2.099 0.047512 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 8.419897)
+## 
+##     Null deviance: 222.33  on 23  degrees of freedom
+## Residual deviance: 185.24  on 22  degrees of freedom
+## AIC: 123.16
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+<pre class="r"><code>MSE.lm &lt;- mean((predict(clouds.lm, data = clouds)-clouds$rainfall)^2)
+cat(&quot;Linear model MSE: &quot;,MSE.lm)</code></pre>
+<pre><code>## Linear model MSE:  7.718239</code></pre>
+<pre class="r"><code>ggplot(data=clouds, aes(x=sne, y=rainfall, col=seeding)) + geom_point() + geom_smooth(method=&#39;lm&#39;) + labs(title=&#39;Rainfall determined by suitability criterion&#39;,x=&#39;S-NE Criterion&#39;, y=&#39;Rainfall&#39;)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>cat(&quot;Now, fit a median regression (quantile regression) model&quot;)</code></pre>
+<pre><code>## Now, fit a median regression (quantile regression) model</code></pre>
+<pre class="r"><code>median.reg &lt;- rq(rainfall ~ sne, data = clouds, tau = 0.5)
+cat(&quot;Summary of the model&quot;)</code></pre>
+<pre><code>## Summary of the model</code></pre>
+<pre class="r"><code>summary(median.reg)</code></pre>
+<pre><code>## 
+## Call: rq(formula = rainfall ~ sne, tau = 0.5, data = clouds)
+## 
+## tau: [1] 0.5
+## 
+## Coefficients:
+##             coefficients lower bd upper bd
+## (Intercept)  8.86133      3.14768 14.86666
+## sne         -1.38667     -2.46926  0.13118</code></pre>
+<pre class="r"><code>cat(&quot;Summary of model with bootstrapped standard error&quot;)</code></pre>
+<pre><code>## Summary of model with bootstrapped standard error</code></pre>
+<pre class="r"><code>summary(median.reg, se = &quot;boot&quot; )</code></pre>
+<pre><code>## 
+## Call: rq(formula = rainfall ~ sne, tau = 0.5, data = clouds)
+## 
+## tau: [1] 0.5
+## 
+## Coefficients:
+##             Value    Std. Error t value  Pr(&gt;|t|)
+## (Intercept)  8.86133  3.74967    2.36323  0.02737
+## sne         -1.38667  1.10178   -1.25856  0.22138</code></pre>
+<pre class="r"><code>MSE.mrm &lt;- mean((predict(median.reg, data = clouds, type = &quot;response&quot;)-clouds$rainfall)^2)
+cat(&quot;MSE of median regression Model: &quot;,MSE.mrm)</code></pre>
+<pre><code>## MSE of median regression Model:  7.722559</code></pre>
+<pre class="r"><code>cat(&quot;We can also plot this model to compare with previous linear model&quot;)</code></pre>
+<pre><code>## We can also plot this model to compare with previous linear model</code></pre>
+<pre class="r"><code>plot_linear &lt;- ggplot(data=clouds, aes(x=sne, y=rainfall, col=seeding)) + geom_point() + geom_smooth(method=&#39;lm&#39;,se=FALSE) + labs(title=&#39;Linear regression model: Rainfall\n determined by suitability criterion&#39;,x=&#39;S-NE Criterion&#39;, y=&#39;Rainfall&#39;) + theme_classic()
+
+
+plot_median &lt;- ggplot(data=clouds, aes(x=sne, y=rainfall, col=seeding)) + geom_point()  + labs(title=&#39;Median regression model: Rainfall\n determined by suitability criterion&#39;,x=&#39;S-NE Criterion&#39;, y=&#39;Rainfall&#39;) + stat_quantile(quantiles=c(0.50), method=&#39;rq&#39;) + theme_classic()
+
+grid.arrange(plot_linear, plot_median, ncol=2)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<p>In addition to fitting the the two models, I used graphical methods to compare a linear regression fit vs median regression fit. As shown in the plots, a median regression model on the data splits the absence of seeding in such a way that the median regression line has a positive slope, whereas, the simple linear regression model seems to have the negative slope. This indicates that there is higher variability in the rainfall data when cloud seeding is absent. Additionally, in presence of seeding, the median regression line is not weighted by the outliers, therefore seems better at explaining the overall data due to the high variability of the rainfall variable.</p>
+<p>Now, we will reanalyze the <span class="math inline">\({\textbf{bodyfat}}\)</span> data from the <span class="math inline">\({\textbf{TH.data}}\)</span> package and compare the regression tree approach to median regression and summarize the different findings. Here, we will choose one independent variable. For the relationship between this variable and <code>DEXfat</code>, we will create linear regression quantile models for the 25%, 50% and 75% quantiles. We will then plot <code>DEXfat</code> vs that independent variable and plot the lines from the models on the graph.</p>
+<pre class="r"><code>data(&quot;bodyfat&quot;)
+head(bodyfat)</code></pre>
+<pre><code>##    age DEXfat waistcirc hipcirc elbowbreadth kneebreadth anthro3a anthro3b
+## 47  57  41.68     100.0   112.0          7.1         9.4     4.42     4.95
+## 48  65  43.29      99.5   116.5          6.5         8.9     4.63     5.01
+## 49  59  35.41      96.0   108.5          6.2         8.9     4.12     4.74
+## 50  58  22.79      72.0    96.5          6.1         9.2     4.03     4.48
+## 51  60  36.42      89.5   100.5          7.1        10.0     4.24     4.68
+## 52  61  24.13      83.5    97.0          6.5         8.8     3.55     4.06
+##    anthro3c anthro4
+## 47     4.50    6.13
+## 48     4.48    6.37
+## 49     4.60    5.82
+## 50     3.91    5.66
+## 51     4.15    5.91
+## 52     3.64    5.14</code></pre>
+<pre class="r"><code>ncol(bodyfat)</code></pre>
+<pre><code>## [1] 10</code></pre>
+<pre class="r"><code>nrow(bodyfat)</code></pre>
+<pre><code>## [1] 71</code></pre>
+<pre class="r"><code>library(&quot;rpart&quot;)
+# ?bodyfat
+
+cat(&quot;First, fit regression tree model&quot;)</code></pre>
+<pre><code>## First, fit regression tree model</code></pre>
+<pre class="r"><code>#bodyfat_formula &lt;- DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + kneebreadth
+bodyfat_rp  &lt;- rpart(DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + kneebreadth, data = bodyfat, control = rpart.control(minsplit=10))
+summary(bodyfat_rp)</code></pre>
+<pre><code>## Call:
+## rpart(formula = DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + 
+##     kneebreadth, data = bodyfat, control = rpart.control(minsplit = 10))
+##   n= 71 
+## 
+##           CP nsplit  rel error    xerror       xstd
+## 1 0.66289544      0 1.00000000 1.0308030 0.17119086
+## 2 0.09376252      1 0.33710456 0.4129713 0.09423307
+## 3 0.07703606      2 0.24334204 0.4332941 0.09012624
+## 4 0.04507506      3 0.16630598 0.3574503 0.07384141
+## 5 0.01844561      4 0.12123092 0.2701483 0.06097016
+## 6 0.01818982      5 0.10278532 0.2730863 0.05899103
+## 7 0.01000000      6 0.08459549 0.2445821 0.05852079
+## 
+## Variable importance
+##    waistcirc      hipcirc  kneebreadth elbowbreadth          age 
+##           34           30           24            7            4 
+## 
+## Node number 1: 71 observations,    complexity param=0.6628954
+##   mean=30.78282, MSE=120.2251 
+##   left son=2 (40 obs) right son=3 (31 obs)
+##   Primary splits:
+##       waistcirc    &lt; 88.4   to the left,  improve=0.6628954, (0 missing)
+##       hipcirc      &lt; 108.25 to the left,  improve=0.6254333, (0 missing)
+##       kneebreadth  &lt; 9.35   to the left,  improve=0.5142133, (0 missing)
+##       age          &lt; 40.5   to the left,  improve=0.1570344, (0 missing)
+##       elbowbreadth &lt; 6.55   to the left,  improve=0.1169918, (0 missing)
+##   Surrogate splits:
+##       hipcirc      &lt; 107.85 to the left,  agree=0.915, adj=0.806, (0 split)
+##       kneebreadth  &lt; 9.35   to the left,  agree=0.831, adj=0.613, (0 split)
+##       elbowbreadth &lt; 6.55   to the left,  agree=0.648, adj=0.194, (0 split)
+##       age          &lt; 47     to the left,  agree=0.592, adj=0.065, (0 split)
+## 
+## Node number 2: 40 observations,    complexity param=0.07703606
+##   mean=22.92375, MSE=32.88394 
+##   left son=4 (17 obs) right son=5 (23 obs)
+##   Primary splits:
+##       hipcirc      &lt; 96.25  to the left,  improve=0.4999238, (0 missing)
+##       waistcirc    &lt; 71.5   to the left,  improve=0.4408508, (0 missing)
+##       kneebreadth  &lt; 9.15   to the left,  improve=0.3123752, (0 missing)
+##       age          &lt; 41     to the left,  improve=0.2212005, (0 missing)
+##       elbowbreadth &lt; 6.65   to the left,  improve=0.0757275, (0 missing)
+##   Surrogate splits:
+##       waistcirc    &lt; 71.5   to the left,  agree=0.775, adj=0.471, (0 split)
+##       age          &lt; 41     to the left,  agree=0.700, adj=0.294, (0 split)
+##       kneebreadth  &lt; 8.25   to the left,  agree=0.675, adj=0.235, (0 split)
+##       elbowbreadth &lt; 5.75   to the left,  agree=0.600, adj=0.059, (0 split)
+## 
+## Node number 3: 31 observations,    complexity param=0.09376252
+##   mean=40.92355, MSE=50.39231 
+##   left son=6 (28 obs) right son=7 (3 obs)
+##   Primary splits:
+##       kneebreadth  &lt; 11.15  to the left,  improve=0.51233840, (0 missing)
+##       hipcirc      &lt; 109.9  to the left,  improve=0.45671770, (0 missing)
+##       waistcirc    &lt; 106    to the left,  improve=0.44843720, (0 missing)
+##       elbowbreadth &lt; 6.35   to the left,  improve=0.16017880, (0 missing)
+##       age          &lt; 45.5   to the right, improve=0.06131694, (0 missing)
+## 
+## Node number 4: 17 observations,    complexity param=0.01844561
+##   mean=18.20765, MSE=16.81845 
+##   left son=8 (11 obs) right son=9 (6 obs)
+##   Primary splits:
+##       age          &lt; 59.5   to the left,  improve=0.55069560, (0 missing)
+##       waistcirc    &lt; 70.35  to the left,  improve=0.39973880, (0 missing)
+##       elbowbreadth &lt; 6.65   to the left,  improve=0.22215850, (0 missing)
+##       hipcirc      &lt; 92.6   to the left,  improve=0.16823720, (0 missing)
+##       kneebreadth  &lt; 8.55   to the left,  improve=0.08112073, (0 missing)
+##   Surrogate splits:
+##       elbowbreadth &lt; 6.55   to the left,  agree=0.824, adj=0.500, (0 split)
+##       waistcirc    &lt; 71.5   to the left,  agree=0.765, adj=0.333, (0 split)
+## 
+## Node number 5: 23 observations,    complexity param=0.01818982
+##   mean=26.40957, MSE=16.16806 
+##   left son=10 (13 obs) right son=11 (10 obs)
+##   Primary splits:
+##       waistcirc    &lt; 80.75  to the left,  improve=0.41753840, (0 missing)
+##       hipcirc      &lt; 101.35 to the left,  improve=0.34272770, (0 missing)
+##       kneebreadth  &lt; 9.5    to the left,  improve=0.30544320, (0 missing)
+##       elbowbreadth &lt; 7.1    to the right, improve=0.06644785, (0 missing)
+##       age          &lt; 57     to the right, improve=0.03572739, (0 missing)
+##   Surrogate splits:
+##       hipcirc      &lt; 101.75 to the left,  agree=0.783, adj=0.5, (0 split)
+##       kneebreadth  &lt; 9.5    to the left,  agree=0.696, adj=0.3, (0 split)
+##       age          &lt; 66     to the left,  agree=0.652, adj=0.2, (0 split)
+##       elbowbreadth &lt; 6.25   to the left,  agree=0.652, adj=0.2, (0 split)
+## 
+## Node number 6: 28 observations,    complexity param=0.04507506
+##   mean=39.26036, MSE=21.98307 
+##   left son=12 (13 obs) right son=13 (15 obs)
+##   Primary splits:
+##       hipcirc      &lt; 109.9  to the left,  improve=0.62509140, (0 missing)
+##       waistcirc    &lt; 99     to the left,  improve=0.47879840, (0 missing)
+##       kneebreadth  &lt; 9.85   to the left,  improve=0.28389460, (0 missing)
+##       elbowbreadth &lt; 6.35   to the left,  improve=0.18101920, (0 missing)
+##       age          &lt; 49.5   to the right, improve=0.04758482, (0 missing)
+##   Surrogate splits:
+##       waistcirc    &lt; 99     to the left,  agree=0.821, adj=0.615, (0 split)
+##       elbowbreadth &lt; 6.45   to the left,  agree=0.714, adj=0.385, (0 split)
+##       kneebreadth  &lt; 9.95   to the left,  agree=0.714, adj=0.385, (0 split)
+##       age          &lt; 49.5   to the right, agree=0.607, adj=0.154, (0 split)
+## 
+## Node number 7: 3 observations
+##   mean=56.44667, MSE=48.76009 
+## 
+## Node number 8: 11 observations
+##   mean=15.96, MSE=8.818582 
+## 
+## Node number 9: 6 observations
+##   mean=22.32833, MSE=5.242981 
+## 
+## Node number 10: 13 observations
+##   mean=24.13077, MSE=9.046699 
+## 
+## Node number 11: 10 observations
+##   mean=29.372, MSE=9.899016 
+## 
+## Node number 12: 13 observations
+##   mean=35.27846, MSE=10.48431 
+## 
+## Node number 13: 15 observations
+##   mean=42.71133, MSE=6.297998</code></pre>
+<pre class="r"><code>cat(&quot;Plot the regression tree model&quot;)</code></pre>
+<pre><code>## Plot the regression tree model</code></pre>
+<pre class="r"><code>library(partykit)
+plot(as.party(bodyfat_rp), tp_args = list(id=FALSE), main = &quot;Regression tree of the model&quot;)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>cat(&quot;Print CP-table&quot;)</code></pre>
+<pre><code>## Print CP-table</code></pre>
+<pre class="r"><code>print(bodyfat_rp$cptable)</code></pre>
+<pre><code>##           CP nsplit  rel error    xerror       xstd
+## 1 0.66289544      0 1.00000000 1.0308030 0.17119086
+## 2 0.09376252      1 0.33710456 0.4129713 0.09423307
+## 3 0.07703606      2 0.24334204 0.4332941 0.09012624
+## 4 0.04507506      3 0.16630598 0.3574503 0.07384141
+## 5 0.01844561      4 0.12123092 0.2701483 0.06097016
+## 6 0.01818982      5 0.10278532 0.2730863 0.05899103
+## 7 0.01000000      6 0.08459549 0.2445821 0.05852079</code></pre>
+<pre class="r"><code>cat(&quot;CP value with lowest xerror&quot;)</code></pre>
+<pre><code>## CP value with lowest xerror</code></pre>
+<pre class="r"><code>min.cp &lt;- which.min(bodyfat_rp$cptable[,&#39;xerror&#39;])
+min.cp</code></pre>
+<pre><code>## 7 
+## 7</code></pre>
+<pre class="r"><code>cat(
+  &quot;We can fit the model\n using lowest xerror rate from CP for prunning tree model&quot;
+)</code></pre>
+<pre><code>## We can fit the model
+##  using lowest xerror rate from CP for prunning tree model</code></pre>
+<pre class="r"><code>#extract the lowest CP
+cp &lt;- bodyfat_rp$cptable[min.cp, &#39;CP&#39;]
+bodyfat_prune &lt;- prune(bodyfat_rp, cp=cp)
+
+cat(&quot;Summary of the median regression model&quot;)</code></pre>
+<pre><code>## Summary of the median regression model</code></pre>
+<pre class="r"><code>#Median Regression model
+bodyfat_rpart_qrm &lt;- rq(DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + kneebreadth, data=bodyfat, tau = 0.50)
+summary(bodyfat_rpart_qrm)</code></pre>
+<pre><code>## 
+## Call: rq(formula = DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + 
+##     kneebreadth, tau = 0.5, data = bodyfat)
+## 
+## tau: [1] 0.5
+## 
+## Coefficients:
+##              coefficients lower bd  upper bd 
+## (Intercept)  -57.30032    -87.22119 -36.39320
+## age            0.06839     -0.04338   0.14943
+## waistcirc      0.28332      0.07991   0.48638
+## hipcirc        0.51073      0.21307   0.75030
+## elbowbreadth  -0.11982     -3.62882   2.18220
+## kneebreadth    0.76453     -2.30145   2.33329</code></pre>
+<pre class="r"><code>bodyfat_rpart_qrm_summary &lt;- summary(bodyfat_rpart_qrm) 
+
+#Predict Pruned regression tree model on the bodyfat data set
+RegressionTree &lt;- predict(bodyfat_prune, data=bodyfat)
+
+#Create observed value and the predicted value
+observed &lt;- bodyfat$DEXfat
+predict &lt;- RegressionTree
+
+#Regression.Tree MSE
+RegressionTree.MSE &lt;- mean((observed - predict)^2)
+
+#Median Regression MSE
+MedianRegression.MSE &lt;- mean(bodyfat_rpart_qrm_summary$residuals^2)
+
+df &lt;- data.frame(
+  RegressionTree.MSE,
+  MedianRegression.MSE
+)
+
+cat(&quot;MSE of both models&quot;)</code></pre>
+<pre><code>## MSE of both models</code></pre>
+<pre class="r"><code>df</code></pre>
+<pre><code>##   RegressionTree.MSE MedianRegression.MSE
+## 1            10.1705              15.0245</code></pre>
+<pre class="r"><code>cat(&quot;Based on this, pruned regression tree has lower MSE than median regression model&quot;)</code></pre>
+<pre><code>## Based on this, pruned regression tree has lower MSE than median regression model</code></pre>
+<pre class="r"><code>cat(&quot;Plot based on the regression tree prunning&quot;)</code></pre>
+<pre><code>## Plot based on the regression tree prunning</code></pre>
+<pre class="r"><code>plot(as.party(bodyfat_prune), tp_args = list(id=FALSE), main = &quot;Plot based on the regression tree prunning&quot;)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+<pre class="r"><code>cat(
+  &quot;Based on the above pruned tree, the variables waist circumference and hip circumference splits explain the majority of the data and I will be choosing one of these variables for quantile regression.&quot;
+)</code></pre>
+<pre><code>## Based on the above pruned tree, the variables waist circumference and hip circumference splits explain the majority of the data and I will be choosing one of these variables for quantile regression.</code></pre>
+<pre class="r"><code>cat(&quot;Additionally, I will check with linear regression for the variable with significant effect&quot;)</code></pre>
+<pre><code>## Additionally, I will check with linear regression for the variable with significant effect</code></pre>
+<pre class="r"><code>check.lm &lt;- lm(DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + kneebreadth, data = bodyfat)
+
+summary(check.lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = DEXfat ~ age + waistcirc + hipcirc + elbowbreadth + 
+##     kneebreadth, data = bodyfat)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -9.1782 -2.4973  0.2089  2.5496 11.6504 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  -59.57320    8.45359  -7.047 1.43e-09 ***
+## age            0.06381    0.03740   1.706   0.0928 .  
+## waistcirc      0.32044    0.07372   4.347 4.96e-05 ***
+## hipcirc        0.43395    0.09566   4.536 2.53e-05 ***
+## elbowbreadth  -0.30117    1.21731  -0.247   0.8054    
+## kneebreadth    1.65381    0.86235   1.918   0.0595 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.988 on 65 degrees of freedom
+## Multiple R-squared:  0.8789, Adjusted R-squared:  0.8696 
+## F-statistic: 94.34 on 5 and 65 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>cat(&quot;Looks like waistcirc is the most significant, so we will choose this variable&quot;)</code></pre>
+<pre><code>## Looks like waistcirc is the most significant, so we will choose this variable</code></pre>
+<pre class="r"><code>cat(&quot;Now we can run a median quantile regression&quot;)</code></pre>
+<pre><code>## Now we can run a median quantile regression</code></pre>
+<pre class="r"><code>bodyfat_qrm_25 &lt;- rq(DEXfat ~ age + waistcirc, data = bodyfat, tau = 0.25)
+summary(bodyfat_qrm_25)</code></pre>
+<pre><code>## 
+## Call: rq(formula = DEXfat ~ age + waistcirc, tau = 0.25, data = bodyfat)
+## 
+## tau: [1] 0.25
+## 
+## Coefficients:
+##             coefficients lower bd  upper bd 
+## (Intercept) -34.95268    -41.72329 -30.15887
+## age           0.07777      0.01124   0.14609
+## waistcirc     0.67033      0.60935   0.74444</code></pre>
+<pre class="r"><code>bodyfat_qrm_50 &lt;- rq(DEXfat ~ age + waistcirc, data = bodyfat, tau = 0.50)
+summary(bodyfat_qrm_50)</code></pre>
+<pre><code>## 
+## Call: rq(formula = DEXfat ~ age + waistcirc, tau = 0.5, data = bodyfat)
+## 
+## tau: [1] 0.5
+## 
+## Coefficients:
+##             coefficients lower bd  upper bd 
+## (Intercept) -28.39189    -39.03217 -17.59073
+## age           0.05514     -0.06704   0.15053
+## waistcirc     0.63962      0.54298   0.76936</code></pre>
+<pre class="r"><code>bodyfat_qrm_75 &lt;- rq(DEXfat ~ age + waistcirc, data = bodyfat, tau = 0.75)
+summary(bodyfat_qrm_50)</code></pre>
+<pre><code>## 
+## Call: rq(formula = DEXfat ~ age + waistcirc, tau = 0.5, data = bodyfat)
+## 
+## tau: [1] 0.5
+## 
+## Coefficients:
+##             coefficients lower bd  upper bd 
+## (Intercept) -28.39189    -39.03217 -17.59073
+## age           0.05514     -0.06704   0.15053
+## waistcirc     0.63962      0.54298   0.76936</code></pre>
+<pre class="r"><code>cat(&quot;DEXfat explained by waist circumference at quantile 25%, 50%, and 75% regression lines&quot;)</code></pre>
+<pre><code>## DEXfat explained by waist circumference at quantile 25%, 50%, and 75% regression lines</code></pre>
+<pre class="r"><code>plot(data=bodyfat, DEXfat~waistcirc, main=&quot;baseR: Quantile regression- DEXfat Explained by waist circumference&quot;, xlab=&#39;Waist circumference&#39;)
+abline(rq(DEXfat ~ waistcirc, data=bodyfat, tau = 0.25), col=&#39;blue&#39;)
+abline(rq(DEXfat ~ waistcirc, data=bodyfat, tau = 0.50), col=&#39;green&#39;)
+abline(rq(DEXfat ~ waistcirc, data=bodyfat, tau = 0.75), col=&#39;black&#39;)
+legend(&#39;topleft&#39;, legend = c(&#39;25% Quantile&#39;, &#39;50% Quantile&#39;, &#39;75% Quantile&#39;),
+       fill=c(&#39;blue&#39;,&#39;green&#39;,&#39;black&#39;))</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-2-3.png" width="672" /></p>
+<pre class="r"><code>ggplot(data=bodyfat, aes(x=waistcirc, y=DEXfat)) + geom_point() + stat_quantile(quantiles=c(0.25), method=&#39;rq&#39;, aes(colour=&#39;25%&#39;)) + stat_quantile(quantiles=c(0.50), method=&#39;rq&#39;, aes(colour=&#39;50%&#39;)) + 
+  stat_quantile(quantiles=c(0.75), method=&#39;rq&#39;, aes(colour=&#39;75%&#39;)) +
+  labs(title=&quot;ggplot: Quantile regression- DEXfat Explained by waist circumference&quot;, x=&#39;Waist circumference&#39;, y=&#39;DEXfat&#39;) +
+scale_color_manual(name=&quot;Quantile Percent&quot;, values = c(&#39;25%&#39; = &quot;blue&quot;, &#39;50%&#39; = &quot;green&quot;, &#39;75%&#39; = &quot;black&quot;))</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-2-4.png" width="672" /></p>
+<p>Based on the above pruned tree, the variables waist circumference and hip circumference splits explain the majority of the data, and I chose waist circumference for quantile regression. Based on this analysis, pruned regression tree has lower MSE than median regression model. The relationship of Dexfat to Age by Waist Circumference, all three quantiles regression lines have a positive, and seemingly similar slopes.</p>
+<p>Next, we will use the <span class="math inline">\({\textbf{db}}\)</span> data from the package <span class="math inline">\({\textbf{gamlss.data}}\)</span>. Refit the additive quantile regression models presented <span class="math inline">\({\textbf{rqssmod}}\)</span> with varying values of <span class="math inline">\(\lambda\)</span> (lambda) in {}. We will visualize the change in curves for the estimated quantile.</p>
+<pre class="r"><code>data(db)
+head(db)</code></pre>
+<pre><code>##   head  age
+## 1 33.6 0.03
+## 2 33.6 0.04
+## 3 33.7 0.04
+## 4 35.0 0.04
+## 5 36.1 0.04
+## 6 36.6 0.05</code></pre>
+<pre class="r"><code>dim(db)</code></pre>
+<pre><code>## [1] 7040    2</code></pre>
+<pre class="r"><code>tau &lt;- c(.03, .15, .5, .85, .97)
+
+
+cat(&quot;Parameters: lambda = 0&quot;)</code></pre>
+<pre><code>## Parameters: lambda = 0</code></pre>
+<pre class="r"><code>rqssmod &lt;- vector(mode = &quot;list&quot;, length = length(tau))
+db$lage &lt;- with(db, age^(1/3))
+for (i in 1:length(tau))
+  rqssmod[[i]] &lt;- rqss(head ~ qss(lage, lambda = 0), data = db, tau = tau[i])
+
+gage &lt;- seq(from = min(db$age), to = max(db$age), length = 50)
+p &lt;- sapply(1:length(tau), function(i) { predict(rqssmod[[i]], newdata = data.frame(lage = gage^(1/3)))
+})
+
+pfun &lt;- function(x, y, ...) {
+  panel.xyplot(x = x, y = y, ...)
+  apply(p, 2, function(x) panel.lines(gage, x))
+  panel.text(rep(max(db$age), length(tau)),
+             p[nrow(p),], label = tau, cex = 0.9)
+}
+
+xyplot(head ~ age, data = db, main = &quot;Head circumference curve with lambda = 0&quot;,
+       xlab = &quot;Age (years)&quot;, ylab = &quot;Head circumference (cm)&quot;, pch = 19,
+       scales = list(x = list(relation = &quot;free&quot;)),
+       layout = c(1, 1), col = rgb(.1, .1, .1, .1),
+       panel = pfun)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>cat(&quot;Parameters: lambda = 1; and tau same as before&quot;)</code></pre>
+<pre><code>## Parameters: lambda = 1; and tau same as before</code></pre>
+<pre class="r"><code>rqssmod &lt;- vector(mode = &quot;list&quot;, length = length(tau))
+db$lage &lt;- with(db, age^(1/3))
+for (i in 1:length(tau))
+  rqssmod[[i]] &lt;- rqss(head ~ qss(lage, lambda = 1), data = db, tau = tau[i])
+
+gage &lt;- seq(from = min(db$age), to = max(db$age), length = 50)
+p &lt;- sapply(1:length(tau), function(i) { predict(rqssmod[[i]], newdata = data.frame(lage = gage^(1/3)))
+})
+
+pfun &lt;- function(x, y, ...) {
+  panel.xyplot(x = x, y = y, ...)
+  apply(p, 2, function(x) panel.lines(gage, x))
+  panel.text(rep(max(db$age), length(tau)),
+             p[nrow(p),], label = tau, cex = 0.9)
+}
+
+xyplot(head ~ age, data = db, main = &quot;Head circumference curve with lambda=1&quot;,
+       xlab = &quot;Age (years)&quot;, ylab = &quot;Head circumference (cm)&quot;, pch = 19,
+       scales = list(x = list(relation = &quot;free&quot;)),
+       layout = c(1, 1), col = rgb(.1, .1, .1, .1),
+       panel = pfun)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code>cat(&quot;Parameters: lambda = 20; and tau same as before&quot;)</code></pre>
+<pre><code>## Parameters: lambda = 20; and tau same as before</code></pre>
+<pre class="r"><code>rqssmod &lt;- vector(mode = &quot;list&quot;, length = length(tau))
+db$lage &lt;- with(db, age^(1/3))
+for (i in 1:length(tau))
+  rqssmod[[i]] &lt;- rqss(head ~ qss(lage, lambda = 20), data = db, tau = tau[i])
+
+gage &lt;- seq(from = min(db$age), to = max(db$age), length = 50)
+p &lt;- sapply(1:length(tau), function(i) { predict(rqssmod[[i]], newdata = data.frame(lage = gage^(1/3)))
+})
+
+pfun &lt;- function(x, y, ...) {
+  panel.xyplot(x = x, y = y, ...)
+  apply(p, 2, function(x) panel.lines(gage, x))
+  panel.text(rep(max(db$age), length(tau)),
+             p[nrow(p),], label = tau, cex = 0.9)
+}
+
+xyplot(head ~ age, data = db, main = &quot;Head circumference curve with lambda=20&quot;,
+       xlab = &quot;Age (years)&quot;, ylab = &quot;Head circumference (cm)&quot;, pch = 19,
+       scales = list(x = list(relation = &quot;free&quot;)),
+       layout = c(1, 1), col = rgb(.1, .1, .1, .1),
+       panel = pfun)</code></pre>
+<p><img src="/post/Quantile_regression/Quantile_Regression_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<p>Here, lambda acts as a shinkage factor which causes the quantiles to become smoother (at higher lambda) rather than becoming wavy or rough with lower values of labda (lambda = 0). So, I found that by increasing the penalty term lambda, which is assigned to the slope of the coefficients, the overall fit of the additive quantile regression model can be smoothen.</p>
+<p>In conclusion, quantile regression allows large sample groups or population size into fractals distribution or smaller quantiles represented by a parameter <span class="math inline">\(\tau\)</span> (tau) and maintaining the same <span class="math inline">\(\tau\)</span> for observations above and below the quantile and minimizing the sum of weighted absolute residuals.Some distributions with longer tails can weigh the mean so that the regression of the least squares can provide a false representation of the results. A more precise description of the data and underlying patterns can be obtained using quantile regression. This is particularly useful in econometrics where there are often large outliers that can have a significant impact on a least squares model. Basically, we need to assess our needs when dealing with the datasets:
+i. Are we concerned about percentiles or median value?
+ii. Whether we are interested in average values and minimizing the residuals errors.</p>
