@@ -80,13 +80,20 @@ summary: Statistics series
 </tr>
 <tr class="even">
 <td>Missing data</td>
-<td>Requires complete data. Analysis based on complete-cases or imputed missing values. Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR. Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR. Method yields biased estimates for (a) complete-case analysis when missingness is MAR, (b) last observation carried forward when missingness is MCAR or MAR, (c) single mean imputation when missingness is MAR.</td>
-<td>Handles missing data without explicit imputation needed. GEEs assume missingness is MCAR. Mixed effects regression assume missingness is MAR.</td>
-<td>Computation</td>
-<td>Group differences of change scores analyzed with one-way ANOVA.</td>
-<td>ANOVA implementation in standard software (SAS, SPSS, R).</td>
+<td>Requires complete data. Analysis based on complete-cases or imputed missing values.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
+<ol style="list-style-type: decimal">
+<li>Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR.<br />
+</li>
+<li>Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR.<br />
+</li>
+<li>Method yields biased estimates for (a) complete-case analysis when missingness is MAR, (b) last observation carried forward when missingness is MCAR or MAR, (c) single mean imputation when missingness is MAR.| Handles missing data without explicit imputation needed. GEEs assume missingness is MCAR. Mixed effects regression assume missingness is MAR. | Computation | Group differences of change scores analyzed with one-way ANOVA. | ANOVA implementation in standard software (SAS, SPSS, R). | MANOVA implementation in standard software (SAS, SPSS, R). | Quasi-likelihood methods; PROC GENMOD in SAS. | Likelihood methods; PROC MIXED in SAS. |</li>
+</ol>
 <p>Read more on this <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly">here.</a></p>
 </div>
