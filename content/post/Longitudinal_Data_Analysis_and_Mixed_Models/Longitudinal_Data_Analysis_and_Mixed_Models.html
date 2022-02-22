@@ -12,20 +12,12 @@ summary: Statistics series
 
 
 
-<pre class="r"><code>knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)</code></pre>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-<p>To understanding the overall progression of diseases is critical to the timing of therapeutic interventions and design of effective clinical trials. Disease progression can be assessed with longitudinal study designs in which outcomes are measured repeatedly over time and are assessed with respect to risk factors, either measured repeatedly or at baseline.</p>
+<p>Understanding the overall progression of disease is critical to the timing of therapeutic interventions and design of effective clinical trials. Disease progression can be assessed with longitudinal study designs in which outcomes are measured repeatedly over time and are assessed with respect to risk factors, either measured repeatedly or at baseline. Longitudinal data allows researchers to assess temporal disease aspects, but the analysis is complicated by complex correlation structures, irregularly spaced visits, missing data, and mixtures of time-varying and static covariate effects.</p>
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
-<p>To examine the data <code>Beat the Blues</code> from package <code>HSAUR3</code>, we will do the following:</p>
-<ol style="list-style-type: lower-alpha">
-<li><p>Construct boxplots to compare the factor variable <span class="math inline">\(\textbf{drug}\)</span>. Discuss the results.</p></li>
-<li><p>Repeat (a) for the <span class="math inline">\(\textbf{length}\)</span> variable. Discuss the results.</p></li>
-<li><p>Use the <span class="math inline">\(\textit{lm}\)</span> function to fit a model to the Beat the Blues data that assumes that the repeated measurements are independent. Compare the results to those from fitting the random intercept model <span class="math inline">\(\textit{BtheB\_lmer1}\)</span>.</p></li>
-<li><p>Investigate and discuss whether there is any evidence of an interaction between treatment and time for the Beat the Blues data.</p></li>
-<li><p>Construct a plot of the mean profiles of both treatment groups in the Beat the Blues data, showing also standard deviation bars at each time point.</p></li>
-</ol>
+<p>Here we will use the data <code>Beat the Blues</code> from package <code>HSAUR3</code> to construct boxplots and compare the factor variable <span class="math inline">\(\textbf{drug}\)</span>. We will do the same for the <span class="math inline">\(\textbf{length}\)</span> variable and discuss our results.</p>
 <pre class="r"><code>library(&quot;gee&quot;)
 library(&quot;lme4&quot;)
 library(&quot;Matrix&quot;)
@@ -35,9 +27,7 @@ library(ggplot2)
 library(plyr)
 library(tidyr)
 
-cat(&quot;# 1.a&quot;) </code></pre>
-<pre><code>## # 1.a</code></pre>
-<pre class="r"><code># a. Construct boxplots to compare the factor variable \textbf{drug} in an
+# Construct boxplots to compare the factor variable \textbf{drug} in an
 # analogous way to how we constructed boxplots for the treatment
 # variable.
 data(&quot;BtheB&quot;)
@@ -57,24 +47,17 @@ boxplot(no, main=&quot;Drugs Not Used&quot;, ylab=&quot;BDI&quot;,
         xlab=&quot;Time (in Months)&quot;, names=c(0,2,3,5,8), 
         ylim=ylim)</code></pre>
 <p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<pre class="r"><code>cat(&quot;#1.b&quot;)</code></pre>
-<pre><code>## #1.b</code></pre>
-<pre class="r"><code># b. Repeat (a) for the \textbf{length} variable. Discuss the results.
-
+<pre class="r"><code>#Repeat for the length variable. Discuss the results.
 layout(matrix(1:2, nrow = 1))
 lengthlow&lt;-subset(BtheB,length==&quot;&lt;6m&quot;)[,grep(&quot;bdi&quot;,names(BtheB))]
 boxplot(lengthlow, main =&quot;Length&lt;6m&quot;, ylab= &quot;BDI&quot;, xlab = &quot;Time (in months)&quot;,names=c(0,2,3,5,8))
 
 lengthhigh&lt;-subset(BtheB,length==&quot;&gt;6m&quot;)[,grep(&quot;bdi&quot;,names(BtheB))]
 boxplot(lengthhigh, main =&quot;Length&gt;6m&quot;, ylab= &quot;BDI&quot;, xlab = &quot;Time (in months)&quot;,names=c(0,2,3,5,8))</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
-<pre class="r"><code>cat(&quot;#1.c&quot;)</code></pre>
-<pre><code>## #1.c</code></pre>
-<pre class="r"><code># c. Use the \textit{lm} function to fit a model to the Beat the Blues
-# data that assumes that the repeated measurements are independent.
-
-
-BtheB$subject=factor(rownames(BtheB))
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-2.png" width="672" />
+The plots demonstrate that BDI (median or average) declines at a faster rate if they do not take the medication. The plots also demonstrate that when patients live for less than 6 months, BDI (median or average) declines at a higher pace than when patients survive for more than months.</p>
+<p>Next, we will use the <span class="math inline">\(\textit{lm}\)</span> function to fit a model to the Beat the Blues data that assumes that the repeated measurements are independent. Compare the results to those from fitting the random intercept model <span class="math inline">\(\textit{BtheB\_lmer1}\)</span>.</p>
+<pre class="r"><code>BtheB$subject=factor(rownames(BtheB))
 nobs=nrow(BtheB)
 cat(&quot;Let change the data in wide format&quot;)</code></pre>
 <pre><code>## Let change the data in wide format</code></pre>
@@ -148,15 +131,15 @@ cftest(BtheB_lmer1)</code></pre>
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>cat(&quot;We can plot the residuals from Linear model&quot;)</code></pre>
 <pre><code>## We can plot the residuals from Linear model</code></pre>
-<pre class="r"><code>plot(BtheB_lm, which=2)
-# Assumptions for Mixed-model
+<pre class="r"><code>plot(BtheB_lm, which=2)</code></pre>
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code># Assumptions for Mixed-model
 
 residuals &lt;- function(object, obs) obs-predict(object) 
 cat(&quot;We can also plot the residuals from linear mixed-model&quot;)</code></pre>
 <pre><code>## We can also plot the residuals from linear mixed-model</code></pre>
-<pre class="r"><code>layout(matrix(1:2, ncol = 2))</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-3.png" width="672" /></p>
-<pre class="r"><code>qint &lt;- ranef(BtheB_lmer1)$subject[[&quot;(Intercept)&quot;]]
+<pre class="r"><code>layout(matrix(1:2, ncol = 2))
+qint &lt;- ranef(BtheB_lmer1)$subject[[&quot;(Intercept)&quot;]]
 qres &lt;- residuals(BtheB_lmer1,BtheB_long$bdi.pre)
 qqnorm(qint, ylab = &quot;Estimated random intercepts&quot;,
      xlim = c(-3, 3), ylim = c(-20, 20),
@@ -166,10 +149,11 @@ qqnorm(qres, xlim = c(-3, 3), ylim = c(-20, 20),
      ylab = &quot;Estimated residuals&quot;,
      main = &quot;Residuals&quot;)
 qqline(qres, col=&quot;red&quot;, lwd=3)</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
-<pre class="r"><code>cat(&quot;#1.d&quot;)</code></pre>
-<pre><code>## #1.d</code></pre>
-<pre class="r"><code># d. Investigate and discuss whether there is any evidence of an interaction
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+In linear model, Bdi.pre, time, treatmentBtheB, and drugYes are significant, but in the lmer model, only bdi.pre and time are significant. This means that the linear model understates the standard errors because it does not account for the correlation over time or the repeated measures.</p>
+<p>In the first output, the linear model shows that there is interation between time and treatment with P &lt; 0.05. However, mixed effect model (lmer) indicates that there is no time and treatment effect because p is 0.09.</p>
+<p>Next, we will investigate and discuss whether there is any evidence of an interaction between treatment and time for the Beat the Blues data.</p>
+<pre class="r"><code># Investigate and discuss whether there is any evidence of an interaction
 # between treatment and time for the Beat the Blues data.
 
 cat(&quot;Testing fitted linear model with lm&quot;)</code></pre>
@@ -326,11 +310,9 @@ cftest(BtheB_lmer2)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## (Univariate p values reported)</code></pre>
-<pre class="r"><code>cat(&quot;#1.e&quot;)</code></pre>
-<pre><code>## #1.e</code></pre>
-<pre class="r"><code># e. Construct a plot of the mean profiles of both treatment groups in the Beat
+<p>Now, we will create a plot of the mean profiles of both treatment groups in the Beat the Blues data, showing also standard deviation bars at each time point.</p>
+<pre class="r"><code># Create a plot of the mean profiles of both treatment groups in the Beat
 # the Blues data, showing also standard deviation bars at each time point.
-
 data_sum=ddply(BtheB_long, c(&quot;time&quot;, &quot;treatment&quot;), summarise, 
             N=sum(!is.na(bdi)),
             mean=mean(bdi, na.rm=TRUE),
@@ -345,18 +327,9 @@ ggplot(data_sum, aes(x=time, y=mean, colour=treatment)) +
   geom_point(position=pd) + 
   theme_classic() +
   labs(title = &quot;Mean profiles of both treatment groups&quot;)</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-1-5.png" width="672" /></p>
-<p>The plots demonstrate that BDI (median or average) declines at a faster rate if they do not take the medication. The plots also demonstrate that when patients live for less than 6 months, BDI (median or average) declines at a higher pace than when patients survive for more than months.</p>
-<p>In linear model, Bdi.pre, time, treatmentBtheB, and drugYes are significant, but in the lmer model, only bdi.pre and time are significant. This means that the linear model understates the standard errors because it does not account for the correlation over time or the repeated measures.</p>
-<p>In the first output, the linear model shows that there is interation between time and treatment with P &lt; 0.05. However, mixed effect model (lmer) indicates that there is no time and treatment effect because p is 0.09.</p>
-<p>The mean profile shows that the results are very different between the two categories, but the standard deviation bars converge.</p>
-<p>Now, consider the <span class="math inline">\(\textbf{phosphate}\)</span> data from the package <code>HSAUR3</code>. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). Perform the following on this dataset:</p>
-<ol style="list-style-type: lower-alpha">
-<li>Construct boxplots by group and discuss.</li>
-<li>Produce separate plots of the profiles of the individuals in each group.</li>
-<li>Guided by how these plots fit, which linear mixed effects models do we think might be sensible? We will discuss intercept and slope, intercept and interaction.</li>
-<li>Convert the data to long version and fit the model of your choice and discuss the results.</li>
-</ol>
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+The mean profile shows that the results are very different between the two categories, but the standard deviation bars converge.</p>
+<p>Now, consider the <span class="math inline">\(\textbf{phosphate}\)</span> data from the package <code>HSAUR3</code>. This data shows the plasma inorganic phosphate levels for 33 subjects, 20 of whom are controls and 13 of whom have been classified as obese (Davis, 2002). First, we will create boxplots by group and discuss the results below.</p>
 <pre class="r"><code>data(&quot;phosphate&quot;, package = &quot;HSAUR3&quot;)
 library(lme4)
 library(Matrix)
@@ -364,18 +337,15 @@ library(multcomp)
 attach(phosphate)
 par(mfrow = c(1,2))
 ylim &lt;-range(phosphate[,-1], na.rm = TRUE)
-cat(&quot;#2.a&quot;)</code></pre>
-<pre><code>## #2.a</code></pre>
-<pre class="r"><code># a. Construct boxplots by group and discuss. 
+# Construct boxplots by group and discuss. 
 boxplot(phosphate[group == &quot;control&quot;, -1], 
         xlab = &quot;time&quot;, ylab = &quot;Phosphate level&quot;,
         main = &quot;base R: Control group&quot;, ylim = ylim)
 boxplot(phosphate[group == &quot;obese&quot;,-1],
         xlab = &quot;time&quot;, ylab = &quot;Phosphate level&quot;,
         main = &quot;Obese group&quot;, ylim = ylim)</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre class="r"><code># ggplot version:
-
 phosphate %&gt;%
   gather(time,phosphate_level, 2:9) %&gt;%
   mutate(time = factor(gsub(time,pattern=&quot;[[:alpha:]]&quot;,replacement=&#39;&#39;))) %&gt;%
@@ -386,10 +356,10 @@ ggplot(aes(x=time,y=phosphate_level)) +
        x=&#39;Time (hours)&#39;,
        y=&#39;Phosphate level&#39;) +
   theme_classic()</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
-<pre class="r"><code>cat(&quot;#2.b&quot;)</code></pre>
-<pre><code>## #2.b</code></pre>
-<pre class="r"><code># b. Produce separate plots of the profiles of the individuals in each group
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+Based on the plot, the control group has the median level of phosphate falling rapidly from a higher level of 4.3 to midway between t1 and t2 and starts to rise more rapidly over time. The obese group reached a relatively higher median phosphate rate close to 5 and dropped and grew steadily over time. The Obese group also has two outliers.</p>
+<p>Next, we will create separate plots of the profiles of the individuals in each group.</p>
+<pre class="r"><code># Produce separate plots of the profiles of the individuals in each group
 layout(matrix(1:2, nrow=1))
 
 rg=range(phosphate[ ,-1])
@@ -404,7 +374,7 @@ plot(c(1, 8), c(rg), type=&quot;n&quot;, xlab=&quot;Time (hours)&quot;,
 for(i in 1:sum(phosphate$group==&quot;obese&quot;)){
   lines(1:8, phosphate[nrow(phosphate)-i, -1])
 }</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-3.png" width="672" /></p>
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre class="r"><code>phosphate_t &lt;- phosphate
 phosphate_t$subject &lt;- factor(rownames(phosphate_t))
 
@@ -418,11 +388,12 @@ ggplot(aes(x=time,y=phosphate_level)) +
        x=&#39;Time (in hours)&#39;,
        y=&#39;Phosphate Level&#39;) +
   theme_classic()</code></pre>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-2-4.png" width="672" /></p>
-<pre class="r"><code>cat(&quot;#2.d&quot;) </code></pre>
-<pre><code>## #2.d</code></pre>
-<pre class="r"><code>#d. Convert the data to long version and fit the model of your choice and
-#discuss the results.
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-6-2.png" width="672" />
+Guided by how these plots fit, we may be interested to find out which linear mixed effects models might be sensible based on the intercept and slope, intercept and interaction.</p>
+<p>Here, linear mixed model would be suitable because the slopes and intercepts in each group vary widely. Additionally, there is an interaction between control and obese groups based on time. So fitting something of the form <span class="math inline">\(\textit{lmer(phosphatelevel t0+time∗group+(1= phos)}\)</span> would be suitable.</p>
+<p>In the fixed effect model, we see that there is a positive relation between the time and the phosphate level. It makes sense sinse we saw that after decreasing for a while the phosphate level increases for longer than decreasing time period. Based on the f-test with cftest , time, group, baseline phosphate level and the interaction between time and group all are significant.</p>
+<p>Next, we will convert the data to long version and fit the model of your choice and discuss the results.</p>
+<pre class="r"><code># Convert the data to long version and fit the model 
 data(phosphate)
 ph=phosphate
 ph$subject=as.factor(rownames(ph))
@@ -532,15 +503,11 @@ print(summary(ph_cept_slope_inter))</code></pre>
 MSE=mean((pred-ph_long$p_level)^2)
 message(&quot;Mean Squared Error: &quot;,MSE)
 message(&quot;Mean Phosphate Level: &quot;,mean(ph_long$p_level))</code></pre>
-<p>Based on the plot, the control group has the median level of phosphate falling rapidly from a higher level of 4.3 to midway between t1 and t2 and starts to rise more rapidly over time. The obese group reached a relatively higher median phosphate rate close to 5 and dropped and grew steadily over time. The Obese group also has two outliers.</p>
-<p>I think linear mixed model would be suitable because the slopes and intercepts in each group vary widely. Additionally, there is an interaction between control and obese groups based on time. So fitting something of the form <span class="math inline">\(\textit{lmer(phosphatelevel t0+time∗group+(1= phos)}\)</span> would be suitable.</p>
-<p>In the fixed effect model, we see that there is a positive relation between the time and the phosphate level. It makes sense sinse we saw that after decreasing for a while the phosphate level increases for longer than decreasing time period. Based on the f-test with cftest , time, group, baseline phosphate level and the interaction between time and group all are significant.</p>
-<p>Comparing this with three other models, (ph_non_inter=random intercept, ph_inter=random intercept with interction, ph_cept_slope=random intercept and random slope) using anova, the model I used has the smallest AIC (about 391) indicating a better fit of among four models. However, considering BIC value, we also see that random intercept with interaction is also a good model.</p>
+<p>Comparing this with three other models, (ph_non_inter=random intercept, ph_inter=random intercept with interaction, ph_cept_slope=random intercept and random slope) using anova, the model used here has the smallest AIC (about 391) indicating a better fit of among four models. However, considering BIC value, we also see that random intercept with interaction is also a good model.</p>
 </div>
 <div id="part-2" class="section level2">
 <h2>Part 2</h2>
-<p>Now, consider the <span class="math inline">\(\textbf{respiratory}\)</span> data from the <span class="math inline">\(\textbf{HSAUR3}\)</span> package.</p>
-<pre><code>a. Investigate the use of other correlational structures than the independence and exchangeable structures used in the text for the respiratory data.</code></pre>
+<p>Now, consider the <span class="math inline">\(\textbf{respiratory}\)</span> data from the <span class="math inline">\(\textbf{HSAUR3}\)</span> package. Then, investigate the use of other correlational structures than the independence and exchangeable structures used in the text for the respiratory data.</p>
 <pre class="r"><code>library(HSAUR3)
 library(gee)
 library(geepack)
@@ -594,7 +561,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 <pre><code>##  Summary</code></pre>
 <pre class="r"><code>knitr::kable(summary(resp_sub_glm)$coeff, caption = &quot;Summary coeff of GLM binomial&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GLM binomial</caption>
+<caption><span id="tab:unnamed-chunk-8">Table 1: </span>Summary coeff of GLM binomial</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -651,7 +618,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre class="r"><code>knitr::kable(summary(resp_sub_gee1)$coef, caption = &quot;Summary coeff of GEE binomial independent&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial independent</caption>
+<caption><span id="tab:unnamed-chunk-8">Table 1: </span>Summary coeff of GEE binomial independent</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -715,7 +682,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre class="r"><code>knitr::kable(summary(resp_sub_gee2)$coef, caption = &quot;Summary coeff of GEE binomial exchangeable&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial exchangeable</caption>
+<caption><span id="tab:unnamed-chunk-8">Table 1: </span>Summary coeff of GEE binomial exchangeable</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -779,7 +746,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre class="r"><code>knitr::kable(summary(resp_sub_gee3)$coef, caption = &quot;Summary coeff of GEE binomial unstructured&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial unstructured</caption>
+<caption><span id="tab:unnamed-chunk-8">Table 1: </span>Summary coeff of GEE binomial unstructured</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -843,7 +810,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre class="r"><code>knitr::kable(summary(resp_sub_gee4)$coef, caption = &quot;Summary coeff of GEE binomial AR-M&quot;)</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-3">Table 1: </span>Summary coeff of GEE binomial AR-M</caption>
+<caption><span id="tab:unnamed-chunk-8">Table 1: </span>Summary coeff of GEE binomial AR-M</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -906,11 +873,10 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </tbody>
 </table>
 <p>Looking at the difference between Naive z and Robust z with relevant variables for the above models, resp_sub_gee3 with unstructured comparison correlation structure model tends to have a minimal difference between Naive z and Robust z than others. Therefore, in this case, unstructured model fits best.</p>
-<pre><code>b. Which model is the best? Compare the following models: independent, exchangable, and what ever models we tried in part (a). 
-(Perhaps we can use QIC (in \textbf{MESS}), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method ??)</code></pre>
+<p>Which model is the best? Compare the following models: independent, exchangable, and what ever models we tried previously. Perhaps we can use QIC (in ), MSE, misclassification rate, comparison of naive vs robust Z-score, or another method.</p>
 <pre><code>## Fitting GEE Independent</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-4">Table 2: </span>QIC from GGE independent</caption>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>QIC from GGE independent</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -946,7 +912,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre><code>## Fitting GEE Exchangeable</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-4">Table 2: </span>QIC from GGE exchangeable</caption>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>QIC from GGE exchangeable</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -982,7 +948,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre><code>## Fitting GEE Unstructured</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-4">Table 2: </span>QIC from GGE Unstructured</caption>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>QIC from GGE Unstructured</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -1018,7 +984,7 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </table>
 <pre><code>## Fitting GEE ar1</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-4">Table 2: </span>QIC from GGE ar1</caption>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>QIC from GGE ar1</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -1052,22 +1018,13 @@ resp_sub_gee1 &lt;- gee(nstat ~ centre + trt+ gender + baseline + age, data = re
 </tr>
 </tbody>
 </table>
-<p>As mentioned above in 1a., resp_sub_gee3 with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. We used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.</p>
-<ol start="2" style="list-style-type: decimal">
-<li>The data set <span class="math inline">\(\textbf{schizophrenia2}\)</span> from <span class="math inline">\(\textbf{HSAUR3}\)</span> package were collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder’’ (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above).</li>
-</ol>
+<p>As mentioned above, <code>resp_sub_gee3</code> with unstructured correlation structure model has slightly minimal difference of Naive z and Robust z than others. We used the QIC value to compare the result, it looks like the third model with unstructured correlation structure model has a lower QIC value of 495.74 than the other three models. So, the model with unstructured correlation structure is the best among four.</p>
+<p>Now, we will use the dataset <span class="math inline">\(\textbf{schizophrenia2}\)</span> from <span class="math inline">\(\textbf{HSAUR3}\)</span> package. This was collected in a follow-up study of women patients with schizophrenia (Davis, 2002). The binary response recorded at 0, 2, 6, 8 and 10 months after hospitalization was ``thought disorder’’ (absent or present). The single covariate is the factor indicating whether a patient had suffered early or late onset of her condition (age of onset less than 20 years or age of onset 20 years or above).</p>
 <p>The question of interest is whether the course of the illness differs between patients with early and late onset schizophrenia. (<a href="https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2" class="uri">https://www.rdocumentation.org/packages/HSAUR3/versions/1.0-9/topics/schizophrenia2</a>)</p>
-<p>We will now investigate this question using:</p>
-<pre><code>a. plots and summary statistics
-
-b. the GEE approach
-
-c. mixed effects model (lmer) from previous chapter
-
-d. Is there a difference? What model(s) work best? Describe your results.</code></pre>
+<p>We will now investigate this question using plots and summary statistics</p>
 <pre><code>## Calculating percentage data</code></pre>
 <table>
-<caption><span id="tab:unnamed-chunk-5">Table 3: </span>Summary statistics for presence of younger onset data</caption>
+<caption><span id="tab:unnamed-chunk-10">Table 3: </span>Summary statistics for presence of younger onset data</caption>
 <thead>
 <tr class="header">
 <th align="right">Min.</th>
@@ -1090,7 +1047,7 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 </tbody>
 </table>
 <table>
-<caption><span id="tab:unnamed-chunk-5">Table 3: </span>Summary statistics for presence of older onset data</caption>
+<caption><span id="tab:unnamed-chunk-10">Table 3: </span>Summary statistics for presence of older onset data</caption>
 <thead>
 <tr class="header">
 <th align="right">Min.</th>
@@ -1112,12 +1069,11 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 </tr>
 </tbody>
 </table>
-<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>Discussion:</p>
+<p><img src="/post/Longitudinal_Data_Analysis_and_Mixed_Models/Longitudinal_Data_Analysis_and_Mixed_Models_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>For the older-onset population, the mean and the median of the percentage of’ presence of schizophrenia’ are lower. Looking at the percentage plot, it appears that at each sample date (in months) the percentage is lower in the older-onset population.</p>
-<p>The GEE approach</p>
+<p>Then with the GEE approach:</p>
 <table>
-<caption><span id="tab:unnamed-chunk-6">Table 4: </span>QIC from GEE Independent (identity)</caption>
+<caption><span id="tab:unnamed-chunk-11">Table 4: </span>QIC from GEE Independent (identity)</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -1152,7 +1108,7 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 </tbody>
 </table>
 <table>
-<caption><span id="tab:unnamed-chunk-6">Table 4: </span>QIC from GEE Exchangeable</caption>
+<caption><span id="tab:unnamed-chunk-11">Table 4: </span>QIC from GEE Exchangeable</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -1187,7 +1143,7 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 </tbody>
 </table>
 <table>
-<caption><span id="tab:unnamed-chunk-6">Table 4: </span>QIC from GEE Unstructured</caption>
+<caption><span id="tab:unnamed-chunk-11">Table 4: </span>QIC from GEE Unstructured</caption>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -1221,16 +1177,15 @@ d. Is there a difference? What model(s) work best? Describe your results.</code>
 </tr>
 </tbody>
 </table>
-<p>Discussions:</p>
 <p>In exchangeable and unstructured model, the QIC score is the lowest. So for the selection of model, either model can be a good choice. However, comparing parameters such as CIC, QICu and QICC, I think the exchangeable model seems better.</p>
-<p>Mixed effects model (lmer)</p>
+<p>Then with the mixed effects model (lmer):</p>
 <pre><code>## [1] &quot;Without interaction term:&quot;</code></pre>
 <pre><code>## [1] &quot;BIC: Fixed Slope :  179.591302394191&quot;</code></pre>
 <pre><code>## [1] &quot;BIC: Random Slope:  184.624562858509&quot;</code></pre>
 <pre><code>## [1] &quot;With interaction term: month v. onset:&quot;</code></pre>
 <pre><code>## [1] &quot;BIC: Fixed Slope :  184.587333241198&quot;</code></pre>
 <pre><code>## [1] &quot;BIC: Random Slope:  189.62089162902&quot;</code></pre>
-<p>** Model comparison with ANOVA**</p>
+<p>Here, we will try to see if there is a difference between the models and what model(s) work the best. We will do model comparison with ANOVA:</p>
 <pre><code>## Fixed Slope v. Random Slope (no intaction term)</code></pre>
 <table>
 <thead>
