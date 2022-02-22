@@ -31,10 +31,8 @@ linear regression are linear combinations of the response values.</p>
 <p>Where <span class="math display">\[\frac{x_i}{\sum_{i&#39;=1}^nx_{i&#39;}^2}\]</span> is a constant value for each <span class="math inline">\(i^{th}\)</span> which can be represented as <span class="math inline">\(c_{i&#39;}\)</span>. If we have this on the equation above, we get:</p>
 <p><span class="math display">\[\hat{y}_i = c_{i&#39;}{\sum_{i=1}^n x_iy_i} = {\sum_{i=1}^n c_{i&#39;}x_iy_i}\]</span></p>
 <p>When we combine <span class="math inline">\(c_{i&#39;}\)</span> with <span class="math inline">\(x_i\)</span>, we get <span class="math inline">\(a_{i&#39;}\)</span>. We could determine <span class="math inline">\(a_{i&#39;}\)</span> as weight function over the <span class="math inline">\(Y\)</span> set to estimate the <span class="math inline">\(y_i\)</span> element.</p>
-<p>This question should be answered using the Carseats dataset.
-First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.</p>
-<pre class="r"><code>### Q 2 a
-library(ISLR)
+<p>Now, we will perform some data analyses using <span class="math inline">\({Carseats}\)</span> dataset. First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.</p>
+<pre class="r"><code>library(ISLR)
 library(knitr)
 library(caret)
 data(Carseats)
@@ -2143,7 +2141,6 @@ kable(summary(iris_norm),caption = &quot;Summary of normalized iris data&quot;)<
 <pre class="r"><code>set.seed(54321)
 ind &lt;- sample(2, nrow(iris), replace=TRUE, prob=c(0.67, 0.33))
 
-
 # Create training labels
 iris.trainLabels &lt;- iris[ind==1,5]
 
@@ -2331,15 +2328,15 @@ prediction</code></pre>
 <pre class="r"><code>library(ISLR)
 library(mclust)
 data(Weekly)
-cat(&quot;## Omitting the `Today` variable&quot;)</code></pre>
-<pre><code>## ## Omitting the `Today` variable</code></pre>
+cat(&quot;Omitting the `Today` variable&quot;)</code></pre>
+<pre><code>## Omitting the `Today` variable</code></pre>
 <pre class="r"><code>wk=Weekly[,-8]
 index=c(which(Weekly$Year==2009), which(Weekly$Year==2010))
 train=wk[-index,]
 test=wk[index,]
 
-cat(&quot;## Just with lag 2&quot;)</code></pre>
-<pre><code>## ## Just with lag 2</code></pre>
+cat(&quot;Just with lag 2&quot;)</code></pre>
+<pre><code>## Just with lag 2</code></pre>
 <pre class="r"><code>X=as.data.frame(train[,3]) ## keeping only Lag2
 class=train$Direction
 
@@ -2371,8 +2368,9 @@ summary(mod1)</code></pre>
 <pre><code>## train error</code></pre>
 <pre class="r"><code>predstrain=predict(mod1, newdata=train[,3])$classification
 ###################################################################
-## function to get overall accuracy, TPR and TNR
-overall_accuracy_TPR_TNR=function(con){
+cat(&quot;function to get overall accuracy, TPR and TNR&quot;)</code></pre>
+<pre><code>## function to get overall accuracy, TPR and TNR</code></pre>
+<pre class="r"><code>overall_accuracy_TPR_TNR=function(con){
   OA=round(100*(con[1,1]+con[2,2])/sum(con),2) ## error rate is 100-OA
   TPR=round(con[2,2]/(con[2,2]+con[1,2])*100,2)
   TNR=round(con[1,1]/(con[1,1]+con[2,1])*100,2) ## FPR=100-TNR
@@ -2734,8 +2732,8 @@ cat(&quot;Race&quot;)</code></pre>
 <pre class="r"><code># Later generator: https://www.tablesgenerator.com/latex_tables</code></pre>
 <p>This data looks accurate representative of the US population (using 2010 Census data):</p>
 
-<pre class="r"><code>cat(&quot;## Sex&quot;)</code></pre>
-<pre><code>## ## Sex</code></pre>
+<pre class="r"><code>cat(&quot;Sex&quot;)</code></pre>
+<pre><code>## Sex</code></pre>
 <pre class="r"><code>summary(df$Sex)</code></pre>
 <pre><code>##    Length     Class      Mode 
 ##     32560 character character</code></pre>
@@ -2752,7 +2750,7 @@ cat(&quot;Race&quot;)</code></pre>
 21790/32561</code></pre>
 <pre><code>## [1] 0.6692055</code></pre>
 <p>The data is disproportionately male. According to the Bureau of Labor Statistics, the workforce is 47% female and 53% male.</p>
-<pre class="r"><code>###Hours
+<pre class="r"><code>## Hours
 summary(df$Hours_Per_Week)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##    1.00   40.00   40.00   40.44   45.00   99.00</code></pre>
@@ -2777,7 +2775,6 @@ summary(country_count)</code></pre>
 #   Mexico  :        643 (`2.00%)
 #   Unknown :        582 (~1.8%)
 #   Other   :       2165 (~6.65%)
-
 
 cat(&quot;Summary of data USING DESCRIB(), HEAD(), SUMMARY(), AND STR()&quot;)</code></pre>
 <pre><code>## Summary of data USING DESCRIB(), HEAD(), SUMMARY(), AND STR()</code></pre>

@@ -54,12 +54,9 @@ $$\hat{y}_i = c_{i'}{\sum_{i=1}^n x_iy_i} = {\sum_{i=1}^n c_{i'}x_iy_i}$$
 
 When we combine  $c_{i'}$ with $x_i$, we get $a_{i'}$. We could determine $a_{i'}$ as weight function over the $Y$ set to estimate the $y_i$ element.
 
-This question should be answered using the Carseats dataset.
-First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.
+Now, we will perform some data analyses using ${Carseats}$ dataset. First, we will fit a multiple regression model to predict Sales using Price, Urban, and US.
 
 ```{r}
-
-### Q 2 a
 library(ISLR)
 library(knitr)
 library(caret)
@@ -841,8 +838,6 @@ for(i in ks){
   computeKNN(knn(knn_train, knn_test, cl=train_class, k = i), test$Direction)
   print("########################################")
 }
-
-
 ```
 
 Different combination of predictors with possible transformations and interactions were done. LDA and QDA model and associated confusion matrix was developed, and finally K in KNN classifier was done. The output is shown above with all combinations.
@@ -1026,7 +1021,6 @@ Now, we partition our data into test (33.33%) and training sets(66.66%).
 set.seed(54321)
 ind <- sample(2, nrow(iris), replace=TRUE, prob=c(0.67, 0.33))
 
-
 # Create training labels
 iris.trainLabels <- iris[ind==1,5]
 
@@ -1059,7 +1053,6 @@ merge <- data.frame(iris_pred, iris.testLabels)
 
 # Specify column names for `merge`
 names(merge) <- c("Predicted Species", "Observed Species")
-
 ```
 
 From the above analysis we can now check predicted and observed species:
@@ -1193,13 +1186,13 @@ We will also report on the training error, test error, and true positive and tru
 library(ISLR)
 library(mclust)
 data(Weekly)
-cat("## Omitting the `Today` variable")
+cat("Omitting the `Today` variable")
 wk=Weekly[,-8]
 index=c(which(Weekly$Year==2009), which(Weekly$Year==2010))
 train=wk[-index,]
 test=wk[index,]
 
-cat("## Just with lag 2")
+cat("Just with lag 2")
 X=as.data.frame(train[,3]) ## keeping only Lag2
 class=train$Direction
 
@@ -1210,7 +1203,7 @@ summary(mod1)
 cat("train error")
 predstrain=predict(mod1, newdata=train[,3])$classification
 ###################################################################
-## function to get overall accuracy, TPR and TNR
+cat("function to get overall accuracy, TPR and TNR")
 overall_accuracy_TPR_TNR=function(con){
   OA=round(100*(con[1,1]+con[2,2])/sum(con),2) ## error rate is 100-OA
   TPR=round(con[2,2]/(con[2,2]+con[1,2])*100,2)
@@ -1315,7 +1308,6 @@ overall_accuracy_TPR_TNR(table(autopredstrain, autotrainClass)) ##92.86, 94.9, 9
 cat("## test summaries")
 autopredstest=predict(autoDA2,newdata=autotestX)$classification
 overall_accuracy_TPR_TNR(table(autopredstest, autotestClass)) ## 89.29, 88.78, 89.8
-
 ```
 
 
@@ -1451,10 +1443,8 @@ Some other race                          & $\sim$6.2\%  \\ \hline
 \end{tabular}
 \end{table}
 
-
-
 ```{r}
-cat("## Sex")
+cat("Sex")
 summary(df$Sex)
 ggplot(data = df) +
   geom_bar(mapping = aes(x = df$Sex))
@@ -1471,7 +1461,7 @@ ggplot(df, aes(x = df$Sex)) +
 The data is disproportionately male. According to the Bureau of Labor Statistics, the workforce is 47% female and 53% male.
 
 ```{r}
-###Hours
+## Hours
 summary(df$Hours_Per_Week)
 ggplot() +
   geom_histogram(mapping = aes(x = df$Hours_Per_Week), data = df, stat = "bin",
@@ -1492,7 +1482,6 @@ cat("Top three countries by frequency:")
 #   Mexico  :        643 (`2.00%)
 #   Unknown :        582 (~1.8%)
 #   Other   :       2165 (~6.65%)
-
 
 cat("Summary of data USING DESCRIB(), HEAD(), SUMMARY(), AND STR()")
 head(df)
