@@ -44,7 +44,7 @@ GEEs assume missingness is MCAR.
 Mixed effects regression assume missingness is MAR. |
 | Computation | Group differences of change scores analyzed with one-way ANOVA. | ANOVA implementation in standard software (SAS, SPSS, R). | MANOVA implementation in standard software (SAS, SPSS, R). | Quasi-likelihood methods; PROC GENMOD in SAS. | Likelihood methods; PROC MIXED in SAS. |
 
-Source: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly
+Read more on this [here.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly)
 
 ## Part 1 ##
 

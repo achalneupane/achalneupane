@@ -15,7 +15,98 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 <p>Understanding the overall progression of disease is critical to the timing of therapeutic interventions and design of effective clinical trials. Disease progression can be assessed with longitudinal study designs in which outcomes are measured repeatedly over time and are assessed with respect to risk factors, either measured repeatedly or at baseline. Longitudinal data allows researchers to assess temporal disease aspects, but the analysis is complicated by complex correlation structures, irregularly spaced visits, missing data, and mixtures of time-varying and static covariate effects.</p>
-<p>Summary of methods for analyzing longitudinal study data is illustrated in this [table]<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly</a></p>
+<div id="table-1" class="section level2">
+<h2>Table 1</h2>
+<p>Summary of methods for analyzing longitudinal study data</p>
+<table style="width:100%;">
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Change score analysis</th>
+<th>Repeated measures ANOVA</th>
+<th>Multivariate ANOVA (MANOVA)</th>
+<th>Generalized estimating equations (GEE)</th>
+<th>Mixed effect regression (MER)<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN1">a</a></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Description</td>
+<td>Analyzes differences between outcomes measured at two time points.</td>
+<td>Uses two main factors and an interaction term to assess group differences over time</td>
+<td>Repeated responses over time treated as multivariate observations.</td>
+<td>Designed for analyzing the regression relationship between covariates and repeated responses.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>GEEs do not allow inference on correlation structure of the repeated responses, but MERs do.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Number of time points</td>
+<td>Only 2.</td>
+<td>Multiple.</td>
+<td>Multiple.</td>
+<td>Multiple.</td>
+<td>Multiple.</td>
+</tr>
+<tr class="even">
+<td>Irregularly timed data</td>
+<td>No.</td>
+<td>No.</td>
+<td>No.</td>
+<td>Yes.</td>
+<td>Yes.</td>
+</tr>
+<tr class="odd">
+<td>Time-varying predictors</td>
+<td>Not allowed.</td>
+<td>Time treated as classification variable.</td>
+<td>Time treated as classification variable.</td>
+<td>Allowed.</td>
+<td>Allowed.</td>
+</tr>
+<tr class="even">
+<td>How correlation between repeated responses modeled</td>
+<td>Not applicable.</td>
+<td>Assumes outcomes have equal variances and covariances over time.</td>
+<td>No specific assumption.</td>
+<td>Working models<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN2">b</a> that may or may not resemble observed correlations.</td>
+<td>Random effects that quantify variation among units and serve to describe cluster-specific trends over time.</td>
+</tr>
+<tr class="odd">
+<td>Missing data</td>
+<td>Requires complete data. Analysis based on complete-cases or imputed missing values.<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN3">c</a></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol style="list-style-type: decimal">
+<li><p>Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR.</p></li>
+<li><p>Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR.</p></li>
+<li><p>Method yields biased estimates for (a) complete-case analysis when missingness is MAR, (b) last observation carried forward when missingness is MCAR or MAR, (c) single mean imputation when missingness is MAR.</p></li>
+</ol>
+<p>| Handles missing data without explicit imputation needed.<br />
+GEEs assume missingness is MCAR.<br />
+Mixed effects regression assume missingness is MAR. |
+| Computation | Group differences of change scores analyzed with one-way ANOVA. | ANOVA implementation in standard software (SAS, SPSS, R). | MANOVA implementation in standard software (SAS, SPSS, R). | Quasi-likelihood methods; PROC GENMOD in SAS. | Likelihood methods; PROC MIXED in SAS. |</p>
+<p>Read more on this <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly">here.</a></p>
+</div>
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
 <p>Here we will use the data <code>Beat the Blues</code> from package <code>HSAUR3</code> to construct boxplots and compare the factor variable <span class="math inline">\(\textbf{drug}\)</span>. We will do the same for the <span class="math inline">\(\textbf{length}\)</span> variable and discuss our results.</p>
