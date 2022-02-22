@@ -23,25 +23,20 @@ Understanding the overall progression of disease is critical to the timing of th
 
 Summary of methods for analyzing longitudinal study data
 
-|  | Change score analysis | Repeated measures ANOVA | Multivariate ANOVA (MANOVA) | Generalized estimating equations (GEE) | Mixed effect regression (MER)[a](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN1) |
+|  | Change score analysis | Repeated measures ANOVA | Multivariate ANOVA (MANOVA) | Generalized estimating equations (GEE) | Mixed effect regression (MER)|
 | --- | --- | --- | --- | --- | --- |
 | Description | Analyzes differences between outcomes measured at two time points. | Uses two main factors and an interaction term to assess group differences over time | Repeated responses over time treated as multivariate observations. | Designed for analyzing the regression relationship between covariates and repeated responses.  
 GEEs do not allow inference on correlation structure of the repeated responses, but MERs do. |
 | Number of time points | Only 2. | Multiple. | Multiple. | Multiple. | Multiple. |
 | Irregularly timed data | No. | No. | No. | Yes. | Yes. |
 | Time-varying predictors | Not allowed. | Time treated as classification variable. | Time treated as classification variable. | Allowed. | Allowed. |
-| How correlation between repeated responses modeled | Not applicable. | Assumes outcomes have equal variances and covariances over time. | No specific assumption. | Working models[b](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN2) that may or may not resemble observed correlations. | Random effects that quantify variation among units and serve to describe cluster-specific trends over time. |
-| Missing data | Requires complete data. Analysis based on complete-cases or imputed missing values.[c](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly#TFN3)
-1.  Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR.
-    
-2.  Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR.
-    
+| How correlation between repeated responses modeled | Not applicable. | Assumes outcomes have equal variances and covariances over time. | No specific assumption. | Working models that may or may not resemble observed correlations. | Random effects that quantify variation among units and serve to describe cluster-specific trends over time. |
+| Missing data | Requires complete data. Analysis based on complete-cases or imputed missing values.| 
+1.  Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR.    
+2.  Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR.    
 3.  Method yields biased estimates for (a) complete-case analysis when missingness is MAR, (b) last observation carried forward when missingness is MCAR or MAR, (c) single mean imputation when missingness is MAR.
-    
-
- | Handles missing data without explicit imputation needed.  
-GEEs assume missingness is MCAR.  
-Mixed effects regression assume missingness is MAR. |
+| Handles missing data without explicit imputation needed.  
+GEEs assume missingness is MCAR.| Mixed effects regression assume missingness is MAR. |
 | Computation | Group differences of change scores analyzed with one-way ANOVA. | ANOVA implementation in standard software (SAS, SPSS, R). | MANOVA implementation in standard software (SAS, SPSS, R). | Quasi-likelihood methods; PROC GENMOD in SAS. | Likelihood methods; PROC MIXED in SAS. |
 
 Read more on this [here.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly)
