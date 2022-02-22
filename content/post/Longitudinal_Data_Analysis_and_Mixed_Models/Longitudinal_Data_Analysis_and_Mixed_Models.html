@@ -29,12 +29,12 @@ summary: Statistics series
 </colgroup>
 <thead>
 <tr class="header">
+<th></th>
 <th>Change score analysis</th>
 <th>Repeated measures ANOVA</th>
 <th>Multivariate ANOVA (MANOVA)</th>
 <th>Generalized estimating equations (GEE)</th>
 <th>Mixed effect regression (MER)</th>
-<th></th>
 </tr>
 </thead>
 <tbody>
@@ -80,13 +80,5 @@ summary: Statistics series
 </tr>
 </tbody>
 </table>
-<ol style="list-style-type: decimal">
-<li>Method yields unbiased parameter estimates and standard errors for (a) complete-case analysis when missingness is MCAR, (b) multiple imputation when missingness is MCAR or MAR.</li>
-<li>Method yields only unbiased parameter estimates for (a) single mean imputation when missingness is MCAR, (b) conditional mean imputation when missingness is MCAR or MAR.<br />
-</li>
-<li>Method yields biased estimates for (a) complete-case analysis when missingness is MAR, (b) last observation carried forward when missingness is MCAR or MAR, (c) single mean imputation when missingness is MAR.| Handles missing data without explicit imputation needed.
-GEEs assume missingness is MCAR.
-Mixed effects regression assume missingness is MAR. | Computation | Group differences of change scores analyzed with one-way ANOVA. | ANOVA implementation in standard software (SAS, SPSS, R). | MANOVA implementation in standard software (SAS, SPSS, R). | Quasi-likelihood methods; PROC GENMOD in SAS. | Likelihood methods; PROC MIXED in SAS. |</li>
-</ol>
 <p>Read more on this <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5633048/table/T1/?report=objectonly">here.</a></p>
 </div>
