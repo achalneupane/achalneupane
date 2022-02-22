@@ -85,7 +85,7 @@ plot(model_3.7.10.a,pch=16,col=4,cex=0.8)</code></pre>
 <p><span class="math display">\[Sales = 13.0434689 + (-0.0544588)\times Price + (-0.0219162)\times Urban + (1.2005727)\times US + \varepsilon\]</span></p>
 <p>with <span class="math inline">\(Urban = 1\)</span> if the store is in an urban location and <span class="math inline">\(0\)</span> if not, and <span class="math inline">\(US = 1\)</span> if the store is in the US and <span class="math inline">\(0\)</span> if not.</p>
 <p>Now, we will try to find out for which of the predictors we can reject the null hypothesis
-<span class="math inline">\(H_0 : \beta_j = 0\)</span> ?</p>
+<span class="math inline">\(H_0 : \beta_j = 0\)</span> .</p>
 <p><strong>Answer:</strong></p>
 <p>For Price and US, we can reject the Null Hypothesis at any significance level. The p-value (P&lt;0.05) is the threshold value at which we can reject the Null hypothesis.</p>
 <p>On the basis of our response to the previous question, we will fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.</p>
@@ -186,7 +186,7 @@ hist(data$Sales)</code></pre>
 </tbody>
 </table>
 <p>The adjusted R-squared values from the two models are 0.2335 (larger model) and 0.2354 (smaller model). So, i.e., [<code>summary(model_3.7.10.a)$r.sq</code> * <code>100</code>], which is roughly 23.9262888% (for smaller model) and 23.9275392% (for larger model) of the variability of the sales is explained by the models which means it doesn’t explain a lot.</p>
-<p>In this figure above, we can visualize the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting they are not different.</p>
+<p>In plots above, the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting they are not different.</p>
 <p>Next, using the model built previously, obtain 95% confidence intervals for the coefficient(s).</p>
 <pre class="r"><code>cat(&quot;For beta0: &quot;)</code></pre>
 <pre><code>## For beta0:</code></pre>
@@ -242,7 +242,7 @@ hist(data$Sales)</code></pre>
 </tr>
 </tbody>
 </table>
-<p>Check if there is any evidence of outliers or high leverage observations in the model?</p>
+<p>Check if there is any evidence of outliers or high leverage observations in the model.</p>
 <pre class="r"><code># par(mfrow = c(2, 2))
 # plot(model_3.7.10.e)
 layout(matrix(1:4,nrow=2))
@@ -273,7 +273,7 @@ legend(&quot;topright&quot;,&quot;Threshold&quot;,bty=&quot;n&quot;,col=2, lwd=2
 <pre class="r"><code>which(hii&gt;2*mean(hii))</code></pre>
 <pre><code>## 175 166 204 357 270 387 316 366 192 157 156 209 160 314 126 384  43 172 273 368 
 ##   1   3   8  27  78  96 145 157 165 200 218 224 299 302 303 304 336 382 389 397</code></pre>
-<p><em>The plot of standardized residuals versus leverage indicates the presence of a few outliers (at threshold of higher than 2 or lower than -2) which are . We can also use studentized residuals to determine any outliers. It also indicates some high leverage observations because some points exceed (p + 1)/n i.e., (0.01)</em></p>
+<p>The plot of standardized residuals versus leverage indicates the presence of a few outliers (at threshold of higher than 2 or lower than -2) which are . We can also use studentized residuals to determine any outliers. It also indicates some high leverage observations because some points exceed (p + 1)/n i.e., (0.01)</p>
 <p>This problem involves the Boston dataset. We will now try to predict per capita crime rate using the other variables in this dataset. In other words, per capita
 crime rate is the response, and the other variables are the predictors.</p>
 <p>For each predictor, we will fit a simple linear regression model to predict the response. We will then find out in which of the models there is a statistically significant association between the predictor and the response. For this, we will create some plots to back up our assertions.</p>
@@ -559,9 +559,9 @@ for(i in 2:(dim(Boston)[2])){
 ## [1] 1.116128e-30</code></pre>
 <pre class="r"><code>plot(crim ~ . - crim, data = Boston)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-7.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-8.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-9.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-10.png" width="672" /></p>
-<p><em>Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn’t a random cloud of data.</em></p>
-<p><em>It is also important to note that although almost every variable is statistically significant, R-squared value is very low indicating that these predictors describe only a small amount of the variation in the response.</em></p>
-<p><em>Additionally, The formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv</em></p>
+<p>Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn’t a random cloud of data.</p>
+<p>It is also important to note that although almost every variable is statistically significant, R-squared value is very low indicating that these predictors describe only a small amount of the variation in the response.</p>
+<p>Additionally, the formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv</p>
 <p>Here, we will fit a multiple regression model to predict the response using
 all of the predictors. We wil find out for which predictors
 we can reject the null hypothesis <span class="math inline">\(H_0 : \beta_j = 0\)</span>.</p>
@@ -632,7 +632,7 @@ abline(0,1,col=3, lty=2, lwd=2)
 cmodel=(lm(multiple~univariate,data=coeffs))
 abline(cmodel$coeff[1],cmodel$coeff[2],col=4,lty=2, lwd=2)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p><em>Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.</em></p>
+<p>Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.</p>
 <p>Now, check if there is any evidence of non-linear association between any of the
 predictors and the response. In this case, we will need to fit a model of the form below for each predictor X.</p>
 <p><span class="math display">\[Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 + \varepsilon.\]</span></p>
@@ -901,7 +901,7 @@ summary(mod.fit.medv2)</code></pre>
 ## Residual standard error: 6.569 on 502 degrees of freedom
 ## Multiple R-squared:  0.4202, Adjusted R-squared:  0.4167 
 ## F-statistic: 121.3 on 3 and 502 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><em>For predictor variables zn, rm, rad, tax and lstat, the p-values suggest that the cubic coefficient is not statistically significant. For variables “indus”, “nox”, “age”, “dis”, “ptratio” and “medv” as predictor, the p-values suggest the adequacy of the cubic fit. For variables “black” as predictor, the p-values suggest that the quadratic and cubic coefficients are not statistically significant, so in this latter case no non-linear effect is visible.</em></p>
+<p>For predictor variables zn, rm, rad, tax and lstat, the p-values suggest that the cubic coefficient is not statistically significant. For variables “indus”, “nox”, “age”, “dis”, “ptratio” and “medv” as predictor, the p-values suggest the adequacy of the cubic fit. For variables “black” as predictor, the p-values suggest that the quadratic and cubic coefficients are not statistically significant, so in this latter case no non-linear effect is visible.</p>
 </div>
 <div id="part-2" class="section level2">
 <h2>Part 2</h2>
@@ -1484,9 +1484,8 @@ Function.for.Q.4(cutoff, pred_prob, original)</code></pre>
 </div>
 <div id="part-3" class="section level2">
 <h2>Part 3</h2>
-<p>We now examine the differences between LDA and QDA.</p>
-<p>If the Bayes decision boundary is linear, do we expect LDA or
-QDA to perform better on the training set? On the test set?</p>
+<p>We now examine the differences between LDA and QDA and answer some questions:</p>
+<p>If the Bayes decision boundary is linear, do we expect LDA or QDA to perform better on the training set? On the test set?</p>
 <p>Answer:</p>
 <p>we expect QDA to perform better on the training set if the Bayes decision boundary is linear because its higher flexiblity may yield a closer fit. On the test set, we expect LDA to perform better than QDA, because QDA could overfit the linearity on the Bayes decision boundary.</p>
 <p>If the Bayes decision boundary is non-linear, do we expect LDA
@@ -1538,8 +1537,8 @@ computeLDA(model4.7.10.e,test)</code></pre>
 ## Model Accuracy (Percentage):[1] 62.5
 ## True Positive Rate, TPR (percentage):[1] 91.8
 ## False Postive Rate, FPR (percentage):[1] 79.07</code></pre>
-<p>In this case, Just like in Part 2(d) with logistic regression, at a threshold value of 0.5, the model accuracy or the percentage of correct prediction was 62.5%. In other words 37.5% is the test error rate. We could also say that for weeks when the market goes up, the model is right 91.8032787% of the time. For weeks when the market goes down, the model is right only 20.9302326% of the time. These results are very close to those obtained with the logistic regression model which is not surpising.</p>
-<p>Now we will repeat the analysis above, but with QDA.</p>
+<p>In this case, just like in Part <code>2(d)</code> with the logistic regression, at a threshold value of 0.5, the model accuracy or the percentage of correct prediction was 62.5%. In other words 37.5% is the test error rate. We could also say that for weeks when the market goes up, the model is right 91.8032787% of the time. For weeks when the market goes down, the model is right only 20.9302326% of the time. These results are very close to those obtained with the logistic regression model which is not surpising.</p>
+<p>Now we will repeat the analysis we performed above, but with the QDA.</p>
 <pre class="r"><code>model.4.7.10.f=qda(Direction~Lag2,data=train)
 computeLDA(model.4.7.10.f,test)</code></pre>
 <pre><code>## Confusion matrix:      
@@ -1986,8 +1985,8 @@ accuracies</code></pre>
 <p>The error on the different k values are given on the output above.
 Here k=1 and k=7 was the best response out of all having lowest error rate.</p>
 <p>We we will explore this <a href="https://archive.ics.uci.edu/ml/datasets.html;%20https://archive.ics.uci.edu/ml/">website</a> that contains open datasets that are used in machine learning.</p>
-<p>I am interested in <code>iris</code> dataset available on this website <a href="http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data">website</a>. It is one the most popular datasets in data science and have been widely used in pattern recognition literature. It is a small dataset with 150 samples, 3 categories of species and 4 features with the sepal length, sepal width, petal length and petal width (in cm). The classification problem in this dataset could be about predicting whether the given flower comes from which particular species or belongs to which species. This classification problem can be solved by developing a model which could be used to predict the flower by first training our model with the features and the labels.</p>
-<p>We will try to analyze this data using the KNN or k-nearest neighbors. We can first read our data and check some basic statistics:</p>
+<p>We will explore the <code>iris</code> dataset available on this website <a href="http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data">website</a>. It is one the most popular datasets in data science and have been widely used in pattern recognition literature. It is a small dataset with 150 samples, 3 categories of species and 4 features with the sepal length, sepal width, petal length and petal width (in cm). The classification problem in this dataset could be about predicting whether the given flower comes from which particular species or belongs to which species. This classification problem can be solved by developing a model which could be used to predict the flower by first training our model with the features and the labels.</p>
+<p>We will try to analyze this data using the KNN or k-nearest neighbors. We will first read our data and check some basic statistics:</p>
 <pre class="r"><code># Read in `iris` data
 iris &lt;- read.csv(url(&quot;http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data&quot;), header = FALSE) 
 
@@ -2071,7 +2070,7 @@ cat(&quot;Print Setosa correlation matrix&quot;)</code></pre>
 ## Petal.Length           NA          NA           NA          NA
 ## Petal.Width            NA          NA           NA          NA</code></pre>
 <p>We can see that there is a high correlation between the sepal length and the sepal width of the Iris-setosa flowers, however Virginica and Versicolor flowers are somewhat less correlated. Based on the second plot, we can tell that the petal length and petal width are more correlated for all three Species. When we further analyze this data with all three species together, we can see that the correlation gets a bit stronger than it is when we examine different species separately (R = 0.96).</p>
-<p>Now, we can use this iris dataset to predict the species variable using KNN regression model. We can also normalize our dataset before doing the analysis.</p>
+<p>Now, we will predict the species variable using KNN regression model. We can also normalize our dataset before doing the analysis.</p>
 <pre class="r"><code># create Normalize() function
 normalize &lt;- function(x) {
 num &lt;- x - min(x)
@@ -2285,7 +2284,7 @@ probs</code></pre>
 <p>Recall that the density function for a normal random variable
 is
 <span class="math display">\[f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}}\]</span>. You will need to use Bayes’ theorem.</p>
-<p>For this question, we plugin normal density into Bayes’ theorem, prior probability for ‘yes’ is given, and next do math as shown in the code below:</p>
+<p>For this question, we have to plugin the normal density into Bayes’ theorem, prior probability for ‘yes’ is given, and next do math as shown in the code below:</p>
 <p>Based on pdf and Bayes theorem, we have:</p>
 <p><span class="math display">\[p_k(X) = \frac{\pi_k \frac{1}{\sqrt{2\pi}\sigma} exp \bigg( {-\frac{1}{2\sigma^2}(x - \mu_k)^2} \bigg)}
 {\sum _{l=1}^{k}\pi_l\frac{1}{\sqrt{2\pi}\sigma} exp \bigg( {-\frac{1}{2\sigma^2}(x - \mu_l)^2} \bigg)}\]</span></p>
@@ -2622,7 +2621,7 @@ overall_accuracy_TPR_TNR(table(autopredstest, autotestClass)) ## 89.29, 88.78, 8
 ## [1] 89.8</code></pre>
 <p>As expected, the best model was a 1 component mixture in each class having the same covariance structure. The covariance structure was single component had ellipsoidal, equal orientation (VVE).</p>
 <p>Next, we will choose a dataset from <a href="http://archive.ics.uci.edu/ml">this website</a> and do some initial exploration of the dataset. We will report the analysis and dicuss the challenges with analyzing the data. <span class="math inline">\({\textit{We will strictly use ggplot for this}}\)</span></p>
-<p>So, for this exercise, I am going to use <a href="https://archive.ics.uci.edu/ml/datasets/adult">this data:</a>.</p>
+<p>For this exercise, we are going to use <a href="https://archive.ics.uci.edu/ml/datasets/adult">this data:</a>.</p>
 <p>Attribute Information:</p>
 <p>Listing of attributes:</p>
 <p><span class="math inline">\(&gt;50K, &lt;=50K\)</span></p>
@@ -2772,8 +2771,8 @@ summary(country_count)</code></pre>
 ##  Length:32560      
 ##  Class :character  
 ##  Mode  :character</code></pre>
-<pre class="r"><code>cat(&quot;# Top three countries by frequency:&quot;)</code></pre>
-<pre><code>## # Top three countries by frequency:</code></pre>
+<pre class="r"><code>cat(&quot;Top three countries by frequency:&quot;)</code></pre>
+<pre><code>## Top three countries by frequency:</code></pre>
 <pre class="r"><code>#   USA     :      29170 (~89.6%)
 #   Mexico  :        643 (`2.00%)
 #   Unknown :        582 (~1.8%)

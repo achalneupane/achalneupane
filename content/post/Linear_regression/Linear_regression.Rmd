@@ -88,7 +88,7 @@ with $Urban = 1$ if the store is in an urban location and $0$ if not, and $US = 
 
 
 Now, we will try to find out for which of the predictors we can reject the null hypothesis
-$H_0 : \beta_j = 0$ ?
+$H_0 : \beta_j = 0$ .
 
 
 **Answer:** 
@@ -150,7 +150,7 @@ kable(anova(model_3.7.10.a,model_3.7.10.e), caption = "Anova of model_3.7.10.a a
 
 The adjusted R-squared values from the two models are 0.2335 (larger model) and 0.2354 (smaller model). So, i.e., [`summary(model_3.7.10.a)$r.sq` * `100`], which is roughly `r summary(model_3.7.10.e)$r.sq * 100`% (for smaller model) and `r summary(model_3.7.10.a)$r.sq * 100`% (for larger model) of the variability of the sales is explained by the models which means it doesn't explain a lot.
 
-In this figure above, we can visualize the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting  they are not different.
+In plots above, the estimated sales of the models (blue dots). Actual sales are represented by black dots. The estimated values are clustered roughly in between 5 and 10, underestimating the high Sales and overestimating the low Sales. Also the estimated std error of the error are computed to be 2.47 for both the models, which is relatively high for a response having a mean value of 7.5. The response is approximately normally distributed. Conducting anova with both models gave p-value 0.94 (which is high) suggesting  they are not different.
 
 
 Next, using the model built previously, obtain 95% confidence intervals for the coefficient(s).
@@ -175,8 +175,7 @@ kable(confint(model_3.7.10.e, level = 0.95), caption = "95% confidence intervals
 
 ```
 
-
-Check if there is any evidence of outliers or high leverage observations in the model?
+Check if there is any evidence of outliers or high leverage observations in the model.
 
 ```{r}
 # par(mfrow = c(2, 2))
@@ -206,8 +205,7 @@ which(hii>2*mean(hii))
 ```
 
 
-*The plot of standardized residuals versus leverage indicates the presence of a few outliers (at threshold of higher than 2 or lower than -2) which are `r print(which(abs(stdres)>qt(0.995,397)))`. We can also use studentized residuals to determine any outliers. It also indicates some high leverage observations because some points exceed (p + 1)/n i.e., (`r (3 + 1) / 400`)* 
-
+The plot of standardized residuals versus leverage indicates the presence of a few outliers (at threshold of higher than 2 or lower than -2) which are `r print(which(abs(stdres)>qt(0.995,397)))`. We can also use studentized residuals to determine any outliers. It also indicates some high leverage observations because some points exceed (p + 1)/n i.e., (`r (3 + 1) / 400`)
 
 
 This problem involves the Boston dataset. We will now try to predict per capita crime rate using the other variables in this dataset. In other words, per capita
@@ -250,11 +248,11 @@ plot(crim ~ . - crim, data = Boston)
 ```
 
 
-*Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn't a random cloud of data.*
+Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn't a random cloud of data.
 
-*It is also important to note that although almost every variable is statistically significant, R-squared value is very low indicating that these predictors describe only a small amount of the variation in the response.*
+It is also important to note that although almost every variable is statistically significant, R-squared value is very low indicating that these predictors describe only a small amount of the variation in the response.
 
-*Additionally,  The formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv*
+Additionally,  the formal Brown Forsythe test produced evidence of homoscedasticity (meaning they all have same variance at every X) for the following 8 variables out of all 13 variables: indus, nox, rm, dis, rad, tax, ptratio, lstat, medv
 
 
 Here, we will fit a multiple regression model to predict the response using
@@ -272,7 +270,6 @@ layout(matrix(1:4,nrow=2))
 plot(fullmodel, pch=16, col=j+2,cex=0.6,lwd=2)
 
 ```
-
 
 It looks like we can reject the null hypothesis for predictors zn and black at P<0.05; medv at P<0.01; dis and rad at p<0.001. For the rest of the predictors we fail to reject the null hypothesis.
 
@@ -309,9 +306,7 @@ abline(cmodel$coeff[1],cmodel$coeff[2],col=4,lty=2, lwd=2)
 
 ```
 
-
-*Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.*
-
+Here in this plot each red dot represents a predictor. The x value is the estimated coefficient with the predictor when separate models were created. The y value is the estimated coefficient of multiple linear regression. The blue dotted line represents a regression line of the points. So, if both models were to return same estimation, then these points would follow a line with slope 1 passing through the origin. This line is shown by the green dotted line. We see a severe difference between these lines. When separate regression performed, some are larger and some are smaller than the estimated values from the full regression model.
 
 Now, check if there is any evidence of non-linear association between any of the
 predictors and the response. In this case, we will need to fit a model of the form below for each predictor X.
@@ -349,8 +344,7 @@ summary(mod.fit.medv2)
 
 ```
 
-
-*For predictor variables zn, rm, rad, tax and lstat, the p-values suggest that the cubic coefficient is not statistically significant. For variables "indus", "nox", "age", "dis", "ptratio" and "medv" as predictor, the p-values suggest the adequacy of the cubic fit. For variables "black" as predictor, the p-values suggest that the quadratic and cubic coefficients are not statistically significant, so in this latter case no non-linear effect is visible.*
+For predictor variables zn, rm, rad, tax and lstat, the p-values suggest that the cubic coefficient is not statistically significant. For variables "indus", "nox", "age", "dis", "ptratio" and "medv" as predictor, the p-values suggest the adequacy of the cubic fit. For variables "black" as predictor, the p-values suggest that the quadratic and cubic coefficients are not statistically significant, so in this latter case no non-linear effect is visible.
 
 
 ## Part 2 ##
@@ -648,10 +642,10 @@ Function.for.Q.4(cutoff, pred_prob, original)
 
 ## Part 3 ##
 
-We now examine the differences between LDA and QDA.
+We now examine the differences between LDA and QDA and answer some questions:
 
-If the Bayes decision boundary is linear, do we expect LDA or
-QDA to perform better on the training set? On the test set?
+
+If the Bayes decision boundary is linear, do we expect LDA or QDA to perform better on the training set? On the test set?
 
 Answer:
 
@@ -675,7 +669,6 @@ Generally, QDA (which is more flexible than LDA and so has higher variance) is r
 
 
 Note: This exercise will need in-depth understanding of https://en.wikipedia.org/wiki/Sensitivity_and_specificity
-
 
 
 Next, we will compare the logistic regression we performed in Part 2 above with the LDA analysis below using `Lag2` as th only predictor.
@@ -721,9 +714,9 @@ computeLDA(model4.7.10.e,test)
 ```
 
 
-In this case, Just like in Part 2(d) with logistic regression, at a threshold value of 0.5, the model accuracy or the percentage of correct prediction was 62.5%. In other words 37.5% is the test error rate. We could also say that for weeks when the market goes up, the model is right 91.8032787% of the time. For weeks when the market goes down, the model is right only 20.9302326% of the time. These results are very close to those obtained with the logistic regression model which is not surpising.
+In this case, just like in Part `2(d)` with the logistic regression, at a threshold value of 0.5, the model accuracy or the percentage of correct prediction was 62.5%. In other words 37.5% is the test error rate. We could also say that for weeks when the market goes up, the model is right 91.8032787% of the time. For weeks when the market goes down, the model is right only 20.9302326% of the time. These results are very close to those obtained with the logistic regression model which is not surpising.
 
-Now we will repeat the analysis above, but with QDA.
+Now we will repeat the analysis we performed above, but with the QDA.
 
 ```{r}
 
@@ -739,9 +732,7 @@ computeLDA(model.4.7.10.f,test)
 
 In this case, the QDA model predicted all up, which is bad. The overall accuracy, TPR and FPR were 58.65%, 100% and 100%, respectively
 
-
 Again, repeat using KNN with K = 1.
-
 
 ```{r}
 
@@ -776,17 +767,13 @@ computeKNN(model4.7.10.g, test$Direction)
 # gg
 ```
 
-
 With K=1, the KNN classification did not do a good job in the test set. The overall accuracy, TPR and FPR were 50%, 50.82% and 51.16% respectively. 
 
-
 If we compare the test error rates, we see that logistic regression and LDA have the minimum error rates, followed by QDA and KNN.
-
 
 Now, we will experiment with different combinations of predictors, including
 possible transformations and interactions, for each of the methods. Report the variables, method, and associated confusion matrix that appears to provide the best results on the held out data. Note that you should also experiment with values for
 K in the KNN classifier.
-
 
 ```{r}
 
@@ -914,7 +901,6 @@ computeForAutoDA(auto_model_lda,autotest)
 
 With the variables listed above, LDA was performed on the training set. Prediction was performed in the test data. The results are listed above. So, the test error rate is 100-91.84 = 8.16 %
 
-
 Now we will perform QDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01. We will then calculate the the test error of the model obtained.
 
 ```{r}
@@ -923,7 +909,6 @@ computeForAutoDA(auto_model_qda,autotest)
 
 
 ```
-
 
 The test error rate is 100-90.31 = 9.69 % a little higher that the LDA.
 
@@ -956,10 +941,9 @@ Here k=1 and k=7 was the best response out of all having lowest error rate.
 
 We we will explore this [website](https://archive.ics.uci.edu/ml/datasets.html; https://archive.ics.uci.edu/ml/) that contains open datasets that are used in machine learning. 
 
-I am interested in `iris` dataset available on this website [website](http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data). It is one the most popular datasets in data science and have been widely used in pattern recognition literature. It is a small dataset with 150 samples, 3 categories of species and 4 features with the sepal length, sepal width, petal length and petal width (in cm). The classification problem in this dataset could be about predicting whether the given flower comes from which particular species or belongs to which species. This classification problem can be solved by developing a model which could be used to predict the flower by first training our model with the features and the labels. 
+We will explore the `iris` dataset available on this website [website](http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data). It is one the most popular datasets in data science and have been widely used in pattern recognition literature. It is a small dataset with 150 samples, 3 categories of species and 4 features with the sepal length, sepal width, petal length and petal width (in cm). The classification problem in this dataset could be about predicting whether the given flower comes from which particular species or belongs to which species. This classification problem can be solved by developing a model which could be used to predict the flower by first training our model with the features and the labels. 
 
-We will try to analyze this data using the KNN or k-nearest neighbors. We can first read our data and check some basic statistics:
-
+We will try to analyze this data using the KNN or k-nearest neighbors. We will first read our data and check some basic statistics:
 
 ```{r}
 
@@ -1016,12 +1000,9 @@ cor(iris[iris$Species==x[3],1:4])
 
 ```
 
-
-
 We can see that there is a high correlation between the sepal length and the sepal width of the Iris-setosa flowers, however Virginica and Versicolor flowers are somewhat less correlated. Based on the second plot, we can tell that the petal length and petal width are more correlated for all three Species. When we further analyze this data with all three species together, we can see that the correlation gets a bit stronger than it is when we examine different species separately (R = 0.96).
 
-
-Now, we can use this iris dataset to predict the species variable using KNN regression model. We can also normalize our dataset before doing the analysis.
+Now, we will predict the species variable using KNN regression model. We can also normalize our dataset before doing the analysis.
 
 ```{r}
 # create Normalize() function
@@ -1038,7 +1019,6 @@ iris_norm <- as.data.frame(lapply(iris[1:4], normalize))
 kable(summary(iris_norm),caption = "Summary of normalized iris data")
 
 ```
-
 
 Now, we partition our data into test (33.33%) and training sets(66.66%).
 
@@ -1082,14 +1062,12 @@ names(merge) <- c("Predicted Species", "Observed Species")
 
 ```
 
-
 From the above analysis we can now check predicted and observed species:
 
 ```{r}
 cat("First 6 rows of predicted and observed species using KNN")
 head(merge)
 ```
-
 
 We can also use caret package to check the accuracy of this model:
 
@@ -1104,7 +1082,6 @@ We can see that the model accuracy is pretty high here.
 
 ## Part 4 ##
 
-
 Suppose we collect data for a group of students in a statistics class
 with variables ${X1 =hours}$ studied, ${X2 =undergrad GPA}$, and ${Y =received A}$. We fit a logistic regression and produce estimated
 coefficient, $\hat{\beta}_0 = -6$, $\hat{\beta}_1 = 0.05$, $\hat{\beta}_2 = 1$.
@@ -1117,15 +1094,11 @@ $$\hat{p}(X) = \frac{e^{\hat\beta_0 + \hat\beta_1 {X_1}}}{(1 + e^{\hat\beta_0 + 
 As:
 
 $$\hat{p}(X) = \frac{e^{-6 + 0.05X_1 + X_2}}{(1 + e^{-6 + 0.05X_1 + X_2})} = \frac{e^{-6 + 0.05*40 + 1*3.5}}{(1 + e^{-6 + 0.05*40 + 1*3.5})} = 0.3775.$$
-
-
-
 ```{r, eval = TRUE}
 cat("We can also write a function to calculate this and get the answer")
 calculate_prob <- function(x1,x2){ z <- exp(-6 + 0.05*x1 + 1*x2); return( round(z/(1+z),4))}
 calculate_prob(40,3.5)
 ```
-
 
 Next, we will check how many hours would the student need to study to
 have a 50% chance of getting an A in the class. The equation for predicted probability gives us:
@@ -1148,9 +1121,7 @@ names(probs) <- paste0(hours,"_hours")
 probs
 ```
 
-
 Hence, to have 50 percent chance for securing A, the student has to study for 50 hours.
-
 
 Suppose, we wish to predict whether a given stock will issue a dividend this year (“Yes” or “No”) based on $X$, last year’s percent profit. We examine a large number of companies and discover that the mean value of $X$ for companies that issued a dividend was $\overline{X} = 10$, while the mean for those that didn't was $\overline{X} = 0$. In addition, the variance of X for these two sets of companies was $\hat{\sigma}^2 = 36$. Finally, 80% of companies issued dividends. Assuming that $X$ follows a normal distribution, predict the probability that a company will issue a dividend this year given that its percentage profit was $X = 4$ last year.
 
@@ -1158,8 +1129,7 @@ Recall that the density function for a normal random variable
 is 
 $$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}e^{\frac{-(x-\mu)^2}{2\sigma^2}}$$. You will need to use Bayes’ theorem.
 
-
-For this question, we plugin normal density into Bayes' theorem, prior probability for 'yes' is given, and next do math as shown in the code below:
+For this question, we have to plugin the normal density into Bayes' theorem, prior probability for 'yes' is given, and next do math as shown in the code below:
 
 Based on pdf and Bayes theorem, we have:
 
@@ -1268,16 +1238,12 @@ trueClass=test[,8]
 overall_accuracy_TPR_TNR(table(predstest,trueClass))
 ```        
 
-
 As we wanted to test, I fitted a model with the `MclustDA` function. The dataset was partitioned into training and testing sets using the same criterion as before:
  
 Two models were fitted. One with just the variable `Lag2`, and in the other one, `all` the variables were used. As we can see from the above table, in the univariate case (with lag2 variable), the best model was a two-component model in each class, having variable variance. 
 
-
-        
 Now, we will specify `modelType="EDDA"` and run `MclustDA` again. We will get a summary of our model to report on the best model selected by BIC, training and test error, and the true positive and true Negative rates.
-        
-        
+
 ```{r}
 cat("EDDA type")
 X=as.data.frame(train[,-8]) ## keeping only Lag2
@@ -1298,7 +1264,6 @@ From the documentation of `mclust`, it was found that specifying `“EDDA”` as
 
 Next, we will use the ${\textbf{Auto}}$ dataset. Fit a classification model (using the predictors chosen for previously) using the `MclustDA` function from the `mclust-package`. Then, use the same training and test sets to get a summary of our model. We will find the best model selected by BIC and report the model name and BIC, the training and test errors, and the true positive and the true negative rates.
 
-        
 ```{r}
 library(ISLR)
 data(Auto)
@@ -1338,10 +1303,8 @@ Using the same training and testing dataset as before, `MclustDA` was performed 
 
 As we can see from the table above, the best model picked up by the BIC was a 5-component mixture in both classes, having the similar covariance structure diagonal, equal volume and shape (EEI).
 
-        
 Now, we will specify `modelType="EDDA"` and run `MclustDA` again to report on the summary of our model, the best model selected by BIC, training and test error rates, and the true Positive and true Negative rates.
         
-
 ```{r}
 
 autoDA2=MclustDA(autotrainX, autotrainClass, modelType = "EDDA")
@@ -1360,7 +1323,7 @@ As expected, the best model was a 1 component mixture in each class having the s
 
 Next, we will choose a dataset from [this website](http://archive.ics.uci.edu/ml) and do some initial exploration of the dataset. We will report the analysis and dicuss the challenges with analyzing the data. ${\textit{We will strictly use ggplot for this}}$
 
-So, for this exercise, I am going to use [this data:](https://archive.ics.uci.edu/ml/datasets/adult).
+For this exercise, we are going to use [this data:](https://archive.ics.uci.edu/ml/datasets/adult).
 
 
 Attribute Information:
@@ -1420,7 +1383,6 @@ hist(df$Age)
              
 This data is skewed slightly right, 75% of adults in the dataset are younger than 48yrs old 50% of adults in data set lie between 28yrs old and 48yrs old age data has a range of 73 years
 
-  
 ```{r}  
 cat("Types or Work Class")
 str(df$Work_Class)
@@ -1525,7 +1487,7 @@ summary(df$Native_Country)
 country_count <- data.frame(Name = df$Native_Country)
 summary(country_count)
 
-cat("# Top three countries by frequency:")
+cat("Top three countries by frequency:")
 #   USA     :      29170 (~89.6%)
 #   Mexico  :        643 (`2.00%)
 #   Unknown :        582 (~1.8%)
@@ -1611,7 +1573,6 @@ sum(df$Income==" >50K" & df$Race==" Amer-Indian-Eskimo")/sum(df$Race==" Amer-Ind
 
 Amer-Indian-Eskimo adults make up 0.5% of adults making more than 50K USD
 11.6% of Amer-Indian-Eskimo adults make more than 50K USD
-
 
 We can repeat this analysis for Asian-Pac-Islander
 
@@ -1839,7 +1800,6 @@ F1_Score(test_set$Income, predictions$` >50K`)
 ```
 
 I think this data has lots of information for analysis which could be a bit overwhelming. After performing some model fitting on this data, the corrected model seems to have slight decrease in precision, slight increase in recall, and slight increase in accuracy. The corrected model is roughly the same in performance as the first model.
-
 
 Following is a table of several exponential-family distributions in common use and the data they are typically used for, along with the canonical link functions and their inverses (sometimes referred to as the mean function, as done here):
 
