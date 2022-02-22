@@ -77,14 +77,14 @@ plot(model_3.7.10.a,pch=16,col=4,cex=0.8)
 
 Then we will provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!
 
-*Given the Unit sales (which is in thousands) at each location, we can interpret the result as follows: if there is 1 dollar change in price, `r abs(summary(model_3.7.10.a)$coef[2, 1]) * 1000` units in sales will go down keeping all other predictors fixed. We can also say that the unit sales in urban location are `r abs(summary(model_3.7.10.a)$coef[3, 1]) * 1000` units less than in rural location keeping all other predictors fixed. Likewise, we can also say that on average the unit sales in a US store are `r abs(summary(model_3.7.10.a)$coef[4, 1]) * 1000` units more than in a non US store keeping other predictors fixed.*
+Given the Unit sales (which is in thousands) at each location, we can interpret the result as follows: if there is 1 dollar change in price, `r abs(summary(model_3.7.10.a)$coef[2, 1]) * 1000` units in sales will go down keeping all other predictors fixed. We can also say that the unit sales in urban location are `r abs(summary(model_3.7.10.a)$coef[3, 1]) * 1000` units less than in rural location keeping all other predictors fixed. Likewise, we can also say that on average the unit sales in a US store are `r abs(summary(model_3.7.10.a)$coef[4, 1]) * 1000` units more than in a non US store keeping other predictors fixed.
 
 
-Now, we Write out the model in equation form, being careful to handle the qualitative variables properly.
+Now, we write out the model in equation form, being careful to handle the qualitative variables properly.
 
 \[Sales = `r summary(model_3.7.10.a)$coef[1, 1]` + (`r summary(model_3.7.10.a)$coef[2, 1]`)\times Price + (`r summary(model_3.7.10.a)$coef[3, 1]`)\times Urban + (`r summary(model_3.7.10.a)$coef[4, 1]`)\times US + \varepsilon\]
 
-with $Urban = 1$ if the store is in an urban location and $0$ if not, and $US = 1$ if the store is in the US and $0$ if not.*
+with $Urban = 1$ if the store is in an urban location and $0$ if not, and $US = 1$ if the store is in the US and $0$ if not.
 
 
 Now, we will try to find out for which of the predictors we can reject the null hypothesis
