@@ -24,7 +24,7 @@ To reduce variability, multiple rounds of cross-validation are performed using d
 
 Two types of cross-validation can be distinguished: `exhaustive` and `non-exhaustive` cross-validation.
 
-The $\textbf{Exhaustive cross-validation}$ methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.
+The $\textbf{exhaustive cross-validation}$ methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.
 
 Some examples of exhaustive cross-validation include `Leave-p-out cross-validation (LpO CV)` which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set. Next, there is `Leave-one-out cross-validation (LOOCV)` which is a particular case of leave-p-out `cross-validation` with p = 1.The process looks similar to `jackknife`; however, with `cross-validation` one computes a statistic on the left-out sample(s), while with `jackknifing` one computes a statistic from the kept samples only.
 
@@ -54,7 +54,7 @@ In summary, cross-validation combines (averages) measures of fitness in predicti
 Previously, we have used logistic regression to predict the probability of `default` using `income` and `balance` on the ${Default}$ dataset. 
 
 We will now estimate the test error of this logistic regression model using the validation set approach.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 library(xtable)
 library(ISLR)
 library(stargazer)
@@ -68,7 +68,7 @@ summary(model0)
 Fitting the model shows that both variables are statistically highly significant. We will then fit a logistic regression model that uses `income` and `balance` to predict `default`. Using the validation set approach, we will estimate the test error of this model. In order to do this, we have to perform the following steps:
 
 First, we split the sample set into a training set and a validation set.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 n=dim(Default)[1]
 set.seed(702)
 index=sample(1:n, size=round(n/2), replace=F)
@@ -80,7 +80,7 @@ summary(validation$default)
 We just used 702 as a seed, and divided the Default dataset into two sets. 
 
 Next, we fit a multiple logistic regression model using only the training observations.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 ## model
 model1=glm(default~income+balance, data=train, family=binomial)
 summary(model1)
@@ -101,7 +101,7 @@ for(i in 1:length(preds)){
 The prediction of default status is dummy coded here. With 1 indicating the default status and 0 indicating non-default status.
 
 We will also compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 OATPRFPR=function(con){
   OA=100*((con[1,1]+con[2,2])/sum(con))
   TPR=100*(con[2,2]/(con[2,2]+con[1,2]))
@@ -113,7 +113,7 @@ OATPRFPR(table(preds,actualdef))
 The test error rate was estimated based on the error rate on the validation set. The overall accuracy was 97.26%. So, the error rate was (100-97.26)%=2.74%. TPR and FPR were 36.31% and 0.48% respectively.
 
 We will now repeat the process three times, using three different splits of the observations into a training set and a validation set.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 iterations=3
 errors=rep(NA,iterations)
 for(j in 1:iterations){
@@ -144,7 +144,7 @@ Here, we used the number `2*j*702+100` as seed for ${j-th}$ iteration. Three dif
 [1] 2.50 2.54 2.80
 
 Now consider a logistic regression model that predicts the prob- ability of default using income, balance, and a dummy variable for student. Estimate the test error for this model using the val- idation set approach. Comment on whether or not including a dummy variable for student leads to a reduction in the test error rate.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 set.seed(702)
 index=sample(1:n, size=round(n/2), replace=F)
 train=Default[index,]
@@ -244,7 +244,7 @@ In conclusion, we ran the two models 30 times. From the distributions of the MSE
 In R, `cv.glm()` function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just the `glm()` and `predict.glm()` functions, and a for loop. We will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the Weekly dataset. 
 
 We will first fit a logistic regression model that predicts Direction using Lag1 and Lag2.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 data("Weekly")
 dim(Weekly)
 weeklymodel1=glm(Direction~Lag1+Lag2,data=Weekly, family=binomial)
@@ -253,14 +253,14 @@ summary(weeklymodel1)
 Here, the model did not pick the Lag1 variable as statistically significant at 10% level.
 
 Now, we will fit a logistic regression model that predicts Direction using Lag1 and Lag2 using all but the first observation.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 modelallbutfirst=glm(Direction~Lag1+Lag2,data=Weekly[-1,], family=binomial)
 summary(modelallbutfirst)
 ```
 Here, also, the model did not pick the Lag1 variable as statistically significant at 10% level as before.
 
 Now, we will use the previous model to predict the direction of the first observation. We can do this by predicting that the first observation will go up if `P(Direction="Up"|Lag1, Lag2) > 0.5`. We would want to know if this observation was correctly classified.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 firstpred=round(predict(modelallbutfirst, newdata = Weekly[1,],type="response"))
 firstpred=ifelse(firstpred==0,"Down","Up")
 firstpred
@@ -296,7 +296,7 @@ message("Percent Error: ",round(100*(sum(misclassifyYes)/WeeklyN),3))
 Here, the loop was run 1089 times, since there were 1089 observations. 490 was misclassified. The overall error rate was 44.995%.
 
 Next, we will write new code (similar to above) to estimate test error using `6-fold cross validation` for fitting linear regression with ${mpg ≥ horsepower + horsepower2}$ from the Auto data in the ${ISLR}$ library.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 data(Auto)
 AutoN=dim(Auto)[1]
 stopsoffolds=c(0,round(c(1:6)*(AutoN/6)))
@@ -338,7 +338,7 @@ The estimated MSE from 6-fold CV is 19.43.
 [1] 19.43265
 
 Next, we will continue our analysis and try to perform Logistic Regression, KNN, LDA, QDA, MclustDA, MclustDA with EDDA (if appropriate). If it is not possible to perform any of the methods, we will try to justify why.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 library(MASS)
 library(mclust)
 library(class)
@@ -436,7 +436,7 @@ Error rate of those methods were obtained, and it was found that the error rate 
 ## Part 2 ##
 
 Next, we will perform polynomial regression to predict wage using age. we will use cross-validation to select the optimal degree ${d}$ for the polynomial. We would want to know what degree was chosen, and how this compares to the results of hypothesis testing using ANOVA. We will also make a plot of the resulting polynomial fit to the data.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 library(ISLR)
 library(boot)
 data(Wage)
@@ -491,7 +491,7 @@ The ANOVA result is shown below. We see that adding a 4th order term indeed impr
 The resulting polynomial fit of the data is shown in the figure above.
 
 Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 steperror=rep(NA, 20)
 for(i in 2:20) {
   Wage$age.cut = cut(Wage$age, i)
@@ -523,7 +523,7 @@ The optimal number of knots (cuts) was chosen to be 16. The resulting plot with 
 
 Now, we will use the variables `dis` (the weighted mean of distances to five Boston employment centers) and `nox` (nitrogen oxides concen- tration in parts per 10 million) from the `Boston` data. We will treat `dis` as the predictor and `nox` as the response.
 Then using the ${poly()}$ function, we will fit a cubic polynomial regression to predict `nox` using `dis.` We will then report on the regression output, and plot the resulting data and polynomial fits.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 library(MASS)
 data(Boston)
 B=Boston
@@ -543,7 +543,7 @@ Based on the model output above, we see that all the terms corresponding to high
 Resulting data and polynomial fits are shown in figure below. Based on this figure,it seems that data is well fitted for the 3rd order polynomial fit. 
 
 Next, we will plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 getRSS=function(k){
   model=lm(nox~poly(dis,k),data=B)
   return(sum((model$residuals)^2))
@@ -587,7 +587,7 @@ The degrees were varied in the range of 1 to 12. Resulting fitted curves and ass
 The figure shows the RSS against the order of the polynomial. We see the RSS decreases with the increase of order, which is expected. But the decrease in error does not seem significant form visual inspection, as we go beyond 3rd order.
 
 Now, we will perform cross-validation to select the optimal degree for the polynomial.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 ## 10 fold cv
 cverr=rep(NA, 10)
 for (i in 1:10) {
@@ -607,7 +607,7 @@ dim(B)
 From the results above, we see that the LOOCV estimate decreases up to 3rd order. Then starts to increase at order=6. After that it shows a pretty zigzag shape. Dramatically 10th order shows a very low error. The minimum was found at order=3 and we chose a 3rd order model.
 
 Next, we will use the `bs()` function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 library(splines)
 set.seed(702)
 index=sample(1:506)[1:round(nrow(B)/2)]
@@ -666,7 +666,7 @@ Varying k from 1 to 10, the 2 fold CV were evaluated. From the resulting plot, w
 We see that all the coefficient estimated have statistical significance with minimal p-value. The resulted fit is shown in the figure above. 
 
 Now, we will fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 getplot=function(k){
   ##k=3
   model=lm(nox~ bs(dis,df=k), data = B)
@@ -703,7 +703,7 @@ abline(v=c(3:12),h=c(180:200)/100,col="gray",lty=3)
 DF was varied from 3 to 12. The resulting fits are shown in the figure. From the figure, we see that RSS decreases with the increase of DF, with exceptions in two occasions. RSS increased using DF=9 or DF=11 than one less df for the respective cases. Looking at the resulting fits, we see that the curves becomes too wiggly as we go higher number of DF, as a result of overfitting. 
 
 Next, we will perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 err2cv=rep(NA,20)
 for(i in 3:20){
   k=quantile(B$dis, probs =c(1:i)/(i+1))
@@ -727,7 +727,7 @@ which.min(err2cv)
 To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.
 
 This question relates to the ${College}$ dataset. We will use this to split into a training set and a test set. We will use `out-of-state` tuition as the response and the other variables as the predictors to perform `forward stepwise` selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.
-```{r,echo=FALSE,warning=FALSE}
+```{r}
 data("College")
 kolez=College
 dim(kolez)

@@ -18,7 +18,7 @@ summary: Statistics series
 <p>Cross-validation is a resampling method that uses different portions of the data to test and train a model on different iterations. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice. In a prediction problem, a model is usually given a dataset of known data on which training is run (training dataset), and a dataset of unknown data (or first seen data) against which the model is tested (called the validation dataset or testing set). The goal of cross-validation is to test the model’s ability to predict new data that was not used in estimating it, in order to flag problems like overfitting or selection bias and to give an insight on how the model will generalize to an independent dataset (i.e., an unknown dataset, for instance from a real problem).</p>
 <p>To reduce variability, multiple rounds of cross-validation are performed using different partitions, and the validation results are combined (e.g. averaged) over the rounds to give an estimate of the model’s predictive performance.</p>
 <p>Two types of cross-validation can be distinguished: <code>exhaustive</code> and <code>non-exhaustive</code> cross-validation.</p>
-<p>The <span class="math inline">\(\textbf{Exhaustive cross-validation}\)</span> methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.</p>
+<p>The <span class="math inline">\(\textbf{exhaustive cross-validation}\)</span> methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.</p>
 <p>Some examples of exhaustive cross-validation include <code>Leave-p-out cross-validation (LpO CV)</code> which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set. Next, there is <code>Leave-one-out cross-validation (LOOCV)</code> which is a particular case of leave-p-out <code>cross-validation</code> with p = 1.The process looks similar to <code>jackknife</code>; however, with <code>cross-validation</code> one computes a statistic on the left-out sample(s), while with <code>jackknifing</code> one computes a statistic from the kept samples only.</p>
 <p>LOO cross-validation requires less computation time than LpO cross-validation because there are only <span class="math inline">\({\displaystyle C_{1}^{n}=n}\)</span> passes rather than <span class="math inline">\({\displaystyle C_{p}^{n}}\)</span>. However, <span class="math inline">\({\displaystyle n}\)</span> passes may still require quite a large computation time, in which case other approaches such as k-fold cross validation may be more appropriate</p>
 <p>The <span class="math inline">\(\textbf{non-exhaustive cross validation}\)</span> methods do not compute all ways of splitting the original sample. Those methods are approximations of leave-p-out cross-validation.</p>
@@ -35,6 +35,11 @@ summary: Statistics series
 <h2>Part 1</h2>
 <p>Previously, we have used logistic regression to predict the probability of <code>default</code> using <code>income</code> and <code>balance</code> on the <span class="math inline">\({Default}\)</span> dataset.</p>
 <p>We will now estimate the test error of this logistic regression model using the validation set approach.</p>
+<pre class="r"><code>library(xtable)
+library(ISLR)
+library(stargazer)
+data(Default)
+head(Default)</code></pre>
 <pre><code>##   default student   balance    income
 ## 1      No      No  729.5265 44361.625
 ## 2      No     Yes  817.1804 12106.135
@@ -42,6 +47,9 @@ summary: Statistics series
 ## 4      No      No  529.2506 35704.494
 ## 5      No      No  785.6559 38463.496
 ## 6      No     Yes  919.5885  7491.559</code></pre>
+<pre class="r"><code>model0=glm(default~income+balance, data=Default, family=binomial)
+
+summary(model0)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = default ~ income + balance, family = binomial, 
@@ -68,12 +76,22 @@ summary: Statistics series
 ## Number of Fisher Scoring iterations: 8</code></pre>
 <p>Fitting the model shows that both variables are statistically highly significant. We will then fit a logistic regression model that uses <code>income</code> and <code>balance</code> to predict <code>default</code>. Using the validation set approach, we will estimate the test error of this model. In order to do this, we have to perform the following steps:</p>
 <p>First, we split the sample set into a training set and a validation set.</p>
+<pre class="r"><code>n=dim(Default)[1]
+set.seed(702)
+index=sample(1:n, size=round(n/2), replace=F)
+train=Default[index,]
+validation=Default[-index,]
+summary(train$default)</code></pre>
 <pre><code>##   No  Yes 
 ## 4849  151</code></pre>
+<pre class="r"><code>summary(validation$default)</code></pre>
 <pre><code>##   No  Yes 
 ## 4818  182</code></pre>
 <p>We just used 702 as a seed, and divided the Default dataset into two sets.</p>
 <p>Next, we fit a multiple logistic regression model using only the training observations.</p>
+<pre class="r"><code>## model
+model1=glm(default~income+balance, data=train, family=binomial)
+summary(model1)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = default ~ income + balance, family = binomial, 
@@ -110,6 +128,13 @@ for(i in 1:length(preds)){
 }</code></pre>
 <p>The prediction of default status is dummy coded here. With 1 indicating the default status and 0 indicating non-default status.</p>
 <p>We will also compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.</p>
+<pre class="r"><code>OATPRFPR=function(con){
+  OA=100*((con[1,1]+con[2,2])/sum(con))
+  TPR=100*(con[2,2]/(con[2,2]+con[1,2]))
+  FPR=100*(1-con[1,1]/(con[1,1]+con[2,1]))
+  return(list(OA,TPR, FPR))
+}
+OATPRFPR(table(preds,actualdef))</code></pre>
 <pre><code>## [[1]]
 ## [1] 97.02
 ## 
@@ -119,9 +144,32 @@ for(i in 1:length(preds)){
 ## [[3]]
 ## [1] 0.4773765</code></pre>
 <p>The test error rate was estimated based on the error rate on the validation set. The overall accuracy was 97.26%. So, the error rate was (100-97.26)%=2.74%. TPR and FPR were 36.31% and 0.48% respectively.</p>
-<p>We will now repeat the process three times, using three different splits of the observations into a training set and a validation set.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>We will now repeat the process three times, using three different splits of the observations into a training set and a validation set.</p>
+<pre class="r"><code>iterations=3
+errors=rep(NA,iterations)
+for(j in 1:iterations){
+  seeder=702*2*j+100
+  set.seed(seeder)
+  index=sample(1:n, size=round(n/2), replace=F)
+  train=Default[index,]
+  validation=Default[-index,]
+  model=glm(default~income+balance, data=train, family=binomial)
+  actualdef=as.numeric(validation$default)-1
+  probs=round(predict(model, newdata=validation,type=&quot;response&quot;))
+  preds=rep(0,length(probs))
+  for(i in 1:length(preds)){
+    if(probs[i]&gt;0.5){
+      preds[i]=1
+    }
+  }
+  errors[j]=100-OATPRFPR(table(preds,actualdef))[[1]]
+}
+plot(errors,lwd=2,pch=4,col=4,cex=2,ylab=&quot;Validation MSE&quot;)
+abline(v=c(1,2,3),h=c(25:28)/10,lty=3, col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>errors</code></pre>
 <pre><code>## [1] 2.58 2.58 2.64</code></pre>
+<pre class="r"><code>var(errors)</code></pre>
 <pre><code>## [1] 0.0012</code></pre>
 <p>Here, we used the number <code>2*j*702+100</code> as seed for <span class="math inline">\({j-th}\)</span> iteration. Three different times, we came up with three different estimates of the MSE. For the three runs, following error rates were found.</p>
 <blockquote>
@@ -129,6 +177,13 @@ for(i in 1:length(preds)){
 [1] 2.50 2.54 2.80</p>
 </blockquote>
 <p>Now consider a logistic regression model that predicts the prob- ability of default using income, balance, and a dummy variable for student. Estimate the test error for this model using the val- idation set approach. Comment on whether or not including a dummy variable for student leads to a reduction in the test error rate.</p>
+<pre class="r"><code>set.seed(702)
+index=sample(1:n, size=round(n/2), replace=F)
+train=Default[index,]
+validation=Default[-index,]
+
+modeld=glm(default~income+balance+student, data=train, family=binomial)
+summary(modeld)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = default ~ income + balance + student, family = binomial, 
@@ -154,6 +209,15 @@ for(i in 1:length(preds)){
 ## AIC: 722.76
 ## 
 ## Number of Fisher Scoring iterations: 8</code></pre>
+<pre class="r"><code>actualdef=as.numeric(validation$default)-1
+probs=round(predict(modeld, newdata=validation,type=&quot;response&quot;))
+preds=rep(0,length(probs))
+for(i in 1:length(preds)){
+  if(probs[i]&gt;0.5){
+    preds[i]=1
+  }
+}
+OATPRFPR(table(preds,actualdef))</code></pre>
 <pre><code>## [[1]]
 ## [1] 97.06
 ## 
@@ -162,9 +226,78 @@ for(i in 1:length(preds)){
 ## 
 ## [[3]]
 ## [1] 0.456621</code></pre>
+<pre class="r"><code>## iterative errors
+iterations=3
+errorsstd=rep(NA,iterations)
+for(j in 1:iterations){
+  seeder=702*2*j+100
+  set.seed(seeder)
+  index=sample(1:n, size=round(n/2), replace=F)
+  train=Default[index,]
+  validation=Default[-index,]
+  model=glm(default~income+balance+student, data=train, family=binomial)
+  actualdef=as.numeric(validation$default)-1
+  probs=round(predict(model, newdata=validation,type=&quot;response&quot;))
+  preds=rep(0,length(probs))
+  for(i in 1:length(preds)){
+    if(probs[i]&gt;0.5){
+      preds[i]=1
+    }
+  }
+  errorsstd[j]=100-OATPRFPR(table(preds,actualdef))[[1]]
+}
+errorsstd</code></pre>
 <pre><code>## [1] 2.54 2.58 2.64</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<pre class="r"><code>plot(errorsstd,cex=3,lwd=3,col=2,ylab=&quot;Validation MSE&quot;,ylim=c(2.4,2.9))
+points(errors,lwd=2,pch=4,col=4,cex=2)
+abline(v=c(1,2,3),h=c(24:29)/10,lty=3, col=&quot;gray&quot;)
+legend(&quot;topleft&quot;, c(&quot;Default~Balance+Income&quot;,&quot;Default~Balance+Income+Student&quot;),
+       col=c(4,2),pch=c(4,1),cex=1.2,bty=&quot;n&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>## running 20 times
+iterations=30
+error1iter=rep(NA,iterations)
+error2iter=rep(NA,iterations)
+for(j in 1:iterations){
+  seeder=702*2*j+100
+  set.seed(seeder)
+  index=sample(1:n, size=round(n/2), replace=F)
+  train=Default[index,]
+  validation=Default[-index,]
+  model1=glm(default~income+balance, data=train, family=binomial)
+  model2=glm(default~income+balance+student, data=train, family=binomial)
+  actualdef=as.numeric(validation$default)-1
+  probs1=round(predict(model1, newdata=validation,type=&quot;response&quot;))
+  probs2=round(predict(model2, newdata=validation,type=&quot;response&quot;))
+  preds1=rep(0,length(probs))
+  preds2=rep(0,length(probs))
+  for(i in 1:length(preds)){
+    if(probs1[i]&gt;0.5){
+      preds1[i]=1
+    }
+    if(probs2[i]&gt;0.5){
+      preds2[i]=1
+    }
+  }
+  error1iter[j]=100-OATPRFPR(table(preds1,actualdef))[[1]]
+  error2iter[j]=100-OATPRFPR(table(preds2,actualdef))[[1]]
+}
+
+
+layout(matrix(1:3,ncol=3))
+plot(error1iter,cex=1.4,pch=4,lwd=3,col=4,ylab=&quot;Validation MSE&quot;,ylim = c(2,3),type=&quot;b&quot;)
+lines(error2iter,lwd=3,pch=1,col=2,cex=1.4,type=&quot;b&quot;)
+abline(v=c(0:30),h=c(20:30)/10,lty=3, col=&quot;gray&quot;)
+legend(&quot;bottomleft&quot;, c(&quot;Default~Balance+Income&quot;,&quot;Default~Balance+Income+Student&quot;),
+       col=c(4,2),pch=c(4,1),cex=1.2,bty=&quot;n&quot;,lwd=2)
+
+
+boxplot(error1iter,ylim=c(2.4,3),col=&quot;deepskyblue&quot;,main=&quot;Balance+Income&quot;,ylab=&quot;MSE&quot;)
+boxplot(error2iter,ylim=c(2.4,3),col=&quot;salmon&quot;,main=&quot;Balance+Income+Student&quot;,ylab=&quot;MSE&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<pre class="r"><code>mean(error1iter)</code></pre>
 <pre><code>## [1] 2.696</code></pre>
+<pre class="r"><code>mean(error2iter)</code></pre>
 <pre><code>## [1] 2.702667</code></pre>
 <p>Data was partitioned as it was done initially, using the number 702 as seed. The summary stat did not show any statistical significance for the income variable with very high p-value.</p>
 <p>The performance in terms of overall accuracy, TPR and FPR were exactly the same as before. The validation error rate was (100-97.26)%=2.74%.</p>
@@ -172,7 +305,11 @@ for(i in 1:length(preds)){
 <p>In conclusion, we ran the two models 30 times. From the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in the figure above.</p>
 <p>In R, <code>cv.glm()</code> function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just the <code>glm()</code> and <code>predict.glm()</code> functions, and a for loop. We will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the Weekly dataset.</p>
 <p>We will first fit a logistic regression model that predicts Direction using Lag1 and Lag2.</p>
+<pre class="r"><code>data(&quot;Weekly&quot;)
+dim(Weekly)</code></pre>
 <pre><code>## [1] 1089    9</code></pre>
+<pre class="r"><code>weeklymodel1=glm(Direction~Lag1+Lag2,data=Weekly, family=binomial)
+summary(weeklymodel1)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = Direction ~ Lag1 + Lag2, family = binomial, data = Weekly)
@@ -198,6 +335,8 @@ for(i in 1:length(preds)){
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <p>Here, the model did not pick the Lag1 variable as statistically significant at 10% level.</p>
 <p>Now, we will fit a logistic regression model that predicts Direction using Lag1 and Lag2 using all but the first observation.</p>
+<pre class="r"><code>modelallbutfirst=glm(Direction~Lag1+Lag2,data=Weekly[-1,], family=binomial)
+summary(modelallbutfirst)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = Direction ~ Lag1 + Lag2, family = binomial, data = Weekly[-1, 
@@ -224,8 +363,12 @@ for(i in 1:length(preds)){
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <p>Here, also, the model did not pick the Lag1 variable as statistically significant at 10% level as before.</p>
 <p>Now, we will use the previous model to predict the direction of the first observation. We can do this by predicting that the first observation will go up if <code>P(Direction="Up"|Lag1, Lag2) &gt; 0.5</code>. We would want to know if this observation was correctly classified.</p>
+<pre class="r"><code>firstpred=round(predict(modelallbutfirst, newdata = Weekly[1,],type=&quot;response&quot;))
+firstpred=ifelse(firstpred==0,&quot;Down&quot;,&quot;Up&quot;)
+firstpred</code></pre>
 <pre><code>##    1 
 ## &quot;Up&quot;</code></pre>
+<pre class="r"><code>Weekly[1,]$Direction</code></pre>
 <pre><code>## [1] Down
 ## Levels: Down Up</code></pre>
 <p>Looking at the result of our analysis, the first observation was classified as Up. It was a misclassification.</p>
@@ -252,13 +395,36 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## 44.995</code></pre>
 <p>Here, the loop was run 1089 times, since there were 1089 observations. 490 was misclassified. The overall error rate was 44.995%.</p>
 <p>Next, we will write new code (similar to above) to estimate test error using <code>6-fold cross validation</code> for fitting linear regression with <span class="math inline">\({mpg ≥ horsepower + horsepower2}\)</span> from the Auto data in the <span class="math inline">\({ISLR}\)</span> library.</p>
+<pre class="r"><code>data(Auto)
+AutoN=dim(Auto)[1]
+stopsoffolds=c(0,round(c(1:6)*(AutoN/6)))
+for(i in 1:6){
+  print(stopsoffolds[i+1]-stopsoffolds[i])
+}</code></pre>
 <pre><code>## [1] 65
 ## [1] 66
 ## [1] 65
 ## [1] 65
 ## [1] 66
 ## [1] 65</code></pre>
+<pre class="r"><code>set.seed(703)
+randomizedindex=sample(1:AutoN,AutoN)
+
+testMSE=rep(NA,6)
+for(i in 1:6){
+  autotestindex=randomizedindex[((stopsoffolds[i]+1):stopsoffolds[i+1])]
+  autotrain=Auto[-autotestindex,]
+  autotest=Auto[autotestindex,]
+  
+  
+  automodel=glm(mpg~horsepower+I(horsepower^2),data=autotrain)
+  pred=predict(automodel,newdata=autotest)
+
+  testMSE[i]=sum((pred-autotest$mpg)^2)/dim(autotest)[1]
+}
+testMSE</code></pre>
 <pre><code>## [1] 16.64555 21.63992 21.13782 13.65567 21.13939 21.10636</code></pre>
+<pre class="r"><code>sum(testMSE)/6</code></pre>
 <pre><code>## [1] 19.22078</code></pre>
 <p>Here, using <code>seed=703</code>, we resampled the observations. Then 6 folds were created. There were 392 observations in the dataset. Observations per fold were not exactly equal, since the Number of observations in each fold given below:
 [1] 65
@@ -274,7 +440,17 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 &gt; sum(testMSE)/6
 [1] 19.43265</p>
 <p>Next, we will continue our analysis and try to perform Logistic Regression, KNN, LDA, QDA, MclustDA, MclustDA with EDDA (if appropriate). If it is not possible to perform any of the methods, we will try to justify why.</p>
+<pre class="r"><code>library(MASS)
+library(mclust)
+library(class)
+
+bc &lt;-read.csv(&quot;https://raw.githubusercontent.com/achalneupane/data/master/breastcancer.csv&quot;, header = T)
+colnames(bc) &lt;- c(&quot;Samplecodenumber &quot;,&quot;Clumpthinkness&quot;,&quot;CellSize&quot;,&quot;Cellshape &quot;,&quot;MarAd&quot;,&quot;SingleEpithelialCellSize&quot;,&quot;BareNuclei&quot;,&quot;BlandCh&quot;,&quot;NormalNu&quot;,&quot;Mitoses&quot;,&quot;Class&quot;)
+
+View(bc)
+dim(bc)</code></pre>
 <pre><code>## [1] 698  11</code></pre>
+<pre class="r"><code>summary(bc)</code></pre>
 <pre><code>##  Samplecodenumber   Clumpthinkness      CellSize        Cellshape     
 ##  Min.   :   61634   Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
 ##  1st Qu.:  870258   1st Qu.: 2.000   1st Qu.: 1.000   1st Qu.: 1.000  
@@ -296,6 +472,16 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ##  Mean   : 2.87   Mean   : 1.59   Mean   :2.691  
 ##  3rd Qu.: 4.00   3rd Qu.: 1.00   3rd Qu.:4.000  
 ##  Max.   :10.00   Max.   :10.00   Max.   :4.000</code></pre>
+<pre class="r"><code>#removing ID
+bc&lt;-as.data.frame(bc[,-1])
+#removing the variable BareNu due to missing values, more explanation below.
+bc&lt;-as.data.frame(bc[,-6])
+
+#Changing the response variable into binomial
+bc$Class&lt;-ifelse(bc$Class==2,0,1)
+#full model
+full&lt;-glm(Class~.,data=bc,family=binomial())
+summary(full)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = Class ~ ., family = binomial(), data = bc)
@@ -325,6 +511,10 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## AIC: 158.6
 ## 
 ## Number of Fisher Scoring iterations: 8</code></pre>
+<pre class="r"><code>##stepwise selection
+null=glm(Class~1,data=bc,family=binomial())
+
+step_model=step(null, scope =list(lower=null, upper=full),direction = &quot;both&quot;)</code></pre>
 <pre><code>## Start:  AIC=901.68
 ## Class ~ 1
 ## 
@@ -452,19 +642,75 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## - BlandCh                   1   161.33 173.33
 ## - `Cellshape `              1   162.31 174.31
 ## - Clumpthinkness            1   172.92 184.92</code></pre>
+<pre class="r"><code>#Class ~ clumpthinkness + BlandCh + MarAd + cellshape + Mitoses + NormalNu is the best model
+set.seed(24688)
+#divide the dataset into two
+index_num &lt;- sample(dim(bc)[1], size = 350)
+train &lt;- bc[index_num,]
+test &lt;- bc[-index_num,]
+
+attach(bc)
+#glm
+best_model_glm=glm(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train ,family = binomial())
+first_MSE &lt;- (mean((ifelse(predict(best_model_glm, test, type = &quot;response&quot;)&gt;=.5,1,0)-test$Class)^2))
+first_MSE</code></pre>
 <pre><code>## [1] 0.02298851</code></pre>
+<pre class="r"><code>best_model_lda = lda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu, data = train)
+Auto_pred = predict(best_model_lda, test)
+err.ld &lt;- mean(Auto_pred$class != test$Class)
+err.ld #0.057</code></pre>
 <pre><code>## [1] 0.0316092</code></pre>
+<pre class="r"><code>#qda
+best_model_qda = qda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu, data = train)
+Auto_pred_1 = predict(best_model_qda, test)
+err.qd &lt;- mean(Auto_pred_1$class != test$Class)
+err.qd #0.0517</code></pre>
 <pre><code>## [1] 0.04310345</code></pre>
+<pre class="r"><code>#knn
+best_model_knn = knn(train, test, train$Class, k = 1)
+table(best_model_knn, test$Class )</code></pre>
 <pre><code>##               
 ## best_model_knn   0   1
 ##              0 223  14
 ##              1   4 107</code></pre>
+<pre class="r"><code>err.kn &lt;- mean(best_model_knn != test$Class)
+err.kn #0.04</code></pre>
 <pre><code>## [1] 0.05172414</code></pre>
+<pre class="r"><code>#mclust
+model1.mclust &lt;- MclustDA(train, train$Class, G = 1)
+model2.mclust &lt;- MclustDA(train, train$Class, G = 2)
+model3.mclust &lt;- MclustDA(train, train$Class, G = 3)
+model4.mclust &lt;- MclustDA(train, train$Class, G = 4)
+model5.mclust &lt;- MclustDA(train, train$Class, G = 5)
+
+#BIC_for_mclust &lt;- c(model1.mclust$bic, model2.mclust$bic, model3.mclust$bic, model4.mclust$bic , model5.mclust$bic)
+#BIC_for_mclust
+
+results.1 = cbind(paste(predict.MclustDA(model1.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.2 = cbind(paste(predict.MclustDA(model2.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.3 = cbind(paste(predict.MclustDA(model3.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.4 = cbind(paste(predict.MclustDA(model4.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.5 = cbind(paste(predict.MclustDA(model5.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+
+#error rate
+err1 &lt;- mean(results.1[, 1] != results.1[, 2])
+err1 #0.3477</code></pre>
 <pre><code>## [1] 0.3477011</code></pre>
+<pre class="r"><code>err2 &lt;- mean(results.2[, 1] != results.2[, 2])
+err2 #0.037</code></pre>
 <pre><code>## [1] 0.01724138</code></pre>
+<pre class="r"><code>err3 &lt;- mean(results.3[, 1] != results.3[, 2])
+err3 #0.0459</code></pre>
 <pre><code>## [1] 0.02011494</code></pre>
+<pre class="r"><code>err4 &lt;- mean(results.4[, 1] != results.4[, 2])
+err4 #0.0459</code></pre>
 <pre><code>## [1] 0.01724138</code></pre>
+<pre class="r"><code>err5 &lt;- mean(results.5[, 1] != results.5[, 2])
+err5 #0.0459</code></pre>
 <pre><code>## [1] 0.1408046</code></pre>
+<pre class="r"><code>#Mclust EDDA
+model.EDDA &lt;- MclustDA(train[, -9], train[, 9], modelType = &quot;EDDA&quot;)
+summary(model.EDDA)</code></pre>
 <pre><code>## ------------------------------------------------ 
 ## Gaussian finite mixture model for classification 
 ## ------------------------------------------------ 
@@ -485,6 +731,9 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ##     1   4 116
 ## Classification error = 0.0629 
 ## Brier score          = 0.0599</code></pre>
+<pre class="r"><code>results.EDDA = cbind(paste(predict.MclustDA(model.EDDA, newdata = test[, -9])$classification), paste(test[, 9]))
+err.edda &lt;- mean(results.EDDA[, 1] != results.EDDA[, 2])
+err.edda #0.052</code></pre>
 <pre><code>## [1] 0.04597701</code></pre>
 <p>Here, we removed the variable <code>BareNu</code> because it contained some missing values. It comes as a part of data cleaning. We also changed the response variable into binomial so that we can perform logistic regression and other analysis here. We performed logistic regression, KNN, LDA, QDA, MclustDA and MclustDA with “EDDA”, and stepwise selection for the glm was also done.</p>
 <p>It seems that the predictor variables <strong>clumpthinkness</strong>, <strong>BlandCh</strong>, <strong>MarAd</strong>, <strong>cellshape</strong>, <strong>Mitoses</strong>, and **NormalNu* are best as predictor variables for response variable class. SO, we decided to used those variables.</p>
@@ -493,7 +742,24 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 <div id="part-2" class="section level2">
 <h2>Part 2</h2>
 <p>Next, we will perform polynomial regression to predict wage using age. we will use cross-validation to select the optimal degree <span class="math inline">\({d}\)</span> for the polynomial. We would want to know what degree was chosen, and how this compares to the results of hypothesis testing using ANOVA. We will also make a plot of the resulting polynomial fit to the data.</p>
+<pre class="r"><code>library(ISLR)
+library(boot)
+data(Wage)
+w=Wage
+
+errors=rep(NA, 10)
+for (d in 1:10) {
+  model=glm(wage~poly(age,d), data=w)
+  set.seed(702)
+  errors[d]= cv.glm(w,model, K=10)$delta[2]
+}
+
+which.min(errors)</code></pre>
 <pre><code>## [1] 9</code></pre>
+<pre class="r"><code>plot(errors,col=&quot;salmon&quot;,type=&quot;b&quot;,lwd=2, pch=16,
+     ylim=c(1550,1700),xlab=&quot;Degree&quot;,
+     ylab=&quot;10 fold CV error estimate&quot;)
+abline(h=c(31:34)*50,v=c(1:10),lty=3, col=&quot;gray&quot;)</code></pre>
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-1.png" width="672" />
 Using the 10 fold CV (with seed=702), the resulting CV errors were evaluated for the data. Figure above shows the 10 fold CV estimate against the number of polynomial degree used.</p>
 <p>As we can see from the figure above, the second order model shows a significant improvement from first order model. Third order model further decreases the error. So is the case for 4th order. Then the error tends to rise again until <code>degree=9</code>, which gives the lowest error. For convenience, the resulting CV errors are shown above:</p>
@@ -589,17 +855,44 @@ legend(&quot;topleft&quot;,c(&quot;Original vlaues&quot;,&quot;Fitted with 3rd o
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-1.png" width="672" />
 The ANOVA result is shown below. We see that adding a 4th order term indeed improves the model, but is not significant at 5% level. Adding a 9th order term shows significant improvement with respect to 8th order model. As discussed earlier, we sought for a polynomial model with order less than 5 as prescribed by the text.</p>
 <p>The resulting polynomial fit of the data is shown in the figure above.</p>
-<p>Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.</p>
+<pre class="r"><code>steperror=rep(NA, 20)
+for(i in 2:20) {
+  Wage$age.cut = cut(Wage$age, i)
+  lm.fit = glm(wage~ age.cut, data=Wage)
+  set.seed(702)
+  steperror[i] = cv.glm(Wage, lm.fit, K=10)$delta[2]
+}
+plot(steperror[-1]~c(2:20), 
+     xlab=&quot;Number of knots&quot;, ylab=&quot;10 fold CV error&quot;, 
+     type=&quot;l&quot;, lwd=2,col=4)
+abline(h=c(31:34)*50,v=c(1:20),lty=3, col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>which.min(steperror)</code></pre>
 <pre><code>## [1] 16</code></pre>
+<pre class="r"><code>model1b=glm(wage~cut(age,16),data=w)
+steperror</code></pre>
 <pre><code>##  [1]       NA 1733.218 1683.257 1635.037 1631.436 1623.323 1609.635 1602.010
 ##  [9] 1609.138 1604.193 1600.287 1602.961 1603.657 1607.122 1605.799 1597.953
 ## [17] 1604.587 1602.142 1602.396 1603.031</code></pre>
+<pre class="r"><code>plot(w$wage~w$age,col=&quot;gray&quot;,pch=16,cex=0.6,ylab=&quot;Wage&quot;,xlab=&quot;Age&quot;,
+     ylim=c(0,450))
+preds=predict(model1b,newdata=w[order(w$age),])
+abline(h=c(0:4)*100,v=c(2:8)*10,lty=3, col=&quot;gray&quot;)
+lines(preds~w[order(w$age),]$age,col=&quot;salmon&quot;,lwd=2)
+legend(&quot;topleft&quot;,c(&quot;Original vlaues&quot;,&quot;Step model fit (16 knots)&quot;),
+       col=c(&quot;gray&quot;,&quot;salmon&quot;), lwd=c(NA,2),
+       pch=c(16, NA),bty=&quot;n&quot;)</code></pre>
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-2.png" width="672" />
 We varied the number of knots in between 2 to 20. Using the 10 fold CV error, it was found that using 16 knots gives the lowest CV error. The errors against the number of knots is shown in the figure above</p>
 <p>The optimal number of knots (cuts) was chosen to be 16. The resulting plot with the fitted values is shown in the figure above.</p>
 <p>Now, we will use the variables <code>dis</code> (the weighted mean of distances to five Boston employment centers) and <code>nox</code> (nitrogen oxides concen- tration in parts per 10 million) from the <code>Boston</code> data. We will treat <code>dis</code> as the predictor and <code>nox</code> as the response.
 Then using the <span class="math inline">\({poly()}\)</span> function, we will fit a cubic polynomial regression to predict <code>nox</code> using <code>dis.</code> We will then report on the regression output, and plot the resulting data and polynomial fits.</p>
+<pre class="r"><code>library(MASS)
+data(Boston)
+B=Boston
+model2b=lm(nox~poly(dis,3),data=B)
+summary(model2b)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = nox ~ poly(dis, 3), data = B)
@@ -620,28 +913,111 @@ Then using the <span class="math inline">\({poly()}\)</span> function, we will f
 ## Residual standard error: 0.06207 on 502 degrees of freedom
 ## Multiple R-squared:  0.7148, Adjusted R-squared:  0.7131 
 ## F-statistic: 419.3 on 3 and 502 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>plot(nox~dis,data=B,col=&quot;gray&quot;,pch=19,cex=0.9)
+preds=predict(model2b,newdata=B[order(B$dis),])
+lines(preds~B[order(B$dis),]$dis,col=&quot;salmon&quot;,lwd=2)
+abline(h=c(0:10)/10,v=c(1:12),lty=3, col=&quot;gray&quot;)
+legend(&quot;topright&quot;,c(&quot;Original vlaues&quot;,&quot;3rd order polynomial fit&quot;),
+       col=c(&quot;gray&quot;,&quot;salmon&quot;), lwd=c(NA,2),
+       pch=c(16, NA),bty=&quot;n&quot;)</code></pre>
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 Based on the model output above, we see that all the terms corresponding to higher order terms are highly significant with negligible p-values. The adjusted R-sq for the model is 0.7131, which means that the model can explain 71.31% of the total variability of <code>nox</code>. The F-statistic has a p-value of less than 2e-16, so it passes the lack of fit test.</p>
 <p>Resulting data and polynomial fits are shown in figure below. Based on this figure,it seems that data is well fitted for the 3rd order polynomial fit.</p>
-<p>Next, we will plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-4.png" width="672" /></p>
+<p>Next, we will plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.</p>
+<pre class="r"><code>getRSS=function(k){
+  model=lm(nox~poly(dis,k),data=B)
+  return(sum((model$residuals)^2))
+}
+
+B=B[order(B$dis),]
+
+plotnreport=function(k){
+  model=model=lm(nox~poly(dis,k),data=B)
+  plot(nox~dis,data=B,col=&quot;gray&quot;,pch=16,
+       main=c(paste(&quot;Order = &quot;,k), 
+       paste (&quot;RSS = &quot; , (round(sum((model$residuals)^2),3))) )
+       
+       )
+  lines(model$fitted.values~B$dis,col=4,lwd=2)
+  abline(h=c(0:10)/10,v=c(1:12),lty=3, col=&quot;gray&quot;)
+  legend(&quot;topright&quot;,c(&quot;Original vlaues&quot;,&quot;Polynomial fit&quot;),
+         col=c(&quot;gray&quot;,4), lwd=c(NA,2),
+         pch=c(16, NA),bty=&quot;n&quot;)
+
+}
+
+layout(matrix(1:4,nrow=2))
+for(i in 1:12){
+  plotnreport(i)
+}</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-3.png" width="672" /></p>
+<pre class="r"><code>layout(matrix(1))
+errors=rep(NA,12)
+for(i in 1:12){
+  errors[i]=getRSS(i)
+}
+plot(errors,type=&quot;l&quot;,col=4, lwd=2,
+     xlab = &quot;Polynomial Order&quot;,
+     ylab = &quot;Sum of residual square&quot;)
+abline(h=c(18:28)/10,v=c(1:10),lty=3, col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-4.png" width="672" /></p>
+<pre class="r"><code>errors</code></pre>
 <pre><code>##  [1] 2.768563 2.035262 1.934107 1.932981 1.915290 1.878257 1.849484 1.835630
 ##  [9] 1.833331 1.832171 1.832168 1.829822</code></pre>
 <p>The degrees were varied in the range of 1 to 12. Resulting fitted curves and associated RSS values are shown above.</p>
 <p>The figure shows the RSS against the order of the polynomial. We see the RSS decreases with the increase of order, which is expected. But the decrease in error does not seem significant form visual inspection, as we go beyond 3rd order.</p>
-<p>Now, we will perform cross-validation to select the optimal degree for the polynomial.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>Now, we will perform cross-validation to select the optimal degree for the polynomial.</p>
+<pre class="r"><code>## 10 fold cv
+cverr=rep(NA, 10)
+for (i in 1:10) {
+  model=glm(nox ~ poly(dis,i),data=B)
+  set.seed(702)
+  cverr[i]=cv.glm(B,model, K = 506)$delta[2]
+}
+plot(cverr, xlab = &quot;Degree of polynomial&quot;, col=2,
+     ylab = &quot;LOOCV error&quot;, type = &quot;l&quot;,lwd = 2)
+abline(h=c(4:16)/1000,v=c(1:12),lty=3, col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>cverr</code></pre>
 <pre><code>##  [1] 0.005523815 0.004079390 0.003874708 0.003887449 0.004164231 0.005381096
 ##  [7] 0.011054239 0.008112597 0.017588789 0.004428769</code></pre>
+<pre class="r"><code>which.min(cverr)</code></pre>
 <pre><code>## [1] 3</code></pre>
+<pre class="r"><code>dim(B)</code></pre>
 <pre><code>## [1] 506  14</code></pre>
 <p><code>LOOCV</code> was performed in this case. The CV estimates for all the degrees was calculated. The figure shows the LOOCV estimate against order of polynomial. We show order up to 10, since 11 and 12 orders resulted very high errors.</p>
 <p>From the results above, we see that the LOOCV estimate decreases up to 3rd order. Then starts to increase at order=6. After that it shows a pretty zigzag shape. Dramatically 10th order shows a very low error. The minimum was found at order=3 and we chose a 3rd order model.</p>
-<p>Next, we will use the <code>bs()</code> function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>Next, we will use the <code>bs()</code> function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.</p>
+<pre class="r"><code>library(splines)
+set.seed(702)
+index=sample(1:506)[1:round(nrow(B)/2)]
+data1=B[index,]
+data2=B[-index,]
+
+err2=rep(NA,10)
+for(i in 1:10){
+  k=quantile(B$dis, probs =c(1:i)/(i+1))
+  model1=lm(nox~ bs(dis,knots=k), data = data1)
+  model2=lm(nox~ bs(dis,knots=k), data = data2)
+  
+  pred1=predict(model1, newdata = data2)
+  pred2=predict(model1, newdata = data1)
+  
+  err2[i]=(sum((pred1-data2$nox)^2)+sum((pred2-data1$nox)^2))/2
+  
+}
+plot(err2,col=4,pch=16,type=&quot;l&quot;,lwd=2,
+     xlab = &quot;Number of Knots&quot;, ylab=&quot;2 fold CV estimate&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<pre class="r"><code>err2</code></pre>
 <pre><code>##  [1] 0.9727041 0.9302675 0.9323951 0.9288289 0.9288235 0.9336314 0.9187082
 ##  [8] 0.9224267 0.9257746 0.9313932</code></pre>
+<pre class="r"><code>which.min(err2)</code></pre>
 <pre><code>## [1] 7</code></pre>
+<pre class="r"><code>k=quantile(B$dis, probs =c(1:5)/(5+1))
+
+model5k=lm(nox~ bs(dis,knots=k), data = B)
+summary(model5k)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = nox ~ bs(dis, knots = k), data = B)
@@ -667,7 +1043,15 @@ Based on the model output above, we see that all the terms corresponding to high
 ## Residual standard error: 0.06046 on 497 degrees of freedom
 ## Multiple R-squared:  0.732,  Adjusted R-squared:  0.7277 
 ## F-statistic: 169.7 on 8 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>plot(B$nox~B$dis,col=&quot;gray&quot;,pch=16,ylab = &quot;nox&quot;,xlab=&quot;dis&quot;)
+abline(h=c(4:8)/10,v=c(1:12),lty=3, col=&quot;gray&quot;)
+lines(model5k$fitted.values~B$dis,col=4,lwd=2)
+legend(&quot;topright&quot;,c(&quot;Original vlaues&quot;,&quot;Regression spline fit (5 knots)&quot;),
+       col=c(&quot;gray&quot;,4), lwd=c(NA,2),
+       pch=c(16, NA),bty=&quot;n&quot;)</code></pre>
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-2.png" width="672" /></p>
+<pre class="r"><code>model4df=lm(nox~ bs(dis,df=4), data = B)
+summary(model4df)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = nox ~ bs(dis, df = 4), data = B)
@@ -689,6 +1073,12 @@ Based on the model output above, we see that all the terms corresponding to high
 ## Residual standard error: 0.06195 on 501 degrees of freedom
 ## Multiple R-squared:  0.7164, Adjusted R-squared:  0.7142 
 ## F-statistic: 316.5 on 4 and 501 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>plot(B$nox~B$dis,col=&quot;gray&quot;,pch=16,ylab = &quot;nox&quot;,xlab=&quot;dis&quot;)
+abline(h=c(4:8)/10,v=c(1:12),lty=3, col=&quot;gray&quot;)
+lines(model4df$fitted.values~B$dis,col=4,lwd=2)
+legend(&quot;topright&quot;,c(&quot;Original vlaues&quot;,&quot;Regression spline fit (DF=4)&quot;),
+       col=c(&quot;gray&quot;,4), lwd=c(NA,2),
+       pch=c(16, NA),bty=&quot;n&quot;)</code></pre>
 <p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-3.png" width="672" />
 In the first part, we tried to fit a regression spline. Nothing was specified regarding how many knots, how to choose the knots or how many degrees of freedom. Here, we relied on 2 fold CV error estimate to choose the optimal number of knots. The procedure is as follows:</p>
 <p>• Select the number of knots. Let it be k.
@@ -698,19 +1088,83 @@ In the first part, we tried to fit a regression spline. Nothing was specified re
 • Select k, where 2 fold CV is the minimum</p>
 <p>Varying k from 1 to 10, the 2 fold CV were evaluated. From the resulting plot, we see that selecting 5 knots gives the minimum 2 fold CV estimate. The resulting fit with 5 knots is shown in the figure above.</p>
 <p>We see that all the coefficient estimated have statistical significance with minimal p-value. The resulted fit is shown in the figure above.</p>
-<p>Now, we will fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-4.png" width="672" />
+<p>Now, we will fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.</p>
+<pre class="r"><code>getplot=function(k){
+  ##k=3
+  model=lm(nox~ bs(dis,df=k), data = B)
+  RSS=round(sum((model$residuals)^2),3)
+  plot(nox~dis,data=B,pch=16,col=&quot;gray&quot;)
+  lines(model$fitted.values~B$dis,col=&quot;deeppink&quot;,lwd=2)
+  abline(v=c(1:12),h=c(4:9)/10,lty=3,col=&quot;gray&quot;)
+  title(main= c(paste(&quot;DF = &quot;,k), 
+                paste(&quot;RSS =&quot;, RSS))   )
+  legend(&quot;topright&quot;,c(&quot;Original vlaues&quot;,&quot;Regression spline&quot;),
+         col=c(&quot;gray&quot;,&quot;deeppink&quot;), lwd=c(NA,2),
+         pch=c(16, NA),bty=&quot;n&quot;)
+}
+
+layout(matrix(1:4, nrow=2))
+for(i in 3:14){
+  getplot(i)
+}</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-3.png" width="672" /></p>
+<pre class="r"><code>getRSS=function(k){
+  model=lm(nox~ bs(dis,df=k), data = B)
+  return(round(sum((model$residuals)^2),3))
+}
+
+RSSerr=rep(NA, 12)
+for(i in 3:12){
+  RSSerr[i]=getRSS(i)
+}
+
+layout(matrix(1))
+plot(RSSerr,type=&quot;l&quot;,lwd=2, col=2,xlab = &quot;DF&quot;)
+abline(v=c(3:12),h=c(180:200)/100,col=&quot;gray&quot;,lty=3)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-4.png" width="672" />
 DF was varied from 3 to 12. The resulting fits are shown in the figure. From the figure, we see that RSS decreases with the increase of DF, with exceptions in two occasions. RSS increased using DF=9 or DF=11 than one less df for the respective cases. Looking at the resulting fits, we see that the curves becomes too wiggly as we go higher number of DF, as a result of overfitting.</p>
-<p>Next, we will perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>Next, we will perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.</p>
+<pre class="r"><code>err2cv=rep(NA,20)
+for(i in 3:20){
+  k=quantile(B$dis, probs =c(1:i)/(i+1))
+  model1=lm(nox~ bs(dis,df=i), data = data1)
+  model2=lm(nox~ bs(dis,df=i), data = data2)
+  
+  pred1=predict(model1, newdata = data2)
+  pred2=predict(model1, newdata = data1)
+  
+  err2cv[i]=(sum((pred1-data2$nox)^2)+sum((pred2-data1$nox)^2))/2
+  
+}
+
+plot(err2cv,col=4,pch=16,type=&quot;l&quot;,lwd=2,xlim=c(3,20),xaxt=&quot;none&quot;,
+     xlab = &quot;DF&quot;, ylab=&quot;2 fold CV estimate&quot;)
+axis(1,at=c(3:20),labels = c(3:20))
+abline(v=c(3:20),h=c(93:97)/100,col=&quot;gray&quot;,lty=3)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<pre class="r"><code>err2cv</code></pre>
 <pre><code>##  [1]        NA        NA 0.9735581 0.9734583 0.9306550 0.9327974 0.9298878
 ##  [8] 0.9283337 0.9309293 0.9207512 0.9194232 0.9172597 0.9257124 0.9284066
 ## [15] 0.9291819 0.9319902 0.9268974 0.9268746 0.9267172 0.9276754</code></pre>
+<pre class="r"><code>which.min(err2cv)</code></pre>
 <pre><code>## [1] 12</code></pre>
 <p>To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.</p>
 <p>This question relates to the <span class="math inline">\({College}\)</span> dataset. We will use this to split into a training set and a test set. We will use <code>out-of-state</code> tuition as the response and the other variables as the predictors to perform <code>forward stepwise</code> selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.</p>
+<pre class="r"><code>data(&quot;College&quot;)
+kolez=College
+dim(kolez)</code></pre>
 <pre><code>## [1] 777  18</code></pre>
+<pre class="r"><code>set.seed(702)
+index=sample(1:nrow(kolez))[1:round(nrow(kolez)/2)]
+length(index)</code></pre>
 <pre><code>## [1] 388</code></pre>
+<pre class="r"><code>ktest=kolez[index,]
+ktrain=kolez[-index,]
+
+null=lm(Outstate~1, data=ktrain)
+full=lm(Outstate~., data=ktrain)
+
+stepmodel=step(null, scope=list(lower=null, upper=full), direction=&quot;forward&quot;)</code></pre>
 <pre><code>## Start:  AIC=6484.17
 ## Outstate ~ 1
 ## 
@@ -939,6 +1393,7 @@ DF was varied from 3 to 12. The resulting fits are shown in the figure. From the
 ## + Top25perc    1   1094720 1474199509 5920.5
 ## + Enroll       1    237509 1475056720 5920.7
 ## + Books        1    172189 1475122039 5920.7</code></pre>
+<pre class="r"><code>summary(stepmodel)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = Outstate ~ Expend + Room.Board + perc.alumni + Private + 
