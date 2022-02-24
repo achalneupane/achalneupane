@@ -42,15 +42,13 @@ The third example would be `repeated random sub-sampling validation`, which is a
 
 In a stratified variant of this approach, the random samples are generated in such a way that the mean response value (i.e. the dependent variable in the regression) is equal in the training and testing sets. This is particularly useful if the responses are dichotomous with an unbalanced representation of the two response values in the data.
 
+It is important to understand that when cross-validation is used simultaneously for selection of the best set of hyperparameters and for error estimation (and assessment of generalization capacity), a nested cross-validation is required. Many variants exist. At least two variants can be distinguished:
 
-$\textbf{It is important to understand that when cross-validation is used simultaneously for selection of the best set of hyperparameters and for error estimation (and assessment of generalization capacity), a nested cross-validation is required. Many variants exist. At least two variants can be distinguished:}$
-
-$\textbf{k*l-fold cross-validation}$ k*l-fold cross-validation is a truly nested variant which contains an outer loop of k sets and an inner loop of l sets. The total dataset is split into k sets. One by one, a set is selected as the (outer) test set and the k - 1 other sets are combined into the corresponding outer training set. This is repeated for each of the k sets. Each outer training set is further sub-divided into l sets. One by one, a set is selected as inner test (validation) set and the l - 1 other sets are combined into the corresponding inner training set. This is repeated for each of the l sets. The inner training sets are used to fit model parameters, while the outer test set is used as a validation set to provide an unbiased evaluation of the model fit. Typically, this is repeated for many different hyperparameters (or even different model types) and the validation set is used to determine the best hyperparameter set (and model type) for this inner training set. After this, a new model is fit on the entire outer training set, using the best set of hyperparameters from the inner cross-validation. The performance of this model is then evaluated using the outer test set.
+$\textbf{k*l-fold cross-validation}$ is a truly nested variant which contains an outer loop of k sets and an inner loop of l sets. The total dataset is split into k sets. One by one, a set is selected as the (outer) test set and the k - 1 other sets are combined into the corresponding outer training set. This is repeated for each of the k sets. Each outer training set is further sub-divided into l sets. One by one, a set is selected as inner test (validation) set and the l - 1 other sets are combined into the corresponding inner training set. This is repeated for each of the l sets. The inner training sets are used to fit model parameters, while the outer test set is used as a validation set to provide an unbiased evaluation of the model fit. Typically, this is repeated for many different hyperparameters (or even different model types) and the validation set is used to determine the best hyperparameter set (and model type) for this inner training set. After this, a new model is fit on the entire outer training set, using the best set of hyperparameters from the inner cross-validation. The performance of this model is then evaluated using the outer test set.
 
 $\textbf{k-fold cross-validation}$ with validation and test set is a type of `k*l-fold cross-validation` when l = k - 1. A single k-fold cross-validation is used with both a validation and test set. The total dataset is split into k sets. One by one, a set is selected as test set. Then, one by one, one of the remaining sets is used as a validation set and the other k - 2 sets are used as training sets until all possible combinations have been evaluated. Similar to the k*l-fold cross validation, the training set is used for model fitting and the validation set is used for model evaluation for each of the hyperparameter sets. Finally, for the selected parameter set, the test set is used to evaluate the model with the best parameter set. Here, two variants are possible: either evaluating the model that was trained on the training set or evaluating a new model that was fit on the combination of the train and the validation set.
 
 In summary, cross-validation combines (averages) measures of fitness in prediction to derive a more accurate estimate of model prediction performance.
-
 
 ## Part 1 ##
 Previously, we have used logistic regression to predict the probability of `default` using `income` and `balance` on the ${Default}$ dataset. 
@@ -87,7 +85,6 @@ Next, we fit a multiple logistic regression model using only the training observ
 model1=glm(default~income+balance, data=train, family=binomial)
 summary(model1)
 ```
-
 A logistic model to predict the default status was made using the income and balance on the training set. 
 
 Here, we obtain a prediction of default status for each individual in the validation set by computing the posterior probability of default for that individual, and classifying the individual to the default category if the posterior probability is greater than 0.5.
@@ -101,7 +98,6 @@ for(i in 1:length(preds)){
   }
 }
 ```
-
 The prediction of default status is dummy coded here. With 1 indicating the default status and 0 indicating non-default status.
 
 Next we will compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
