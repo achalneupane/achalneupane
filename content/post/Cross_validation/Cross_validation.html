@@ -1,0 +1,955 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Cross validation"
+date: 2021-10-18T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>Cross-validation is a resampling method that uses different portions of the data to test and train a model on different iterations. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice. In a prediction problem, a model is usually given a dataset of known data on which training is run (training dataset), and a dataset of unknown data (or first seen data) against which the model is tested (called the validation dataset or testing set). The goal of cross-validation is to test the model’s ability to predict new data that was not used in estimating it, in order to flag problems like overfitting or selection bias and to give an insight on how the model will generalize to an independent dataset (i.e., an unknown dataset, for instance from a real problem).</p>
+<p>One round of cross-validation involves partitioning a sample of data into complementary subsets, performing the analysis on one subset (called the training set), and validating the analysis on the other subset (called the validation set or testing set). To reduce variability, multiple rounds of cross-validation are performed using different partitions, and the validation results are combined (e.g. averaged) over the rounds to give an estimate of the model’s predictive performance.</p>
+<p>Two types of cross-validation can be distinguished: <code>exhaustive</code> and <code>non-exhaustive</code> cross-validation.</p>
+<p><span class="math inline">\(\textbf{Exhaustive cross-validation}\)</span> methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.</p>
+<p>Some examples of exhaustive cross-validation include <code>Leave-p-out cross-validation (LpO CV)</code> which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set.Next, there is <code>Leave-one-out cross-validation (LOOCV)</code> which is a particular case of leave-p-out <code>cross-validation</code> with p = 1.The process looks similar to <code>jackknife</code>; however, with <code>cross-validation</code> one computes a statistic on the left-out sample(s), while with <code>jackknifing</code> one computes a statistic from the kept samples only.</p>
+<p>LOO cross-validation requires less computation time than LpO cross-validation because there are only <span class="math inline">\({\displaystyle C_{1}^{n}=n}{\displaystyle C_{1}^{n}=n}\)</span> passes rather than <span class="math inline">\({\displaystyle C_{p}^{n}}{\displaystyle C_{p}^{n}}\)</span>. However, <span class="math inline">\({\displaystyle n}\)</span> passes may still require quite a large computation time, in which case other approaches such as k-fold cross validation may be more appropriate</p>
+<p>Similarly, <span class="math inline">\(\textbf{non-exhaustive cross validation}\)</span> methods do not compute all ways of splitting the original sample. Those methods are approximations of leave-p-out cross-validation.</p>
+<p>Some examples include, <code>k-fold cross-validation</code> in which the original sample is randomly partitioned into <span class="math inline">\({k}\)</span> equal sized subsamples. Of the <span class="math inline">\({k}\)</span> subsamples, a single subsample is retained as the validation data for testing the model, and the remaining <span class="math inline">\({k − 1}\)</span> subsamples are used as training data. The cross-validation process is then repeated <span class="math inline">\({k}\)</span> times, with each of the <span class="math inline">\({k}\)</span> subsamples used exactly once as the validation data. The <span class="math inline">\({k}\)</span> results can then be averaged to produce a single estimation. The advantage of this method over repeated random sub-sampling is that all observations are used for both training and validation, and each observation is used for validation exactly once. 10-fold cross-validation is commonly used, but in general <span class="math inline">\({k}\)</span> remains an unfixed parameter.</p>
+<p>The other example of this would be In the <code>holdout</code> method, in which we randomly assign data points to two sets <span class="math inline">\({d0}\)</span> and <span class="math inline">\({d1}\)</span>, usually called the training set and the test set, respectively. The size of each of the sets is arbitrary although typically the test set is smaller than the training set. We then train (build a model) on <span class="math inline">\({d0}\)</span> and test (evaluate its performance) on ${d1}. In typical cross-validation, results of multiple runs of model-testing are averaged together; in contrast, the <code>holdout</code> method, in isolation, involves a single run. It should be used with caution because without such averaging of multiple runs, one may achieve highly misleading results. One’s indicator of predictive accuracy (F*) will tend to be unstable since it will not be smoothed out by multiple iterations. Similarly, indicators of the specific role played by various predictor variables (e.g., values of regression coefficients) will tend to be unstable.</p>
+<p>While the holdout method can be framed as “the simplest kind of cross-validation”, many sources instead classify holdout as a type of simple validation, rather than a simple or degenerate form of cross-validation.</p>
+<p>The third example would be <code>repeated random sub-sampling validation</code>, which is also known as Monte Carlo cross-validation. It creates multiple random splits of the dataset into training and validation data. For each such split, the model is fit to the training data, and predictive accuracy is assessed using the validation data. The results are then averaged over the splits. The advantage of this method (over <code>k-fold cross validation</code>) is that the proportion of the training/validation split is not dependent on the number of iterations (i.e., the number of partitions). The disadvantage of this method is that some observations may never be selected in the validation subsample, whereas others may be selected more than once. In other words, validation subsets may overlap. This method also exhibits Monte Carlo variation, meaning that the results will vary if the analysis is repeated with different random splits. As the number of random splits approaches infinity, the result of repeated random sub-sampling validation tends towards that of leave-p-out cross-validation.</p>
+<p>In a stratified variant of this approach, the random samples are generated in such a way that the mean response value (i.e. the dependent variable in the regression) is equal in the training and testing sets. This is particularly useful if the responses are dichotomous with an unbalanced representation of the two response values in the data.</p>
+<p><span class="math inline">\(\textbf{It is important to understand that When cross-validation is used simultaneously for selection of the best set of hyperparameters and for error estimation (and assessment of generalization capacity), a nested cross-validation is required. Many variants exist. At least two variants can be distinguished:}\)</span></p>
+<p><span class="math inline">\(\textbf{k*l-fold cross-validation}\)</span> k*l-fold cross-validation is a truly nested variant which contains an outer loop of k sets and an inner loop of l sets. The total dataset is split into k sets. One by one, a set is selected as the (outer) test set and the k - 1 other sets are combined into the corresponding outer training set. This is repeated for each of the k sets. Each outer training set is further sub-divided into l sets. One by one, a set is selected as inner test (validation) set and the l - 1 other sets are combined into the corresponding inner training set. This is repeated for each of the l sets. The inner training sets are used to fit model parameters, while the outer test set is used as a validation set to provide an unbiased evaluation of the model fit. Typically, this is repeated for many different hyperparameters (or even different model types) and the validation set is used to determine the best hyperparameter set (and model type) for this inner training set. After this, a new model is fit on the entire outer training set, using the best set of hyperparameters from the inner cross-validation. The performance of this model is then evaluated using the outer test set.</p>
+<p><span class="math inline">\(\textbf{k-fold cross-validation}\)</span> with validation and test set is a type of <code>k*l-fold cross-validation</code> when l = k - 1. A single k-fold cross-validation is used with both a validation and test set. The total dataset is split into k sets. One by one, a set is selected as test set. Then, one by one, one of the remaining sets is used as a validation set and the other k - 2 sets are used as training sets until all possible combinations have been evaluated. Similar to the k*l-fold cross validation, the training set is used for model fitting and the validation set is used for model evaluation for each of the hyperparameter sets. Finally, for the selected parameter set, the test set is used to evaluate the model with the best parameter set. Here, two variants are possible: either evaluating the model that was trained on the training set or evaluating a new model that was fit on the combination of the train and the validation set.</p>
+<p>In summary, cross-validation combines (averages) measures of fitness in prediction to derive a more accurate estimate of model prediction performance.</p>
+<div id="part-1" class="section level2">
+<h2>Part 1</h2>
+<p>Previously, we have used logistic regression to predict the probability of <code>default</code> using <code>income</code> and <code>balance</code> on the <span class="math inline">\({Default}\)</span> dataset.</p>
+<p>We will now estimate the test error of this logistic regression model using the validation set approach.</p>
+<pre><code>##   default student   balance    income
+## 1      No      No  729.5265 44361.625
+## 2      No     Yes  817.1804 12106.135
+## 3      No      No 1073.5492 31767.139
+## 4      No      No  529.2506 35704.494
+## 5      No      No  785.6559 38463.496
+## 6      No     Yes  919.5885  7491.559</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = default ~ income + balance, family = binomial, 
+##     data = Default)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.4725  -0.1444  -0.0574  -0.0211   3.7245  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.154e+01  4.348e-01 -26.545  &lt; 2e-16 ***
+## income       2.081e-05  4.985e-06   4.174 2.99e-05 ***
+## balance      5.647e-03  2.274e-04  24.836  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2920.6  on 9999  degrees of freedom
+## Residual deviance: 1579.0  on 9997  degrees of freedom
+## AIC: 1585
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<p>Fitting the model shows that both variables are statistically highly significant</p>
+<p>We will then fit a logistic regression model that uses <code>income</code> and <code>balance</code> to predict <code>default</code>. Using the validation set approach, we will estimate the test error of this model. In order to do this, we have to perform the following steps:</p>
+<p>First, we split the sample set into a training set and a validation set.</p>
+<pre><code>##   No  Yes 
+## 4849  151</code></pre>
+<pre><code>##   No  Yes 
+## 4818  182</code></pre>
+<p>Using 702 as seed, the Default dataset was divided into two sets.</p>
+<p>Next, we fit a multiple logistic regression model using only the training observations.</p>
+<pre><code>## 
+## Call:
+## glm(formula = default ~ income + balance, family = binomial, 
+##     data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.7213  -0.1284  -0.0483  -0.0168   3.8319  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.211e+01  6.731e-01 -17.999  &lt; 2e-16 ***
+## income       1.891e-05  7.338e-06   2.577  0.00996 ** 
+## balance      5.973e-03  3.564e-04  16.758  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1354.37  on 4999  degrees of freedom
+## Residual deviance:  719.86  on 4997  degrees of freedom
+## AIC: 725.86
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<p>A logistic model to predict the default status was made using the income and balance on the training set.</p>
+<p>Here, we obtain a prediction of default status for each individual in the validation set by computing the posterior probability of default for that individual, and classifying the individual to the default category if the posterior probability is greater than 0.5.</p>
+<pre class="r"><code>actualdef=as.numeric(validation$default)-1
+probs=round(predict(model1, newdata=validation,type=&quot;response&quot;))
+preds=rep(0,length(probs))
+for(i in 1:length(preds)){
+  if(probs[i]&gt;0.5){
+    preds[i]=1
+  }
+}</code></pre>
+<p>The prediction of default status is dummy coded here. With 1 indicating the default status and 0 indicating non-default status.</p>
+<p>Next we will compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.</p>
+<pre><code>## [[1]]
+## [1] 97.02
+## 
+## [[2]]
+## [1] 30.76923
+## 
+## [[3]]
+## [1] 0.4773765</code></pre>
+<p>The test error rate was estimated based on the error rate on the validation set. The overall accuracy was 97.26%. So, the error rate was (100-97.26)%=2.74%. TPR and FPR were 36.31% and 0.48% respectively.</p>
+<p>We will now repeat the process three times, using three different splits of the observations into a training set and a validation set.</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre><code>## [1] 2.58 2.58 2.64</code></pre>
+<pre><code>## [1] 0.0012</code></pre>
+<p>Here, we used the number <code>2*j*702+100</code> as seed for <span class="math inline">\({j-th}\)</span> iteration. Three different times, we came up with three different estimates of the MSE. For the three runs, following error rates were found.</p>
+<blockquote>
+<p>errors
+[1] 2.50 2.54 2.80</p>
+</blockquote>
+<p>Now consider a logistic regression model that predicts the prob- ability of default using income, balance, and a dummy variable for student. Estimate the test error for this model using the val- idation set approach. Comment on whether or not including a dummy variable for student leads to a reduction in the test error rate.</p>
+<pre><code>## 
+## Call:
+## glm(formula = default ~ income + balance + student, family = binomial, 
+##     data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.7473  -0.1266  -0.0470  -0.0161   3.7821  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.131e+01  7.502e-01 -15.069   &lt;2e-16 ***
+## income      -3.450e-06  1.232e-05  -0.280   0.7794    
+## balance      6.103e-03  3.664e-04  16.656   &lt;2e-16 ***
+## studentYes  -8.050e-01  3.543e-01  -2.272   0.0231 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1354.37  on 4999  degrees of freedom
+## Residual deviance:  714.76  on 4996  degrees of freedom
+## AIC: 722.76
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<pre><code>## [[1]]
+## [1] 97.06
+## 
+## [[2]]
+## [1] 31.31868
+## 
+## [[3]]
+## [1] 0.456621</code></pre>
+<pre><code>## [1] 2.54 2.58 2.64</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
+<pre><code>## [1] 2.696</code></pre>
+<pre><code>## [1] 2.702667</code></pre>
+<p>Data was partitioned as it was done initially, using the number 702 as seed. The summary stat did not show any statistical significance for the income variable with very high p-value.</p>
+<p>The performance in terms of overall accuracy, TPR and FPR were exactly the same as before. The validation error rate was (100-97.26)%=2.74%.</p>
+<p>The process was repeated three times with the partitions in part c. On two occasions, the later model with student resulted in increased error rate. Validation error decreased on other occasion.</p>
+<p>In conclusion, we ran the two models 30 times. From the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in Figure 3.</p>
+<p>In R, <code>cv.glm()</code> function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just the <code>glm()</code> and <code>predict.glm()</code> functions, and a for loop. We will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the Weekly dataset.</p>
+<p>We will first fit a logistic regression model that predicts Direction using Lag1 and Lag2.</p>
+<pre><code>## [1] 1089    9</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Direction ~ Lag1 + Lag2, family = binomial, data = Weekly)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.623  -1.261   1.001   1.083   1.506  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  0.22122    0.06147   3.599 0.000319 ***
+## Lag1        -0.03872    0.02622  -1.477 0.139672    
+## Lag2         0.06025    0.02655   2.270 0.023232 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1496.2  on 1088  degrees of freedom
+## Residual deviance: 1488.2  on 1086  degrees of freedom
+## AIC: 1494.2
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Here, the model did not pick the Lag1 variable as statistically significant at 10% level.</p>
+<p>Now, we will fit a logistic regression model that predicts Direction using Lag1 and Lag2 using all but the first observation.</p>
+<pre><code>## 
+## Call:
+## glm(formula = Direction ~ Lag1 + Lag2, family = binomial, data = Weekly[-1, 
+##     ])
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.6258  -1.2617   0.9999   1.0819   1.5071  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  0.22324    0.06150   3.630 0.000283 ***
+## Lag1        -0.03843    0.02622  -1.466 0.142683    
+## Lag2         0.06085    0.02656   2.291 0.021971 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1494.6  on 1087  degrees of freedom
+## Residual deviance: 1486.5  on 1085  degrees of freedom
+## AIC: 1492.5
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Here, also, the model did not pick the Lag1 variable as statistically significant at 10% level as before.</p>
+<p>Now, we will use the previous model to predict the direction of the first observation. We can do this by predicting that the first observation will go up if <code>P(Direction="Up"|Lag1, Lag2) &gt; 0.5</code>. We would want to know if this observation was correctly classified.</p>
+<pre><code>##    1 
+## &quot;Up&quot;</code></pre>
+<pre><code>## [1] Down
+## Levels: Down Up</code></pre>
+<p>Looking at the result of our analysis, the first observation was classified as Up. It was a misclassification.</p>
+<p>Next, we will write a forloop from <span class="math inline">\({i=1}\)</span> to <span class="math inline">\({i=n}\)</span>,where <span class="math inline">\({n}\)</span> is the numberof observations in the dataset, that performs each of the following steps:</p>
+<ol style="list-style-type: lower-roman">
+<li><p>Fit a logistic regression model using all but the ith observation to predict Direction using Lag1 and Lag2.</p></li>
+<li><p>Compute the posterior probability of the market moving up for the ith observation.</p></li>
+<li><p>Use the posterior probability for the ith observation in order to predict whether or not the market moves up.</p></li>
+<li><p>Determine whether or not an error was made in predicting the direction for the ith observation. If an error was made, then indicate this as a 1, and otherwise indicate it as a 0.</p></li>
+</ol>
+<p>Then, we will take the average of the <span class="math inline">\({n}\)</span> numbers obtained in order to get the LOOCV estimate for the test error.</p>
+<pre class="r"><code>WeeklyN=dim(Weekly)[1]
+misclassifyYes=rep(NA,WeeklyN) ## preparation to store result
+for(i in 1:WeeklyN){
+  modelLOOCV=glm(Direction~Lag1+Lag2,data=Weekly[-i,],family=binomial)
+  actualDirection=ifelse(Weekly$Direction[i]==&quot;Up&quot;,1,0)
+  predLOOCV=round(predict(modelLOOCV,newdata=Weekly[i,],type=&quot;response&quot;))
+  misclassifyYes[i]=abs(actualDirection-predLOOCV)
+}
+sum(misclassifyYes)</code></pre>
+<pre><code>## [1] 490</code></pre>
+<pre class="r"><code>## 490
+message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
+## 44.995</code></pre>
+<p>Here, the loop was run 1089 times, since there were 1089 observations. 490 was misclassified. The overall error rate was 44.995%.</p>
+<p>Next, we will write new code (similar to above) to estimate test error using <code>6-fold cross validation</code> for fitting linear regression with <span class="math inline">\({mpg ≥ horsepower + horsepower2}\)</span> from the Auto data in the <span class="math inline">\({ISLR}\)</span> library.</p>
+<pre><code>## [1] 65
+## [1] 66
+## [1] 65
+## [1] 65
+## [1] 66
+## [1] 65</code></pre>
+<pre><code>## [1] 16.64555 21.63992 21.13782 13.65567 21.13939 21.10636</code></pre>
+<pre><code>## [1] 19.22078</code></pre>
+<p>Here, using <code>seed=703</code>, we resampled the observations. Then 6 folds were created. There were 392 observations in the dataset. Observations per fold were not exactly equal, since the Number of observations in each fold given below:
+[1] 65
+[1] 66
+[1] 65
+[1] 65
+[1] 66
+[1] 65</p>
+<p>Therefore, six models were created. Each time, 1 fold was hold out for validation and other 5 folds were used to make the model. The validation MSE for all 6 folds are given below:
+&gt; testMSE
+[1] 20.86097 16.96365 25.43936 12.55963 28.79488 11.97743</p>
+<p>The estimated MSE from 6-fold CV is 19.43.
+&gt; sum(testMSE)/6
+[1] 19.43265</p>
+<p>Next, we will continue our analysis and try to perform Logistic Regression, KNN, LDA, QDA, MclustDA, MclustDA with EDDA (if appropriate). If it is not possible to perform any of the methods, we will try to justify why.</p>
+<pre><code>## [1] 698  11</code></pre>
+<pre><code>##  Samplecodenumber   Clumpthinkness      CellSize        Cellshape     
+##  Min.   :   61634   Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
+##  1st Qu.:  870258   1st Qu.: 2.000   1st Qu.: 1.000   1st Qu.: 1.000  
+##  Median : 1171710   Median : 4.000   Median : 1.000   Median : 1.000  
+##  Mean   : 1071807   Mean   : 4.417   Mean   : 3.138   Mean   : 3.211  
+##  3rd Qu.: 1238354   3rd Qu.: 6.000   3rd Qu.: 5.000   3rd Qu.: 5.000  
+##  Max.   :13454352   Max.   :10.000   Max.   :10.000   Max.   :10.000  
+##      MarAd        SingleEpithelialCellSize  BareNuclei           BlandCh      
+##  Min.   : 1.000   Min.   : 1.000           Length:698         Min.   : 1.000  
+##  1st Qu.: 1.000   1st Qu.: 2.000           Class :character   1st Qu.: 2.000  
+##  Median : 1.000   Median : 2.000           Mode  :character   Median : 3.000  
+##  Mean   : 2.809   Mean   : 3.218                              Mean   : 3.438  
+##  3rd Qu.: 4.000   3rd Qu.: 4.000                              3rd Qu.: 5.000  
+##  Max.   :10.000   Max.   :10.000                              Max.   :10.000  
+##     NormalNu        Mitoses          Class      
+##  Min.   : 1.00   Min.   : 1.00   Min.   :2.000  
+##  1st Qu.: 1.00   1st Qu.: 1.00   1st Qu.:2.000  
+##  Median : 1.00   Median : 1.00   Median :2.000  
+##  Mean   : 2.87   Mean   : 1.59   Mean   :2.691  
+##  3rd Qu.: 4.00   3rd Qu.: 1.00   3rd Qu.:4.000  
+##  Max.   :10.00   Max.   :10.00   Max.   :4.000</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Class ~ ., family = binomial(), data = bc)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.4975  -0.1410  -0.0780   0.0252   2.8733  
+## 
+## Coefficients:
+##                          Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)              -9.93846    1.03182  -9.632  &lt; 2e-16 ***
+## Clumpthinkness            0.57762    0.11898   4.855 1.21e-06 ***
+## CellSize                 -0.01144    0.17586  -0.065  0.94813    
+## `Cellshape `              0.56685    0.19124   2.964  0.00304 ** 
+## MarAd                     0.31339    0.10033   3.124  0.00179 ** 
+## SingleEpithelialCellSize  0.13044    0.14054   0.928  0.35334    
+## BlandCh                   0.58003    0.14551   3.986 6.72e-05 ***
+## NormalNu                  0.12299    0.09867   1.247  0.21257    
+## Mitoses                   0.60707    0.32406   1.873  0.06103 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 899.68  on 697  degrees of freedom
+## Residual deviance: 140.60  on 689  degrees of freedom
+## AIC: 158.6
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<pre><code>## Start:  AIC=901.68
+## Class ~ 1
+## 
+##                            Df Deviance    AIC
+## + CellSize                  1   275.49 279.49
+## + `Cellshape `              1   284.20 288.20
+## + BlandCh                   1   400.83 404.83
+## + Clumpthinkness            1   463.09 467.09
+## + SingleEpithelialCellSize  1   481.46 485.46
+## + NormalNu                  1   488.26 492.26
+## + MarAd                     1   492.34 496.34
+## + Mitoses                   1   730.51 734.51
+## &lt;none&gt;                          899.68 901.68
+## 
+## Step:  AIC=279.49
+## Class ~ CellSize
+## 
+##                            Df Deviance    AIC
+## + Clumpthinkness            1   212.20 218.20
+## + BlandCh                   1   226.58 232.58
+## + `Cellshape `              1   239.60 245.60
+## + NormalNu                  1   249.09 255.09
+## + MarAd                     1   253.26 259.26
+## + Mitoses                   1   260.30 266.30
+## + SingleEpithelialCellSize  1   262.67 268.67
+## &lt;none&gt;                          275.49 279.49
+## - CellSize                  1   899.68 901.68
+## 
+## Step:  AIC=218.2
+## Class ~ CellSize + Clumpthinkness
+## 
+##                            Df Deviance    AIC
+## + BlandCh                   1   174.12 182.12
+## + MarAd                     1   189.80 197.80
+## + `Cellshape `              1   189.93 197.93
+## + NormalNu                  1   192.94 200.94
+## + SingleEpithelialCellSize  1   199.39 207.39
+## + Mitoses                   1   205.78 213.78
+## &lt;none&gt;                          212.20 218.20
+## - Clumpthinkness            1   275.49 279.49
+## - CellSize                  1   463.09 467.09
+## 
+## Step:  AIC=182.12
+## Class ~ CellSize + Clumpthinkness + BlandCh
+## 
+##                            Df Deviance    AIC
+## + MarAd                     1   159.90 169.90
+## + `Cellshape `              1   160.33 170.33
+## + NormalNu                  1   166.58 176.58
+## + Mitoses                   1   168.98 178.98
+## + SingleEpithelialCellSize  1   169.14 179.14
+## &lt;none&gt;                          174.12 182.12
+## - BlandCh                   1   212.20 218.20
+## - Clumpthinkness            1   226.58 232.58
+## - CellSize                  1   236.11 242.11
+## 
+## Step:  AIC=169.9
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd
+## 
+##                            Df Deviance    AIC
+## + `Cellshape `              1   148.22 160.22
+## + NormalNu                  1   154.50 166.50
+## + SingleEpithelialCellSize  1   155.61 167.61
+## + Mitoses                   1   155.63 167.63
+## &lt;none&gt;                          159.90 169.90
+## - MarAd                     1   174.12 182.12
+## - CellSize                  1   184.32 192.32
+## - BlandCh                   1   189.80 197.80
+## - Clumpthinkness            1   215.23 223.23
+## 
+## Step:  AIC=160.22
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd + `Cellshape `
+## 
+##                            Df Deviance    AIC
+## + Mitoses                   1   143.83 157.83
+## - CellSize                  1   148.96 158.96
+## + NormalNu                  1   145.59 159.59
+## &lt;none&gt;                          148.22 160.22
+## + SingleEpithelialCellSize  1   146.25 160.25
+## - `Cellshape `              1   159.90 169.90
+## - MarAd                     1   160.33 170.33
+## - BlandCh                   1   171.72 181.72
+## - Clumpthinkness            1   190.23 200.23
+## 
+## Step:  AIC=157.83
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd + `Cellshape ` + 
+##     Mitoses
+## 
+##                            Df Deviance    AIC
+## - CellSize                  1   143.98 155.98
+## + NormalNu                  1   141.48 157.48
+## &lt;none&gt;                          143.83 157.83
+## + SingleEpithelialCellSize  1   142.18 158.18
+## - Mitoses                   1   148.22 160.22
+## - MarAd                     1   154.83 166.83
+## - `Cellshape `              1   155.63 167.63
+## - BlandCh                   1   166.19 178.19
+## - Clumpthinkness            1   176.46 188.46
+## 
+## Step:  AIC=155.98
+## Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses
+## 
+##                            Df Deviance    AIC
+## + NormalNu                  1   141.48 155.48
+## &lt;none&gt;                          143.98 155.98
+## + SingleEpithelialCellSize  1   142.19 156.19
+## + CellSize                  1   143.83 157.83
+## - Mitoses                   1   148.96 158.96
+## - MarAd                     1   156.93 166.93
+## - BlandCh                   1   168.29 178.29
+## - `Cellshape `              1   175.29 185.29
+## - Clumpthinkness            1   178.65 188.65
+## 
+## Step:  AIC=155.48
+## Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + 
+##     NormalNu
+## 
+##                            Df Deviance    AIC
+## &lt;none&gt;                          141.48 155.48
+## - NormalNu                  1   143.98 155.98
+## + SingleEpithelialCellSize  1   140.61 156.61
+## + CellSize                  1   141.48 157.48
+## - Mitoses                   1   145.84 157.84
+## - MarAd                     1   153.30 165.30
+## - BlandCh                   1   161.33 173.33
+## - `Cellshape `              1   162.31 174.31
+## - Clumpthinkness            1   172.92 184.92</code></pre>
+<pre><code>## [1] 0.02298851</code></pre>
+<pre><code>## [1] 0.0316092</code></pre>
+<pre><code>## [1] 0.04310345</code></pre>
+<pre><code>##               
+## best_model_knn   0   1
+##              0 223  14
+##              1   4 107</code></pre>
+<pre><code>## [1] 0.05172414</code></pre>
+<pre><code>## [1] 0.3477011</code></pre>
+<pre><code>## [1] 0.01724138</code></pre>
+<pre><code>## [1] 0.02011494</code></pre>
+<pre><code>## [1] 0.01724138</code></pre>
+<pre><code>## [1] 0.1408046</code></pre>
+<pre><code>## ------------------------------------------------ 
+## Gaussian finite mixture model for classification 
+## ------------------------------------------------ 
+## 
+## EDDA model summary: 
+## 
+##  log-likelihood   n df       BIC
+##       -4609.771 350 60 -9571.018
+##        
+## Classes   n     % Model G
+##       0 230 65.71   VVE 1
+##       1 120 34.29   VVE 1
+## 
+## Training confusion matrix:
+##      Predicted
+## Class   0   1
+##     0 212  18
+##     1   4 116
+## Classification error = 0.0629 
+## Brier score          = 0.0599</code></pre>
+<pre><code>## [1] 0.04597701</code></pre>
+<p>Here, we removed the variable <code>BareNu</code> because it contained some missing values. It comes as a part of data cleaning. We also changed the response variable into binomial so that we can perform logistic regression and other analysis here. We also performed logistic regression, KNN, LDA, QDA, MclustDA and MclustDA with “EDDA”. Stepwise selection for the glm was done.</p>
+<p>It seems that the predictor variables <strong>clumpthinkness</strong>,<strong>BlandCh</strong>,<strong>MarAd</strong>, <strong>cellshape</strong>,<strong>Mitoses</strong>,and **NormalNu* are best as predictor variables for response variable class. SO, we decided to used those variables.</p>
+<p>Error rate of those methods were obtained, and it was found that the error rate for MclustDA model 2 (3.7% error rate) and Knn (4% error rate) were lower than other models, thus signifying the better accuracy of the model.</p>
+</div>
+<div id="part-2" class="section level2">
+<h2>Part 2</h2>
+<p>Next, we will perform polynomial regression to predict wage using age. we will use cross-validation to select the optimal degree <span class="math inline">\({d}\)</span> for the polynomial. We would want to know what degree was chosen, and how this compares to the results of hypothesis testing using ANOVA. We will also make a plot of the resulting polynomial fit to the data.</p>
+<pre><code>## [1] 9</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<pre><code>## Analysis of Variance Table
+## 
+## Model  1: wage ~ poly(age, i)
+## Model  2: wage ~ poly(age, i)
+## Model  3: wage ~ poly(age, i)
+## Model  4: wage ~ poly(age, i)
+## Model  5: wage ~ poly(age, i)
+## Model  6: wage ~ poly(age, i)
+## Model  7: wage ~ poly(age, i)
+## Model  8: wage ~ poly(age, i)
+## Model  9: wage ~ poly(age, i)
+## Model 10: wage ~ poly(age, i)
+##    Res.Df     RSS Df Sum of Sq        F    Pr(&gt;F)    
+## 1    2998 5022216                                    
+## 2    2997 4793430  1    228786 143.7638 &lt; 2.2e-16 ***
+## 3    2996 4777674  1     15756   9.9005  0.001669 ** 
+## 4    2995 4771604  1      6070   3.8143  0.050909 .  
+## 5    2994 4770322  1      1283   0.8059  0.369398    
+## 6    2993 4766389  1      3932   2.4709  0.116074    
+## 7    2992 4763834  1      2555   1.6057  0.205199    
+## 8    2991 4763707  1       127   0.0796  0.777865    
+## 9    2990 4756703  1      7004   4.4014  0.035994 *  
+## 10   2989 4756701  1         3   0.0017  0.967529    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = wage ~ age + I(age^2) + I(age^3) + I(age^4), data = w)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -98.707 -24.626  -4.993  15.217 203.693 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.842e+02  6.004e+01  -3.067 0.002180 ** 
+## age          2.125e+01  5.887e+00   3.609 0.000312 ***
+## I(age^2)    -5.639e-01  2.061e-01  -2.736 0.006261 ** 
+## I(age^3)     6.811e-03  3.066e-03   2.221 0.026398 *  
+## I(age^4)    -3.204e-05  1.641e-05  -1.952 0.051039 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 39.91 on 2995 degrees of freedom
+## Multiple R-squared:  0.08626,    Adjusted R-squared:  0.08504 
+## F-statistic: 70.69 on 4 and 2995 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = wage ~ age + I(age^2) + I(age^3) + I(age^9), data = w)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -98.979 -24.436  -5.101  15.402 203.283 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.296e+02  3.491e+01  -3.713 0.000208 ***
+## age          1.491e+01  2.838e+00   5.254 1.60e-07 ***
+## I(age^2)    -2.984e-01  7.440e-02  -4.010 6.21e-05 ***
+## I(age^3)     2.007e-03  6.344e-04   3.164 0.001574 ** 
+## I(age^9)    -7.897e-16  3.916e-16  -2.017 0.043825 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 39.91 on 2995 degrees of freedom
+## Multiple R-squared:  0.08634,    Adjusted R-squared:  0.08512 
+## F-statistic: 70.76 on 4 and 2995 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-2.png" width="672" /></p>
+<p>Using the 10 fold CV (with seed=702), the resulting CV errors were evaluated for the data. Figure 1 shows the 10 fold CV estimate against the number of polynomial degree used.</p>
+<p>As we can see from Figure 1, the second order model shows a significant improvement from first order model. Third order model further decreases the error. So is the case for 4th order. Then the error tends to rise again until <code>degree=9</code>, which gives the lowest error. For convenience, the resulting CV errors are shown above:</p>
+<p>From visual inspection, we would say that choosing <code>d=3</code> or <code>d=4</code> is reasonable, even if <code>d=9</code> gives the lowest error. To justify, first, we would refer to the text that using more than 4 as order overly fits the data. Second, the error difference is very small.</p>
+<p>In this case, we will choose 3 rather than 4. The reason behind choosing 3 is that the error difference between d=3 and d=4 is not very big. With a little sacrifice of the error, 3rd order model can avoid complexity of the model.</p>
+<p>The ANOVA result is shown below. We see that adding a 4th order term indeed improves the model, but is not significant at 5% level. Adding a 9th order term shows significant improvement with respect to 8th order model. As discussed earlier, we sought for a polynomial model with order less than 5 as prescribed by the text.</p>
+<p>The resulting polynomial fit of the data is shown in Figure 2.</p>
+<p>Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre><code>## [1] 16</code></pre>
+<pre><code>##  [1]       NA 1733.218 1683.257 1635.037 1631.436 1623.323 1609.635 1602.010
+##  [9] 1609.138 1604.193 1600.287 1602.961 1603.657 1607.122 1605.799 1597.953
+## [17] 1604.587 1602.142 1602.396 1603.031</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
+<p>We varied the number of knots in between 2 to 20. Using the 10 fold CV error, it was found that using 16 knots gives the lowest CV error. The errors against the number of knots is shown in the Figure.</p>
+<p>The optimal number of knots (cuts) was chosen to be 16. The resulting plot with the fitted values is shown in Figure 4.</p>
+<p>Now, we will use the variables <code>dis</code> (the weighted mean of distances to five Boston employment centers) and <code>nox</code> (nitrogen oxides concen- tration in parts per 10 million) from the <code>Boston</code> data. We will treat <code>dis</code> as the predictor and <code>nox</code> as the response.
+Then using the <span class="math inline">\({poly()}\)</span> function, we will fit a cubic polynomial regression to predict <code>nox</code> using <code>dis.</code> We will then report on the regression output, and plot the resulting data and polynomial fits.</p>
+<pre><code>## 
+## Call:
+## lm(formula = nox ~ poly(dis, 3), data = B)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.121130 -0.040619 -0.009738  0.023385  0.194904 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    0.554695   0.002759 201.021  &lt; 2e-16 ***
+## poly(dis, 3)1 -2.003096   0.062071 -32.271  &lt; 2e-16 ***
+## poly(dis, 3)2  0.856330   0.062071  13.796  &lt; 2e-16 ***
+## poly(dis, 3)3 -0.318049   0.062071  -5.124 4.27e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.06207 on 502 degrees of freedom
+## Multiple R-squared:  0.7148, Adjusted R-squared:  0.7131 
+## F-statistic: 419.3 on 3 and 502 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>Based on the model output above, we see that all the terms corresponding to higher order terms are highly significant with negligible p-values. The adjusted R-sq for the model is 0.7131, which means that the model can explain 71.31% of the total variability of <code>nox</code>. The F-statistic has a p-value of less than 2e-16, so it passes the lack of fit test.</p>
+<p>Resulting data and polynomial fits are shown in figure below. Based on this figure,it seems that data is well fitted for the 3rd order polynomial fit.</p>
+<p>Next, we will plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-4.png" width="672" /></p>
+<pre><code>##  [1] 2.768563 2.035262 1.934107 1.932981 1.915290 1.878257 1.849484 1.835630
+##  [9] 1.833331 1.832171 1.832168 1.829822</code></pre>
+<p>The degrees were varied in the range of 1 to 12. Resulting fitted curves and associated RSS values are shown above.</p>
+<p>The figure shows the RSS against the order of the polynomial. We see the RSS decreases with the increase of order, which is expected. But the decrease in error does not seem significant form visual inspection, as we go beyond 3rd order.</p>
+<p>Now, we will perform cross-validation to select the optimal degree for the polynomial.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre><code>##  [1] 0.005523815 0.004079390 0.003874708 0.003887449 0.004164231 0.005381096
+##  [7] 0.011054239 0.008112597 0.017588789 0.004428769</code></pre>
+<pre><code>## [1] 3</code></pre>
+<pre><code>## [1] 506  14</code></pre>
+<p><code>LOOCV</code> was performed in this case. The CV estimates for all the degrees was calculated. The figure shows the LOOCV estimate against order of polynomial. We show order up to 10, since 11 and 12 orders resulted very high errors.</p>
+<p>From the results above, we see that the LOOCV estimate decreases up to 3rd order. Then starts to increase at order=6. After that it shows a pretty zigzag shape. Dramatically 10th order shows a very low error. The minimum was found at order=3 and we chose a 3rd order model.</p>
+<p>Next, we will use the <code>bs()</code> function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre><code>##  [1] 0.9727041 0.9302675 0.9323951 0.9288289 0.9288235 0.9336314 0.9187082
+##  [8] 0.9224267 0.9257746 0.9313932</code></pre>
+<pre><code>## [1] 7</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = nox ~ bs(dis, knots = k), data = B)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.12576 -0.03773 -0.01012  0.02562  0.18982 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)          0.63234    0.02793  22.642  &lt; 2e-16 ***
+## bs(dis, knots = k)1  0.13966    0.04450   3.139 0.001799 ** 
+## bs(dis, knots = k)2  0.03656    0.02870   1.274 0.203308    
+## bs(dis, knots = k)3 -0.01656    0.03280  -0.505 0.613734    
+## bs(dis, knots = k)4 -0.13408    0.03049  -4.398 1.34e-05 ***
+## bs(dis, knots = k)5 -0.14378    0.03177  -4.525 7.55e-06 ***
+## bs(dis, knots = k)6 -0.23669    0.04022  -5.885 7.31e-09 ***
+## bs(dis, knots = k)7 -0.20770    0.05654  -3.674 0.000265 ***
+## bs(dis, knots = k)8 -0.22869    0.05938  -3.851 0.000133 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.06046 on 497 degrees of freedom
+## Multiple R-squared:  0.732,  Adjusted R-squared:  0.7277 
+## F-statistic: 169.7 on 8 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-2.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## lm(formula = nox ~ bs(dis, df = 4), data = B)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.124622 -0.039259 -0.008514  0.020850  0.193891 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)       0.73447    0.01460  50.306  &lt; 2e-16 ***
+## bs(dis, df = 4)1 -0.05810    0.02186  -2.658  0.00812 ** 
+## bs(dis, df = 4)2 -0.46356    0.02366 -19.596  &lt; 2e-16 ***
+## bs(dis, df = 4)3 -0.19979    0.04311  -4.634 4.58e-06 ***
+## bs(dis, df = 4)4 -0.38881    0.04551  -8.544  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.06195 on 501 degrees of freedom
+## Multiple R-squared:  0.7164, Adjusted R-squared:  0.7142 
+## F-statistic: 316.5 on 4 and 501 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-3.png" width="672" /></p>
+<p>IN the first part, we tried to fit a regression spline. Nothing was specified regarding how many knots, how to choose the knots or how many degrees of freedom. Here, we relied on 2 fold CV error estimate to choose the optimal number of knots. The procedure is as follows:</p>
+<p>• Select the number of knots. Let it be k.
+• Choose the location of the knots based on quantiles. For k knots, the locations are c(1:k)/(k+1) quatile points.
+• Make model with k knots at locations stated above and estimate the 2 fold CV.
+• Follow step 1-3 for different k values, using the same partitions of the data.
+• Select k, where 2 fold CV is the minimum</p>
+<p>Varying k from 1 to 10, the 2 fold CV were evaluated. The resulting plot has been shown above: We see that selecting 5 knots gives the minimum 2 fold CV estimate. The resulting fit with 5 knots is shown in Figure 10.</p>
+<p>We see that all the coefficient estimated have statistical significance with minimal p-value. The resulted fit is shown in Figure 11.</p>
+<p>Now, we will fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-4.png" width="672" />
+DF was varied from 3 to 12. The resulting fits are shown in the figure. From the figure, we see that RSS decreases with the increase of DF, with exceptions in two occasions. RSS increased using DF=9 or DF=11 than one less df for the respective cases. Looking at the resulting fits, we see that the curves becomes too wiggly as we go higher number of DF, as a result of overfitting.</p>
+<p>Next, we will perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre><code>##  [1]        NA        NA 0.9735581 0.9734583 0.9306550 0.9327974 0.9298878
+##  [8] 0.9283337 0.9309293 0.9207512 0.9194232 0.9172597 0.9257124 0.9284066
+## [15] 0.9291819 0.9319902 0.9268974 0.9268746 0.9267172 0.9276754</code></pre>
+<pre><code>## [1] 12</code></pre>
+<p>To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the Figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.</p>
+<p>This question relates to the <span class="math inline">\({College}\)</span> dataset. We will use this to split into a training set and a test set. We will use <code>out-of-state</code> tuition as the response and the other variables as the predictors to perform <code>forward stepwise</code> selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.</p>
+<pre><code>## [1] 777  18</code></pre>
+<pre><code>## [1] 388</code></pre>
+<pre><code>## Start:  AIC=6484.17
+## Outstate ~ 1
+## 
+##               Df  Sum of Sq        RSS    AIC
+## + Expend       1 3272348855 3440344890 6226.2
+## + Room.Board   1 3031525920 3681167825 6252.5
+## + Grad.Rate    1 2540633648 4172060097 6301.2
+## + S.F.Ratio    1 2460710520 4251983226 6308.6
+## + perc.alumni  1 2300761781 4411931965 6322.9
+## + Top10perc    1 2180842141 4531851605 6333.3
+## + Private      1 1889864201 4822829544 6357.6
+## + Top25perc    1 1527331030 5185362715 6385.7
+## + Terminal     1 1247855852 5464837893 6406.2
+## + PhD          1 1151196982 5561496763 6413.0
+## + Personal     1  665966874 6046726871 6445.5
+## + P.Undergrad  1  395826288 6316867458 6462.5
+## + F.Undergrad  1  274520804 6438172942 6469.9
+## + Enroll       1  116195394 6596498351 6479.4
+## + Books        1   42943453 6669750292 6483.7
+## &lt;none&gt;                      6712693746 6484.2
+## + Apps         1   25762787 6686930958 6484.7
+## + Accept       1    1433652 6711260093 6486.1
+## 
+## Step:  AIC=6226.16
+## Outstate ~ Expend
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Room.Board   1 856312614 2584032276 6116.8
+## + Private      1 808432864 2631912027 6124.0
+## + Grad.Rate    1 728098150 2712246740 6135.7
+## + perc.alumni  1 585541869 2854803021 6155.6
+## + Personal     1 403503790 3036841100 6179.6
+## + S.F.Ratio    1 375811506 3064533384 6183.2
+## + F.Undergrad  1 269420320 3170924571 6196.4
+## + P.Undergrad  1 194370954 3245973937 6205.5
+## + Enroll       1 193949023 3246395867 6205.6
+## + Terminal     1 119678522 3320666368 6214.4
+## + Apps         1  94895115 3345449775 6217.3
+## + PhD          1  92349953 3347994937 6217.6
+## + Top25perc    1  78943763 3361401127 6219.1
+## + Top10perc    1  77660772 3362684119 6219.3
+## + Accept       1  53980560 3386364330 6222.0
+## &lt;none&gt;                     3440344890 6226.2
+## + Books        1  12156379 3428188512 6226.8
+## 
+## Step:  AIC=6116.82
+## Outstate ~ Expend + Room.Board
+## 
+##               Df Sum of Sq        RSS    AIC
+## + perc.alumni  1 497685406 2086346870 6035.6
+## + Private      1 491447756 2092584520 6036.8
+## + Grad.Rate    1 348328506 2235703771 6062.5
+## + S.F.Ratio    1 262021614 2322010663 6077.2
+## + Personal     1 209633054 2374399222 6085.9
+## + F.Undergrad  1 197546877 2386485400 6087.9
+## + P.Undergrad  1 144382642 2439649635 6096.4
+## + Enroll       1 132317787 2451714490 6098.4
+## + Apps         1 113401451 2470630825 6101.4
+## + Accept       1  67725554 2516306722 6108.5
+## + Top10perc    1  64853582 2519178695 6108.9
+## + Top25perc    1  49409483 2534622794 6111.3
+## + Books        1  24920878 2559111399 6115.0
+## + Terminal     1  23138930 2560893346 6115.3
+## + PhD          1  15627447 2568404829 6116.5
+## &lt;none&gt;                     2584032276 6116.8
+## 
+## Step:  AIC=6035.59
+## Outstate ~ Expend + Room.Board + perc.alumni
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Private      1 248243956 1838102914 5988.3
+## + Grad.Rate    1 123262933 1963083937 6013.9
+## + S.F.Ratio    1 115815132 1970531738 6015.4
+## + Personal     1  82312106 2004034764 6021.9
+## + F.Undergrad  1  73986577 2012360293 6023.5
+## + P.Undergrad  1  55399488 2030947383 6027.1
+## + Enroll       1  44314791 2042032079 6029.2
+## + Apps         1  34758592 2051588278 6031.1
+## &lt;none&gt;                     2086346870 6035.6
+## + Accept       1   9338880 2077007990 6035.8
+## + Books        1   8549863 2077797007 6036.0
+## + Top10perc    1   7501773 2078845097 6036.2
+## + PhD          1   4683401 2081663469 6036.7
+## + Terminal     1   4329533 2082017337 6036.8
+## + Top25perc    1   4210122 2082136748 6036.8
+## 
+## Step:  AIC=5988.32
+## Outstate ~ Expend + Room.Board + perc.alumni + Private
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Terminal     1 114569539 1723533376 5965.3
+## + Grad.Rate    1 109466904 1728636010 5966.4
+## + PhD          1 101036571 1737066344 5968.3
+## + Accept       1  34469503 1803633411 5983.0
+## + Top25perc    1  31818054 1806284861 5983.5
+## + Personal     1  28924476 1809178438 5984.1
+## + Top10perc    1  24437649 1813665266 5985.1
+## + S.F.Ratio    1  22060903 1816042011 5985.6
+## &lt;none&gt;                     1838102914 5988.3
+## + Enroll       1   7474909 1830628005 5988.7
+## + Apps         1   6137315 1831965599 5989.0
+## + P.Undergrad  1   1498741 1836604174 5990.0
+## + Books        1   1341124 1836761791 5990.0
+## + F.Undergrad  1    993534 1837109381 5990.1
+## 
+## Step:  AIC=5965.28
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Grad.Rate    1  83944939 1639588437 5947.9
+## + S.F.Ratio    1  25391893 1698141482 5961.5
+## + Personal     1  22961602 1700571774 5962.1
+## + Accept       1  15205387 1708327989 5963.8
+## &lt;none&gt;                     1723533376 5965.3
+## + PhD          1   7202356 1716331020 5965.7
+## + Top10perc    1   7007069 1716526306 5965.7
+## + Top25perc    1   6605034 1716928342 5965.8
+## + Books        1   6002698 1717530678 5965.9
+## + P.Undergrad  1   4739075 1718794301 5966.2
+## + F.Undergrad  1   1644681 1721888695 5966.9
+## + Apps         1    989900 1722543476 5967.1
+## + Enroll       1    520724 1723012652 5967.2
+## 
+## Step:  AIC=5947.86
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate
+## 
+##               Df Sum of Sq        RSS    AIC
+## + S.F.Ratio    1  25643450 1613944987 5943.7
+## + Personal     1  17293662 1622294775 5945.7
+## &lt;none&gt;                     1639588437 5947.9
+## + Accept       1   5562346 1634026091 5948.5
+## + Books        1   3112011 1636476425 5949.1
+## + F.Undergrad  1   3039435 1636549001 5949.1
+## + PhD          1   1537105 1638051332 5949.5
+## + Apps         1    652536 1638935901 5949.7
+## + P.Undergrad  1    446547 1639141890 5949.8
+## + Top25perc    1    123866 1639464571 5949.8
+## + Top10perc    1     81443 1639506994 5949.8
+## + Enroll       1     15723 1639572714 5949.9
+## 
+## Step:  AIC=5943.73
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Personal     1  20422033 1593522953 5940.8
+## + Accept       1   9632697 1604312289 5943.4
+## &lt;none&gt;                     1613944987 5943.7
+## + PhD          1   2679289 1611265698 5945.1
+## + Books        1   2662559 1611282428 5945.1
+## + F.Undergrad  1    686394 1613258592 5945.6
+## + Enroll       1    466577 1613478410 5945.6
+## + P.Undergrad  1    188979 1613756008 5945.7
+## + Top25perc    1     14279 1613930708 5945.7
+## + Top10perc    1      6781 1613938205 5945.7
+## + Apps         1        32 1613944954 5945.7
+## 
+## Step:  AIC=5940.77
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio + Personal
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Accept       1  14936107 1578586846 5939.1
+## &lt;none&gt;                     1593522953 5940.8
+## + PhD          1   3296887 1590226066 5942.0
+## + Enroll       1   2947987 1590574966 5942.1
+## + P.Undergrad  1    689595 1592833358 5942.6
+## + Apps         1    600701 1592922253 5942.6
+## + Books        1    308793 1593214160 5942.7
+## + Top25perc    1    177497 1593345457 5942.7
+## + F.Undergrad  1    142262 1593380691 5942.7
+## + Top10perc    1     71718 1593451236 5942.8
+## 
+## Step:  AIC=5939.11
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio + Personal + Accept
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Apps         1  58137404 1520449442 5926.5
+## + F.Undergrad  1  17894980 1560691866 5936.7
+## &lt;none&gt;                     1578586846 5939.1
+## + Enroll       1   7724880 1570861966 5939.2
+## + PhD          1   2512923 1576073923 5940.5
+## + Books        1    653141 1577933705 5940.9
+## + Top10perc    1     11407 1578575439 5941.1
+## + Top25perc    1      9398 1578577448 5941.1
+## + P.Undergrad  1      1678 1578585168 5941.1
+## 
+## Step:  AIC=5926.51
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio + Personal + Accept + Apps
+## 
+##               Df Sum of Sq        RSS    AIC
+## + F.Undergrad  1  31532781 1488916661 5920.4
+## + Enroll       1  18839640 1501609802 5923.7
+## &lt;none&gt;                     1520449442 5926.5
+## + Top10perc    1   5738139 1514711303 5927.0
+## + PhD          1   2701185 1517748257 5927.8
+## + Top25perc    1   1744250 1518705192 5928.1
+## + Books        1     31558 1520417884 5928.5
+## + P.Undergrad  1     15989 1520433453 5928.5
+## 
+## Step:  AIC=5920.36
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio + Personal + Accept + Apps + F.Undergrad
+## 
+##               Df Sum of Sq        RSS    AIC
+## + Top10perc    1  13622432 1475294229 5918.8
+## &lt;none&gt;                     1488916661 5920.4
+## + Top25perc    1   5169033 1483747628 5921.0
+## + PhD          1   3488959 1485427702 5921.4
+## + P.Undergrad  1   3440345 1485476316 5921.5
+## + Enroll       1    692100 1488224561 5922.2
+## + Books        1      3066 1488913596 5922.4
+## 
+## Step:  AIC=5918.78
+## Outstate ~ Expend + Room.Board + perc.alumni + Private + Terminal + 
+##     Grad.Rate + S.F.Ratio + Personal + Accept + Apps + F.Undergrad + 
+##     Top10perc
+## 
+##               Df Sum of Sq        RSS    AIC
+## &lt;none&gt;                     1475294229 5918.8
+## + P.Undergrad  1   5477359 1469816870 5919.3
+## + PhD          1   1212287 1474081941 5920.5
+## + Top25perc    1   1094720 1474199509 5920.5
+## + Enroll       1    237509 1475056720 5920.7
+## + Books        1    172189 1475122039 5920.7</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Outstate ~ Expend + Room.Board + perc.alumni + Private + 
+##     Terminal + Grad.Rate + S.F.Ratio + Personal + Accept + Apps + 
+##     F.Undergrad + Top10perc, data = ktrain)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -6820  -1290    -60   1285   9550 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.655e+03  1.116e+03  -1.483 0.138939    
+## Expend       2.167e-01  3.221e-02   6.728 6.44e-11 ***
+## Room.Board   9.018e-01  1.193e-01   7.559 3.13e-13 ***
+## perc.alumni  4.439e+01  1.103e+01   4.025 6.89e-05 ***
+## PrivateYes   2.022e+03  3.522e+02   5.742 1.93e-08 ***
+## Terminal     3.376e+01  9.247e+00   3.650 0.000299 ***
+## Grad.Rate    2.769e+01  7.952e+00   3.482 0.000556 ***
+## S.F.Ratio   -7.647e+01  3.886e+01  -1.968 0.049848 *  
+## Personal    -2.616e-01  1.769e-01  -1.479 0.140019    
+## Accept       9.724e-01  1.777e-01   5.474 8.07e-08 ***
+## Apps        -4.444e-01  9.559e-02  -4.649 4.62e-06 ***
+## F.Undergrad -1.597e-01  5.038e-02  -3.170 0.001652 ** 
+## Top10perc    1.790e+01  9.606e+00   1.863 0.063200 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1981 on 376 degrees of freedom
+## Multiple R-squared:  0.7802, Adjusted R-squared:  0.7732 
+## F-statistic: 111.2 on 12 and 376 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Here, 50/50 partition was made to make the train and test sets by random sampling. Using the train set, a forward step search was conducted. The step search uses 10 variables to predict out-of-state tuition. Originally we had 17 predictors. By default, step procedure searched the best subset based on AIC criterion.</p>
+</div>
