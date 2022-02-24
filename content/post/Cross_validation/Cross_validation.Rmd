@@ -190,7 +190,7 @@ abline(v=c(1,2,3),h=c(24:29)/10,lty=3, col="gray")
 legend("topleft", c("Default~Balance+Income","Default~Balance+Income+Student"),
        col=c(4,2),pch=c(4,1),cex=1.2,bty="n")
 
-## running 20 times
+## running 30 times
 iterations=30
 error1iter=rep(NA,iterations)
 error2iter=rep(NA,iterations)
@@ -237,9 +237,9 @@ Data was partitioned as it was done initially, using the number 702 as seed. The
 
 The performance in terms of overall accuracy, TPR and FPR were exactly the same as before. The validation error rate was (100-97.26)%=2.74%.
 
-The process was repeated three times with the partitions in part  c. On two occasions, the later model with student resulted in increased error rate. Validation error decreased on other occasion.
+The process was repeated three times with the partitions. On two occasions, the later model with student resulted in increased error rate. Validation error decreased on other occasion.
 
-In conclusion, we ran the two models 30 times. From the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in the figure above.
+In conclusion, we ran the two models 30 times. Based on the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in the figure above.
 
 In R, `cv.glm()` function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just the `glm()` and `predict.glm()` functions, and a for loop. We will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the Weekly dataset. 
 
