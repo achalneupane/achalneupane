@@ -29,11 +29,13 @@ apply((as.matrix(USArrests1) %*% loadings)^2, 2, sum) / sumvar</code></pre>
 ## 0.62006039 0.24744129 0.08914080 0.04335752</code></pre>
 <p>Now, we will use the <code>USArrests</code> data. We will perform hierarchical clustering on the states. Using hierarchical clustering with complete linkage and Euclidean distance, we will cluster the states.</p>
 <pre class="r"><code>set.seed(702)
-# Hierarchical clustering - complete linkage
-usar.hc.comp &lt;- hclust(dist(USArrests), method = &quot;complete&quot;)
+cat(&quot;Hierarchical clustering - complete linkage&quot;)</code></pre>
+<pre><code>## Hierarchical clustering - complete linkage</code></pre>
+<pre class="r"><code>usar.hc.comp &lt;- hclust(dist(USArrests), method = &quot;complete&quot;)
 
-# Plot dendrogram
-plot(usar.hc.comp, 
+cat(&quot;Plot dendrogram&quot;)</code></pre>
+<pre><code>## Plot dendrogram</code></pre>
+<pre class="r"><code>plot(usar.hc.comp, 
      main = &quot;Hierarchical Clustering - Complete Linkages&quot;,
      xlab = &quot;&quot;, sub = &quot;&quot;, cex = 0.4)</code></pre>
 <p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-3-1.png" width="672" />
@@ -93,10 +95,12 @@ usar.hc.cut</code></pre>
 ## Wyoming                              2</code></pre>
 <p>Now, we will hierachically cluster the states using complete linkage and Euclidean distance, after scaling the variables to have standard deviation one.</p>
 <pre class="r"><code>usar.scale &lt;- scale(USArrests)
-# Hierarchical clustering - complete linkage
-usar.scale.hc.comp &lt;- hclust(dist(usar.scale), method = &quot;complete&quot;)
-# Plot dendrogram
-plot(usar.scale.hc.comp, 
+cat(&quot;Hierarchical clustering - complete linkage&quot;)</code></pre>
+<pre><code>## Hierarchical clustering - complete linkage</code></pre>
+<pre class="r"><code>usar.scale.hc.comp &lt;- hclust(dist(usar.scale), method = &quot;complete&quot;)
+cat(&quot;Plot dendrogram&quot;)</code></pre>
+<pre><code>## Plot dendrogram</code></pre>
+<pre class="r"><code>plot(usar.scale.hc.comp, 
      main = &quot;Hierarchical Clustering - Complete Linkages 
      with Scaled Featues&quot;,
      xlab = &quot;&quot;, sub = &quot;&quot;, cex = 0.4)

@@ -37,10 +37,10 @@ apply((as.matrix(USArrests1) %*% loadings)^2, 2, sum) / sumvar
 Now, we will use the `USArrests` data. We will perform hierarchical clustering on the states. Using hierarchical clustering with complete linkage and Euclidean distance, we will cluster the states.
 ```{r}
 set.seed(702)
-# Hierarchical clustering - complete linkage
+cat("Hierarchical clustering - complete linkage")
 usar.hc.comp <- hclust(dist(USArrests), method = "complete")
 
-# Plot dendrogram
+cat("Plot dendrogram")
 plot(usar.hc.comp, 
      main = "Hierarchical Clustering - Complete Linkages",
      xlab = "", sub = "", cex = 0.4)
@@ -53,9 +53,9 @@ usar.hc.cut
 Now, we will hierachically cluster the states using complete linkage and Euclidean distance, after scaling the variables to have standard deviation one.
 ```{r}
 usar.scale <- scale(USArrests)
-# Hierarchical clustering - complete linkage
+cat("Hierarchical clustering - complete linkage")
 usar.scale.hc.comp <- hclust(dist(usar.scale), method = "complete")
-# Plot dendrogram
+cat("Plot dendrogram")
 plot(usar.scale.hc.comp, 
      main = "Hierarchical Clustering - Complete Linkages 
      with Scaled Featues",
