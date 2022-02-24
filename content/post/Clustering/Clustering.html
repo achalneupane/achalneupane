@@ -1,0 +1,143 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Clustering"
+date: 2021-10-18T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>PVE can be obtained using the “sdev” output of the “prcomp()” function. On the “USArrests” data. We will calculate PVE in two ways, first, Using the “sdev” output of the <code>prcomp()</code> function.</p>
+<pre class="r"><code>prcu &lt;- prcomp(USArrests, center=T, scale=T)
+pve &lt;- prcu$sdev^2 / sum(prcu$sdev^2)
+pve</code></pre>
+<pre><code>## [1] 0.62006039 0.24744129 0.08914080 0.04335752</code></pre>
+<p>Then, by using the “prcomp()” function to compute the principal component loadings. Then, using those loadings in the equation to obtain the PVE.</p>
+<pre class="r"><code>loadings &lt;- prcu $rotation
+USArrests1 &lt;- scale(USArrests)
+sumvar &lt;- sum(apply(as.matrix(USArrests1)^2, 2, sum))
+apply((as.matrix(USArrests1) %*% loadings)^2, 2, sum) / sumvar</code></pre>
+<pre><code>##        PC1        PC2        PC3        PC4 
+## 0.62006039 0.24744129 0.08914080 0.04335752</code></pre>
+<p>Now, we will use the <code>USArrests</code> data. We will perform hierarchical clustering on the states. Using hierarchical clustering with complete linkage and Euclidean distance, we will cluster the states.</p>
+<pre class="r"><code>set.seed(702)
+# Hierarchical clustering - complete linkage
+usar.hc.comp &lt;- hclust(dist(USArrests), method = &quot;complete&quot;)
+
+# Plot dendrogram
+plot(usar.hc.comp, 
+     main = &quot;Hierarchical Clustering - Complete Linkages&quot;,
+     xlab = &quot;&quot;, sub = &quot;&quot;, cex = 0.4)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+Now, we will cut the dendrogram at a height that results in three distinct clusters. We will find out which states belong to which clusters.</p>
+<pre class="r"><code>usar.hc.cut &lt;- data.frame(cutree(usar.hc.comp, 3))
+usar.hc.cut</code></pre>
+<pre><code>##                cutree.usar.hc.comp..3.
+## Alabama                              1
+## Alaska                               1
+## Arizona                              1
+## Arkansas                             2
+## California                           1
+## Colorado                             2
+## Connecticut                          3
+## Delaware                             1
+## Florida                              1
+## Georgia                              2
+## Hawaii                               3
+## Idaho                                3
+## Illinois                             1
+## Indiana                              3
+## Iowa                                 3
+## Kansas                               3
+## Kentucky                             3
+## Louisiana                            1
+## Maine                                3
+## Maryland                             1
+## Massachusetts                        2
+## Michigan                             1
+## Minnesota                            3
+## Mississippi                          1
+## Missouri                             2
+## Montana                              3
+## Nebraska                             3
+## Nevada                               1
+## New Hampshire                        3
+## New Jersey                           2
+## New Mexico                           1
+## New York                             1
+## North Carolina                       1
+## North Dakota                         3
+## Ohio                                 3
+## Oklahoma                             2
+## Oregon                               2
+## Pennsylvania                         3
+## Rhode Island                         2
+## South Carolina                       1
+## South Dakota                         3
+## Tennessee                            2
+## Texas                                2
+## Utah                                 3
+## Vermont                              3
+## Virginia                             2
+## Washington                           2
+## West Virginia                        3
+## Wisconsin                            3
+## Wyoming                              2</code></pre>
+<p>Now, we will hierachically cluster the states using complete linkage and Euclidean distance, after scaling the variables to have standard deviation one.</p>
+<pre class="r"><code>usar.scale &lt;- scale(USArrests)
+# Hierarchical clustering - complete linkage
+usar.scale.hc.comp &lt;- hclust(dist(usar.scale), method = &quot;complete&quot;)
+# Plot dendrogram
+plot(usar.scale.hc.comp, 
+     main = &quot;Hierarchical Clustering - Complete Linkages 
+     with Scaled Featues&quot;,
+     xlab = &quot;&quot;, sub = &quot;&quot;, cex = 0.4)
+
+library(ggplot2)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>library(ggdendro)
+ggdendrogram(usar.scale.hc.comp, rotate = FALSE, size = 2)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+Scaling the variables impacts the clusters that are obtained, the branch lengths, and the height of the tree.</p>
+<p>In this scenario, scaling is more appropriate because Murder, Assault, and Rape all have unites of per 100,000 people while UrbanPop is the percentage of the state population that lives in urban areas. Therefore, it is imporant to scale so that the units of UrbanPop has an equal contribution to the hierarchical clustering algorithm as the other variables.</p>
+<pre class="r"><code>plot(usar.hc.comp,main=&quot;Complete Linkage Without Scaling&quot;, xlab=&quot;&quot;, sub=&quot;&quot;, cex=.4)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>plot(usar.scale.hc.comp, main=&quot;Complete Linkage with Scaled Variables&quot;, xlab = &quot;&quot;, sub = &quot;&quot;, cex = 0.4)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-6-2.png" width="672" />
+There is a gene expression dataset that consists of 40 tissue samples with measurements on 1000 genes. The first 20 samples are from healthy patients, while the second 20 are from a diseased group. We will load in the data using <code>read.csv()</code>. We will need to select <code>header=F</code>.</p>
+<pre class="r"><code>dt &lt;-read.csv(&quot;https://raw.githubusercontent.com/achalneupane/data/master/Ch10Ex11.csv&quot;, header = F)</code></pre>
+<p>Next, we will apply hierarchical clustering to the samples using correlation-based distance, and plot the dendrogram. We will try to find out whether the genes separate the samples into two groups. We will also check if our results depend on the type of linkage used.</p>
+<pre class="r"><code>dis &lt;- as.dist(1-cor(dt))
+hc.complete &lt;- hclust(dis, method = &quot;complete&quot;)
+hc.single &lt;- hclust(dis, method = &quot;single&quot;)
+hc.avg &lt;- hclust(dis, method = &quot;average&quot;)
+plot(hc.complete)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>plot(hc.single)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<pre class="r"><code>plot(hc.avg)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-8-3.png" width="672" />
+We don’t seem to be able to split the data into the correct two clusters. We can see that the complete linkage method is close.</p>
+<p>If we want to know which genes differ the most across the two groups, perhaps we can look at the means.</p>
+<pre class="r"><code>library(magrittr)
+group1 &lt;- dt %&gt;% dplyr::select(V1:V20)
+group2 &lt;- dt %&gt;% dplyr::select(V21:V40)
+means1 &lt;- apply(group1, 1, mean)
+means2 &lt;- apply(group2, 1, mean)
+meds1 &lt;- apply(group1, 1, median)
+meds2 &lt;- apply(group2, 1, median)
+
+ggplot(data.frame(means1, means2), aes(x=means1,y=means2)) + geom_point() + labs(x=&quot;Mean healthy&quot;, y=&quot;Mean unhealthy&quot;)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data.frame(meds1, meds2), aes(x=meds1,y=meds2)) + geom_point() + labs(x=&quot;Median healthy&quot;, y=&quot;Median unhealthy&quot;)</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<pre class="r"><code>ggplot(data.frame(diff = abs(means1-means2), ind = 1:1000), aes(x=ind,y=diff)) + geom_point()</code></pre>
+<p><img src="/post/Clustering/Clustering_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
