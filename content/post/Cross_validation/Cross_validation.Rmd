@@ -21,16 +21,15 @@ knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 
 Cross-validation is a resampling method that uses different portions of the data to test and train a model on different iterations. It is mainly used in settings where the goal is prediction, and one wants to estimate how accurately a predictive model will perform in practice. In a prediction problem, a model is usually given a dataset of known data on which training is run (training dataset), and a dataset of unknown data (or first seen data) against which the model is tested (called the validation dataset or testing set). The goal of cross-validation is to test the model's ability to predict new data that was not used in estimating it, in order to flag problems like overfitting or selection bias and to give an insight on how the model will generalize to an independent dataset (i.e., an unknown dataset, for instance from a real problem).
 
-One round of cross-validation involves partitioning a sample of data into complementary subsets, performing the analysis on one subset (called the training set), and validating the analysis on the other subset (called the validation set or testing set). To reduce variability, multiple rounds of cross-validation are performed using different partitions, and the validation results are combined (e.g. averaged) over the rounds to give an estimate of the model's predictive performance.
-
+To reduce variability, multiple rounds of cross-validation are performed using different partitions, and the validation results are combined (e.g. averaged) over the rounds to give an estimate of the model's predictive performance.
 
 Two types of cross-validation can be distinguished: `exhaustive` and `non-exhaustive` cross-validation.
 
 $\textbf{Exhaustive cross-validation}$ methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.
 
-Some examples of exhaustive cross-validation include `Leave-p-out cross-validation (LpO CV)` which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set.Next, there is `Leave-one-out cross-validation (LOOCV)` which is a particular case of leave-p-out `cross-validation` with p = 1.The process looks similar to `jackknife`; however, with `cross-validation` one computes a statistic on the left-out sample(s), while with `jackknifing` one computes a statistic from the kept samples only.
+Some examples of exhaustive cross-validation include `Leave-p-out cross-validation (LpO CV)` which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set. Next, there is `Leave-one-out cross-validation (LOOCV)` which is a particular case of leave-p-out `cross-validation` with p = 1.The process looks similar to `jackknife`; however, with `cross-validation` one computes a statistic on the left-out sample(s), while with `jackknifing` one computes a statistic from the kept samples only.
 
-LOO cross-validation requires less computation time than LpO cross-validation because there are only ${\displaystyle C_{1}^{n}=n}{\displaystyle C_{1}^{n}=n}$ passes rather than ${\displaystyle C_{p}^{n}}{\displaystyle C_{p}^{n}}$. However, ${\displaystyle n}$ passes may still require quite a large computation time, in which case other approaches such as k-fold cross validation may be more appropriate
+LOO cross-validation requires less computation time than LpO cross-validation because there are only ${\displaystyle C_{1}^{n}=n}$ passes rather than ${\displaystyle C_{p}^{n}}$. However, ${\displaystyle n}$ passes may still require quite a large computation time, in which case other approaches such as k-fold cross validation may be more appropriate
 
 
 Similarly, $\textbf{non-exhaustive cross validation}$ methods do not compute all ways of splitting the original sample. Those methods are approximations of leave-p-out cross-validation.
@@ -46,7 +45,7 @@ The third example would be `repeated random sub-sampling validation`, which is a
 In a stratified variant of this approach, the random samples are generated in such a way that the mean response value (i.e. the dependent variable in the regression) is equal in the training and testing sets. This is particularly useful if the responses are dichotomous with an unbalanced representation of the two response values in the data.
 
 
-$\textbf{It is important to understand that When cross-validation is used simultaneously for selection of the best set of hyperparameters and for error estimation (and assessment of generalization capacity), a nested cross-validation is required. Many variants exist. At least two variants can be distinguished:}$
+$\textbf{It is important to understand that when cross-validation is used simultaneously for selection of the best set of hyperparameters and for error estimation (and assessment of generalization capacity), a nested cross-validation is required. Many variants exist. At least two variants can be distinguished:}$
 
 $\textbf{k*l-fold cross-validation}$ k*l-fold cross-validation is a truly nested variant which contains an outer loop of k sets and an inner loop of l sets. The total dataset is split into k sets. One by one, a set is selected as the (outer) test set and the k - 1 other sets are combined into the corresponding outer training set. This is repeated for each of the k sets. Each outer training set is further sub-divided into l sets. One by one, a set is selected as inner test (validation) set and the l - 1 other sets are combined into the corresponding inner training set. This is repeated for each of the l sets. The inner training sets are used to fit model parameters, while the outer test set is used as a validation set to provide an unbiased evaluation of the model fit. Typically, this is repeated for many different hyperparameters (or even different model types) and the validation set is used to determine the best hyperparameter set (and model type) for this inner training set. After this, a new model is fit on the entire outer training set, using the best set of hyperparameters from the inner cross-validation. The performance of this model is then evaluated using the outer test set.
 
@@ -71,10 +70,7 @@ model0=glm(default~income+balance, data=Default, family=binomial)
 summary(model0)
 ```
 
-Fitting the model shows that both variables are statistically highly significant
-
-
-We will then fit a logistic regression model that uses `income` and `balance` to predict `default`. Using the validation set approach, we will estimate the test error of this model. In order to do this, we have to perform the following steps:
+Fitting the model shows that both variables are statistically highly significant. We will then fit a logistic regression model that uses `income` and `balance` to predict `default`. Using the validation set approach, we will estimate the test error of this model. In order to do this, we have to perform the following steps:
 
 First, we split the sample set into a training set and a validation set.
 ```{r,echo=FALSE,warning=FALSE}
@@ -479,7 +475,7 @@ err.edda #0.052
 
 Here, we removed the variable `BareNu` because it contained some missing values. It comes as a part of data cleaning. We also changed the response variable into binomial so that we can perform logistic regression and other analysis here. We also performed logistic regression, KNN, LDA, QDA, MclustDA and MclustDA with “EDDA”. Stepwise selection for the glm was done.
 
-It seems that the predictor variables **clumpthinkness**,**BlandCh**,**MarAd**, **cellshape**,**Mitoses**,and **NormalNu* are best as predictor variables for response variable class. SO, we decided to used those variables.
+It seems that the predictor variables **clumpthinkness**, **BlandCh**, **MarAd**, **cellshape**, **Mitoses**, and **NormalNu* are best as predictor variables for response variable class. SO, we decided to used those variables.
 
 Error rate of those methods were obtained, and it was found that the error rate for MclustDA model 2 (3.7% error rate) and Knn (4% error rate) were lower than other models, thus signifying the better accuracy of the model.
 
@@ -798,10 +794,7 @@ which.min(err2cv)
 ```
 To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the Figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.
 
-
-
 This question relates to the ${College}$ dataset. We will use this to split into a training set and a test set. We will use `out-of-state` tuition as the response and the other variables as the predictors to perform `forward stepwise` selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.
-
 ```{r,echo=FALSE,warning=FALSE}
 data("College")
 kolez=College
@@ -817,10 +810,7 @@ ktrain=kolez[-index,]
 null=lm(Outstate~1, data=ktrain)
 full=lm(Outstate~., data=ktrain)
 
-
 stepmodel=step(null, scope=list(lower=null, upper=full), direction="forward")
 summary(stepmodel)
-
-
 ```
 Here, 50/50 partition was made to make the train and test sets by random sampling. Using the train set, a forward step search was conducted. The step search uses 10 variables to predict out-of-state tuition. Originally we had 17 predictors. By default, step procedure searched the best subset based on AIC criterion.

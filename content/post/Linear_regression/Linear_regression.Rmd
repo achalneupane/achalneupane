@@ -18,7 +18,6 @@ summary: Statistics series
 ```{r global options, include = F}
 knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
 ```
-
 Linear regression is a linear approach for modelling the relationship between a scalar response and one or more explanatory variables (also known as dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression. This term is distinct from multivariate linear regression, where multiple correlated dependent variables are predicted, rather than a single scalar variable.
 
 Linear regression models are often fitted using the `least squares` approach, but they may also be fitted in other ways, such as by minimizing the "lack of fit" in some other norm (as with least absolute deviations regression), or by minimizing a penalized version of the least squares cost function as in ridge regression (${L2-norm}$ penalty) and lasso (${L1-norm}$ penalty). Conversely, the `least squares` approach can be used to fit models that are not linear models. Thus, although the terms "least squares" and "linear model" are closely linked, they are not synonymous.
@@ -221,7 +220,7 @@ data(Boston)
 # We will loop over each variable
 layout(matrix(1:4,nrow=2))
 for(i in 2:(dim(Boston)[2])){
-  message("Variable: ", names(Boston)[i])
+  cat("Variable: ", names(Boston)[i])
   model=lm(Boston$crim~Boston[,i])
   print(summary(model))
   for(j in 1:2){
@@ -235,7 +234,7 @@ library(lawstat)
 for(i in 2:(dim(Boston)[2])){
   model=lm(Boston$crim~Boston[,i])
   # if (levene.test(model$resid,Boston[,i],trim.alpha=0.5)$p.value <0.05){
-  message("BF test p-value for the variable: ",names(Boston)[i])
+  cat("BF test p-value for the variable: ",names(Boston)[i])
   # }
   print(levene.test(model$resid,Boston[,i],trim.alpha=0.5)$p.value)
 }

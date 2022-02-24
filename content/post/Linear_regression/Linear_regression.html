@@ -285,7 +285,7 @@ data(Boston)
 # We will loop over each variable
 layout(matrix(1:4,nrow=2))
 for(i in 2:(dim(Boston)[2])){
-  message(&quot;Variable: &quot;, names(Boston)[i])
+  cat(&quot;Variable: &quot;, names(Boston)[i])
   model=lm(Boston$crim~Boston[,i])
   print(summary(model))
   for(j in 1:2){
@@ -293,7 +293,7 @@ for(i in 2:(dim(Boston)[2])){
          pch=16, col=j+2,cex=0.6,lwd=2)
   }
 }</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  zn
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -311,7 +311,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 8.435 on 504 degrees of freedom
 ## Multiple R-squared:  0.04019,    Adjusted R-squared:  0.03828 
 ## F-statistic:  21.1 on 1 and 504 DF,  p-value: 5.506e-06</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  indus
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -330,7 +330,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.1653, Adjusted R-squared:  0.1637 
 ## F-statistic: 99.82 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  chas
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -348,7 +348,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 8.597 on 504 degrees of freedom
 ## Multiple R-squared:  0.003124,   Adjusted R-squared:  0.001146 
 ## F-statistic: 1.579 on 1 and 504 DF,  p-value: 0.2094</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  nox
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -367,7 +367,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.1772, Adjusted R-squared:  0.1756 
 ## F-statistic: 108.6 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-2.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  rm
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -385,7 +385,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 8.401 on 504 degrees of freedom
 ## Multiple R-squared:  0.04807,    Adjusted R-squared:  0.04618 
 ## F-statistic: 25.45 on 1 and 504 DF,  p-value: 6.347e-07</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  age
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -404,7 +404,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.1244, Adjusted R-squared:  0.1227 
 ## F-statistic: 71.62 on 1 and 504 DF,  p-value: 2.855e-16</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-3.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  dis
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -422,7 +422,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 7.965 on 504 degrees of freedom
 ## Multiple R-squared:  0.1441, Adjusted R-squared:  0.1425 
 ## F-statistic: 84.89 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  rad
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -441,7 +441,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.3913, Adjusted R-squared:   0.39 
 ## F-statistic: 323.9 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-4.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  tax
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -459,7 +459,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 6.997 on 504 degrees of freedom
 ## Multiple R-squared:  0.3396, Adjusted R-squared:  0.3383 
 ## F-statistic: 259.2 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  ptratio
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -478,7 +478,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.08407,    Adjusted R-squared:  0.08225 
 ## F-statistic: 46.26 on 1 and 504 DF,  p-value: 2.943e-11</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-5.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  black
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -496,7 +496,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Residual standard error: 7.946 on 504 degrees of freedom
 ## Multiple R-squared:  0.1483, Adjusted R-squared:  0.1466 
 ## F-statistic: 87.74 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre><code>## 
+<pre><code>## Variable:  lstat
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -515,7 +515,7 @@ for(i in 2:(dim(Boston)[2])){
 ## Multiple R-squared:  0.2076, Adjusted R-squared:  0.206 
 ## F-statistic:   132 on 1 and 504 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-6.png" width="672" /></p>
-<pre><code>## 
+<pre><code>## Variable:  medv
 ## Call:
 ## lm(formula = Boston$crim ~ Boston[, i])
 ## 
@@ -538,23 +538,23 @@ library(lawstat)
 for(i in 2:(dim(Boston)[2])){
   model=lm(Boston$crim~Boston[,i])
   # if (levene.test(model$resid,Boston[,i],trim.alpha=0.5)$p.value &lt;0.05){
-  message(&quot;BF test p-value for the variable: &quot;,names(Boston)[i])
+  cat(&quot;BF test p-value for the variable: &quot;,names(Boston)[i])
   # }
   print(levene.test(model$resid,Boston[,i],trim.alpha=0.5)$p.value)
 }</code></pre>
-<pre><code>## [1] 0.2281022
-## [1] 0.00854712
-## [1] 0.1850185
-## [1] 1.248128e-12
-## [1] 1.437096e-11
-## [1] 1
-## [1] 4.047298e-81
-## [1] 5.868249e-20
-## [1] 0.0006281896
-## [1] 7.930461e-08
-## [1] 1
-## [1] 0.000370113
-## [1] 1.116128e-30</code></pre>
+<pre><code>## BF test p-value for the variable:  zn[1] 0.2281022
+## BF test p-value for the variable:  indus[1] 0.00854712
+## BF test p-value for the variable:  chas[1] 0.1850185
+## BF test p-value for the variable:  nox[1] 1.248128e-12
+## BF test p-value for the variable:  rm[1] 1.437096e-11
+## BF test p-value for the variable:  age[1] 1
+## BF test p-value for the variable:  dis[1] 4.047298e-81
+## BF test p-value for the variable:  rad[1] 5.868249e-20
+## BF test p-value for the variable:  tax[1] 0.0006281896
+## BF test p-value for the variable:  ptratio[1] 7.930461e-08
+## BF test p-value for the variable:  black[1] 1
+## BF test p-value for the variable:  lstat[1] 0.000370113
+## BF test p-value for the variable:  medv[1] 1.116128e-30</code></pre>
 <pre class="r"><code>plot(crim ~ . - crim, data = Boston)</code></pre>
 <p><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-7.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-8.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-9.png" width="672" /><img src="/post/Linear_regression/Linear_regression_files/figure-html/unnamed-chunk-7-10.png" width="672" /></p>
 <p>Statistically significant results were observed between the predictor and the response for every variable except the Charles River Dummy(chas). When looking at the response variables and crime in simple scatter plots, one can see how a general linear regression with these variables would allow for a better prediction of crime than simply using the mean of crime. That is, the data seems to have some slight shape sloping up or down, and isn’t a random cloud of data.</p>
