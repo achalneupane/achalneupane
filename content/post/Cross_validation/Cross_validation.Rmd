@@ -24,17 +24,17 @@ To reduce variability, multiple rounds of cross-validation are performed using d
 
 Two types of cross-validation can be distinguished: `exhaustive` and `non-exhaustive` cross-validation.
 
-$\textbf{Exhaustive cross-validation}$ methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.
+The $\textbf{Exhaustive cross-validation}$ methods are cross-validation methods which learn and test on all possible ways to divide the original sample into a training and a validation set.
 
 Some examples of exhaustive cross-validation include `Leave-p-out cross-validation (LpO CV)` which involves using p observations as the validation set and the remaining observations as the training set. This is repeated on all ways to cut the original sample on a validation set of p observations and a training set. Next, there is `Leave-one-out cross-validation (LOOCV)` which is a particular case of leave-p-out `cross-validation` with p = 1.The process looks similar to `jackknife`; however, with `cross-validation` one computes a statistic on the left-out sample(s), while with `jackknifing` one computes a statistic from the kept samples only.
 
 LOO cross-validation requires less computation time than LpO cross-validation because there are only ${\displaystyle C_{1}^{n}=n}$ passes rather than ${\displaystyle C_{p}^{n}}$. However, ${\displaystyle n}$ passes may still require quite a large computation time, in which case other approaches such as k-fold cross validation may be more appropriate
 
-Similarly, $\textbf{non-exhaustive cross validation}$ methods do not compute all ways of splitting the original sample. Those methods are approximations of leave-p-out cross-validation.
+The $\textbf{non-exhaustive cross validation}$ methods do not compute all ways of splitting the original sample. Those methods are approximations of leave-p-out cross-validation.
 
 Some examples include, `k-fold cross-validation` in which the original sample is randomly partitioned into ${k}$ equal sized subsamples. Of the ${k}$ subsamples, a single subsample is retained as the validation data for testing the model, and the remaining ${k − 1}$ subsamples are used as training data. The cross-validation process is then repeated ${k}$ times, with each of the ${k}$ subsamples used exactly once as the validation data. The ${k}$ results can then be averaged to produce a single estimation. The advantage of this method over repeated random sub-sampling is that all observations are used for both training and validation, and each observation is used for validation exactly once. 10-fold cross-validation is commonly used, but in general ${k}$ remains an unfixed parameter. 
 
-The other example of this would be In the `holdout` method, in which we randomly assign data points to two sets ${d0}$ and ${d1}$, usually called the training set and the test set, respectively. The size of each of the sets is arbitrary although typically the test set is smaller than the training set. We then train (build a model) on ${d0}$ and test (evaluate its performance) on ${d1}. In typical cross-validation, results of multiple runs of model-testing are averaged together; in contrast, the `holdout` method, in isolation, involves a single run. It should be used with caution because without such averaging of multiple runs, one may achieve highly misleading results. One's indicator of predictive accuracy (F*) will tend to be unstable since it will not be smoothed out by multiple iterations. Similarly, indicators of the specific role played by various predictor variables (e.g., values of regression coefficients) will tend to be unstable.
+The other example of this would be the `holdout` method, in which we randomly assign data points to two sets ${d0}$ and ${d1}$, usually called the training set and the test set, respectively. The size of each of the sets is arbitrary although typically the test set is smaller than the training set. We then train (build a model) on ${d0}$ and test (evaluate its performance) on ${d1}. In typical cross-validation, results of multiple runs of model-testing are averaged together; in contrast, the `holdout` method, in isolation, involves a single run. It should be used with caution because without such averaging of multiple runs, one may achieve highly misleading results. One's indicator of predictive accuracy (F*) will tend to be unstable since it will not be smoothed out by multiple iterations. Similarly, indicators of the specific role played by various predictor variables (e.g., values of regression coefficients) will tend to be unstable.
 
 While the holdout method can be framed as "the simplest kind of cross-validation", many sources instead classify holdout as a type of simple validation, rather than a simple or degenerate form of cross-validation.
 
@@ -77,7 +77,7 @@ validation=Default[-index,]
 summary(train$default)
 summary(validation$default)
 ```
-Using 702 as seed, the Default dataset was divided into two sets. 
+We just used 702 as a seed, and divided the Default dataset into two sets. 
 
 Next, we fit a multiple logistic regression model using only the training observations.
 ```{r,echo=FALSE,warning=FALSE}
@@ -100,9 +100,8 @@ for(i in 1:length(preds)){
 ```
 The prediction of default status is dummy coded here. With 1 indicating the default status and 0 indicating non-default status.
 
-Next we will compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
+We will also compute the validation set error, which is the fraction of the observations in the validation set that are misclassified.
 ```{r,echo=FALSE,warning=FALSE}
-
 OATPRFPR=function(con){
   OA=100*((con[1,1]+con[2,2])/sum(con))
   TPR=100*(con[2,2]/(con[2,2]+con[1,2]))
@@ -114,7 +113,6 @@ OATPRFPR(table(preds,actualdef))
 The test error rate was estimated based on the error rate on the validation set. The overall accuracy was 97.26%. So, the error rate was (100-97.26)%=2.74%. TPR and FPR were 36.31% and 0.48% respectively.
 
 We will now repeat the process three times, using three different splits of the observations into a training set and a validation set.
-
 ```{r,echo=FALSE,warning=FALSE}
 iterations=3
 errors=rep(NA,iterations)
@@ -299,7 +297,6 @@ Here, the loop was run 1089 times, since there were 1089 observations. 490 was m
 
 Next, we will write new code (similar to above) to estimate test error using `6-fold cross validation` for fitting linear regression with ${mpg ≥ horsepower + horsepower2}$ from the Auto data in the ${ISLR}$ library.
 ```{r,echo=FALSE,warning=FALSE}
-
 data(Auto)
 AutoN=dim(Auto)[1]
 stopsoffolds=c(0,round(c(1:6)*(AutoN/6)))
@@ -342,7 +339,6 @@ The estimated MSE from 6-fold CV is 19.43.
 
 Next, we will continue our analysis and try to perform Logistic Regression, KNN, LDA, QDA, MclustDA, MclustDA with EDDA (if appropriate). If it is not possible to perform any of the methods, we will try to justify why.
 ```{r,echo=FALSE,warning=FALSE}
-
 library(MASS)
 library(mclust)
 library(class)
@@ -637,7 +633,6 @@ which.min(err2)
 
 k=quantile(B$dis, probs =c(1:5)/(5+1))
 
-
 model5k=lm(nox~ bs(dis,knots=k), data = B)
 summary(model5k)
 
@@ -749,4 +744,4 @@ full=lm(Outstate~., data=ktrain)
 stepmodel=step(null, scope=list(lower=null, upper=full), direction="forward")
 summary(stepmodel)
 ```
-Here, 50/50 partition was made to make the train and test sets by random sampling. Using the train set, a forward step search was conducted. The step search uses 10 variables to predict out-of-state tuition. Originally we had 17 predictors. By default, step procedure searched the best subset based on AIC criterion.
+Here, 50/50 partition was performed to make the train and test sets by random sampling. Using the train set, a forward step search was conducted. The step search uses 10 variables to predict out-of-state tuition. Originally we had 17 predictors. By default, the step procedure searched the best subset based on AIC criterion.
