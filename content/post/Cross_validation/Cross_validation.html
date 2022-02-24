@@ -169,7 +169,7 @@ for(i in 1:length(preds)){
 <p>Data was partitioned as it was done initially, using the number 702 as seed. The summary stat did not show any statistical significance for the income variable with very high p-value.</p>
 <p>The performance in terms of overall accuracy, TPR and FPR were exactly the same as before. The validation error rate was (100-97.26)%=2.74%.</p>
 <p>The process was repeated three times with the partitions in part c. On two occasions, the later model with student resulted in increased error rate. Validation error decreased on other occasion.</p>
-<p>In conclusion, we ran the two models 30 times. From the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in Figure 3.</p>
+<p>In conclusion, we ran the two models 30 times. From the distributions of the MSEs from two models, we conclude that MSE actually increased when the student vraible was included. The mean MSE of 30 runs with first model was 2.65%. After adding the student, this quantity was 2.67%. This is also supported by the respective MSE distributions, which is shown in the figure above.</p>
 <p>In R, <code>cv.glm()</code> function can be used in order to compute the LOOCV test error estimate. Alternatively, one could compute those quantities using just the <code>glm()</code> and <code>predict.glm()</code> functions, and a for loop. We will now take this approach in order to compute the LOOCV error for a simple logistic regression model on the Weekly dataset.</p>
 <p>We will first fit a logistic regression model that predicts Direction using Lag1 and Lag2.</p>
 <pre><code>## [1] 1089    9</code></pre>
@@ -486,7 +486,7 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## Classification error = 0.0629 
 ## Brier score          = 0.0599</code></pre>
 <pre><code>## [1] 0.04597701</code></pre>
-<p>Here, we removed the variable <code>BareNu</code> because it contained some missing values. It comes as a part of data cleaning. We also changed the response variable into binomial so that we can perform logistic regression and other analysis here. We also performed logistic regression, KNN, LDA, QDA, MclustDA and MclustDA with “EDDA”. Stepwise selection for the glm was done.</p>
+<p>Here, we removed the variable <code>BareNu</code> because it contained some missing values. It comes as a part of data cleaning. We also changed the response variable into binomial so that we can perform logistic regression and other analysis here. We performed logistic regression, KNN, LDA, QDA, MclustDA and MclustDA with “EDDA”, and stepwise selection for the glm was also done.</p>
 <p>It seems that the predictor variables <strong>clumpthinkness</strong>, <strong>BlandCh</strong>, <strong>MarAd</strong>, <strong>cellshape</strong>, <strong>Mitoses</strong>, and **NormalNu* are best as predictor variables for response variable class. SO, we decided to used those variables.</p>
 <p>Error rate of those methods were obtained, and it was found that the error rate for MclustDA model 2 (3.7% error rate) and Knn (4% error rate) were lower than other models, thus signifying the better accuracy of the model.</p>
 </div>
@@ -494,7 +494,19 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 <h2>Part 2</h2>
 <p>Next, we will perform polynomial regression to predict wage using age. we will use cross-validation to select the optimal degree <span class="math inline">\({d}\)</span> for the polynomial. We would want to know what degree was chosen, and how this compares to the results of hypothesis testing using ANOVA. We will also make a plot of the resulting polynomial fit to the data.</p>
 <pre><code>## [1] 9</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+Using the 10 fold CV (with seed=702), the resulting CV errors were evaluated for the data. Figure above shows the 10 fold CV estimate against the number of polynomial degree used.</p>
+<p>As we can see from the figure above, the second order model shows a significant improvement from first order model. Third order model further decreases the error. So is the case for 4th order. Then the error tends to rise again until <code>degree=9</code>, which gives the lowest error. For convenience, the resulting CV errors are shown above:</p>
+<p>From visual inspection, we would say that choosing <code>d=3</code> or <code>d=4</code> is reasonable, even if <code>d=9</code> gives the lowest error. To justify, first, we would refer to the text that using more than 4 as order overly fits the data. Second, the error difference is very small.</p>
+<p>In this case, we will choose 3 rather than 4. The reason behind choosing 3 is that the error difference between d=3 and d=4 is not very big. With a little sacrifice of the error, 3rd order model can avoid complexity of the model.</p>
+<pre class="r"><code>modellist=list(rep(NA,10))
+for(i in 1:10){
+  modellist[[i]]=lm(wage~poly(age,i),data=w)
+}
+
+anova(modellist[[1]],modellist[[2]],modellist[[3]],modellist[[4]],
+      modellist[[5]],modellist[[6]],modellist[[7]],modellist[[8]],
+      modellist[[9]],modellist[[10]])</code></pre>
 <pre><code>## Analysis of Variance Table
 ## 
 ## Model  1: wage ~ poly(age, i)
@@ -520,6 +532,8 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## 10   2989 4756701  1         3   0.0017  0.967529    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>## degree 3 is chosen
+summary(lm(wage~age+I(age^2)+I(age^3)+I(age^4),data=w))</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = wage ~ age + I(age^2) + I(age^3) + I(age^4), data = w)
@@ -541,6 +555,7 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## Residual standard error: 39.91 on 2995 degrees of freedom
 ## Multiple R-squared:  0.08626,    Adjusted R-squared:  0.08504 
 ## F-statistic: 70.69 on 4 and 2995 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(lm(wage~age+I(age^2)+I(age^3)+I(age^9),data=w))</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = wage ~ age + I(age^2) + I(age^3) + I(age^9), data = w)
@@ -562,22 +577,27 @@ message(&quot;Percent Error: &quot;,round(100*(sum(misclassifyYes)/WeeklyN),3))
 ## Residual standard error: 39.91 on 2995 degrees of freedom
 ## Multiple R-squared:  0.08634,    Adjusted R-squared:  0.08512 
 ## F-statistic: 70.76 on 4 and 2995 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-14-2.png" width="672" /></p>
-<p>Using the 10 fold CV (with seed=702), the resulting CV errors were evaluated for the data. Figure 1 shows the 10 fold CV estimate against the number of polynomial degree used.</p>
-<p>As we can see from Figure 1, the second order model shows a significant improvement from first order model. Third order model further decreases the error. So is the case for 4th order. Then the error tends to rise again until <code>degree=9</code>, which gives the lowest error. For convenience, the resulting CV errors are shown above:</p>
-<p>From visual inspection, we would say that choosing <code>d=3</code> or <code>d=4</code> is reasonable, even if <code>d=9</code> gives the lowest error. To justify, first, we would refer to the text that using more than 4 as order overly fits the data. Second, the error difference is very small.</p>
-<p>In this case, we will choose 3 rather than 4. The reason behind choosing 3 is that the error difference between d=3 and d=4 is not very big. With a little sacrifice of the error, 3rd order model can avoid complexity of the model.</p>
-<p>The ANOVA result is shown below. We see that adding a 4th order term indeed improves the model, but is not significant at 5% level. Adding a 9th order term shows significant improvement with respect to 8th order model. As discussed earlier, we sought for a polynomial model with order less than 5 as prescribed by the text.</p>
-<p>The resulting polynomial fit of the data is shown in Figure 2.</p>
-<p>Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.</p>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>model1a=lm(wage~poly(age,3),data=w)
+plot(w$wage~w$age,col=&quot;gray&quot;,pch=16,cex=0.6,ylab=&quot;Wage&quot;,xlab=&quot;Age&quot;,
+     ylim=c(0,450))
+preds=predict(model1a,newdata=w[order(w$age),])
+abline(h=c(0:4)*100,v=c(2:8)*10,lty=3, col=&quot;gray&quot;)
+lines(preds~w[order(w$age),]$age,col=&quot;deepskyblue&quot;,lwd=2)
+legend(&quot;topleft&quot;,c(&quot;Original vlaues&quot;,&quot;Fitted with 3rd order&quot;),
+       col=c(&quot;gray&quot;,&quot;deepskyblue&quot;), lwd=c(NA,2),
+       pch=c(16, NA),bty=&quot;n&quot;)</code></pre>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+The ANOVA result is shown below. We see that adding a 4th order term indeed improves the model, but is not significant at 5% level. Adding a 9th order term shows significant improvement with respect to 8th order model. As discussed earlier, we sought for a polynomial model with order less than 5 as prescribed by the text.</p>
+<p>The resulting polynomial fit of the data is shown in the figure above.</p>
+<p>Now, we will fit a step function to predict wage using age, and perform cross- validation to choose the optimal number of cuts. We will also make a plot of the fit obtained.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <pre><code>## [1] 16</code></pre>
 <pre><code>##  [1]       NA 1733.218 1683.257 1635.037 1631.436 1623.323 1609.635 1602.010
 ##  [9] 1609.138 1604.193 1600.287 1602.961 1603.657 1607.122 1605.799 1597.953
 ## [17] 1604.587 1602.142 1602.396 1603.031</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
-<p>We varied the number of knots in between 2 to 20. Using the 10 fold CV error, it was found that using 16 knots gives the lowest CV error. The errors against the number of knots is shown in the Figure.</p>
-<p>The optimal number of knots (cuts) was chosen to be 16. The resulting plot with the fitted values is shown in Figure 4.</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-2.png" width="672" />
+We varied the number of knots in between 2 to 20. Using the 10 fold CV error, it was found that using 16 knots gives the lowest CV error. The errors against the number of knots is shown in the figure above</p>
+<p>The optimal number of knots (cuts) was chosen to be 16. The resulting plot with the fitted values is shown in the figure above.</p>
 <p>Now, we will use the variables <code>dis</code> (the weighted mean of distances to five Boston employment centers) and <code>nox</code> (nitrogen oxides concen- tration in parts per 10 million) from the <code>Boston</code> data. We will treat <code>dis</code> as the predictor and <code>nox</code> as the response.
 Then using the <span class="math inline">\({poly()}\)</span> function, we will fit a cubic polynomial regression to predict <code>nox</code> using <code>dis.</code> We will then report on the regression output, and plot the resulting data and polynomial fits.</p>
 <pre><code>## 
@@ -600,25 +620,25 @@ Then using the <span class="math inline">\({poly()}\)</span> function, we will f
 ## Residual standard error: 0.06207 on 502 degrees of freedom
 ## Multiple R-squared:  0.7148, Adjusted R-squared:  0.7131 
 ## F-statistic: 419.3 on 3 and 502 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
-<p>Based on the model output above, we see that all the terms corresponding to higher order terms are highly significant with negligible p-values. The adjusted R-sq for the model is 0.7131, which means that the model can explain 71.31% of the total variability of <code>nox</code>. The F-statistic has a p-value of less than 2e-16, so it passes the lack of fit test.</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+Based on the model output above, we see that all the terms corresponding to higher order terms are highly significant with negligible p-values. The adjusted R-sq for the model is 0.7131, which means that the model can explain 71.31% of the total variability of <code>nox</code>. The F-statistic has a p-value of less than 2e-16, so it passes the lack of fit test.</p>
 <p>Resulting data and polynomial fits are shown in figure below. Based on this figure,it seems that data is well fitted for the 3rd order polynomial fit.</p>
 <p>Next, we will plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-17-4.png" width="672" /></p>
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-4.png" width="672" /></p>
 <pre><code>##  [1] 2.768563 2.035262 1.934107 1.932981 1.915290 1.878257 1.849484 1.835630
 ##  [9] 1.833331 1.832171 1.832168 1.829822</code></pre>
 <p>The degrees were varied in the range of 1 to 12. Resulting fitted curves and associated RSS values are shown above.</p>
 <p>The figure shows the RSS against the order of the polynomial. We see the RSS decreases with the increase of order, which is expected. But the decrease in error does not seem significant form visual inspection, as we go beyond 3rd order.</p>
 <p>Now, we will perform cross-validation to select the optimal degree for the polynomial.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <pre><code>##  [1] 0.005523815 0.004079390 0.003874708 0.003887449 0.004164231 0.005381096
 ##  [7] 0.011054239 0.008112597 0.017588789 0.004428769</code></pre>
 <pre><code>## [1] 3</code></pre>
 <pre><code>## [1] 506  14</code></pre>
 <p><code>LOOCV</code> was performed in this case. The CV estimates for all the degrees was calculated. The figure shows the LOOCV estimate against order of polynomial. We show order up to 10, since 11 and 12 orders resulted very high errors.</p>
 <p>From the results above, we see that the LOOCV estimate decreases up to 3rd order. Then starts to increase at order=6. After that it shows a pretty zigzag shape. Dramatically 10th order shows a very low error. The minimum was found at order=3 and we chose a 3rd order model.</p>
-<p>Next, we will use the <code>bs()</code> function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.</p>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>Next, we will use the <code>bs()</code> function to fit a regression spline to predict nox using dis. We will report the output for the fit using four degrees of freedom, and also inform on how we chose the knots. We will also plot the resulting fit.
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <pre><code>##  [1] 0.9727041 0.9302675 0.9323951 0.9288289 0.9288235 0.9336314 0.9187082
 ##  [8] 0.9224267 0.9257746 0.9313932</code></pre>
 <pre><code>## [1] 7</code></pre>
@@ -647,7 +667,7 @@ Then using the <span class="math inline">\({poly()}\)</span> function, we will f
 ## Residual standard error: 0.06046 on 497 degrees of freedom
 ## Multiple R-squared:  0.732,  Adjusted R-squared:  0.7277 
 ## F-statistic: 169.7 on 8 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-2.png" width="672" /></p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-2.png" width="672" /></p>
 <pre><code>## 
 ## Call:
 ## lm(formula = nox ~ bs(dis, df = 4), data = B)
@@ -669,25 +689,25 @@ Then using the <span class="math inline">\({poly()}\)</span> function, we will f
 ## Residual standard error: 0.06195 on 501 degrees of freedom
 ## Multiple R-squared:  0.7164, Adjusted R-squared:  0.7142 
 ## F-statistic: 316.5 on 4 and 501 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-19-3.png" width="672" /></p>
-<p>IN the first part, we tried to fit a regression spline. Nothing was specified regarding how many knots, how to choose the knots or how many degrees of freedom. Here, we relied on 2 fold CV error estimate to choose the optimal number of knots. The procedure is as follows:</p>
+<p><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-3.png" width="672" />
+In the first part, we tried to fit a regression spline. Nothing was specified regarding how many knots, how to choose the knots or how many degrees of freedom. Here, we relied on 2 fold CV error estimate to choose the optimal number of knots. The procedure is as follows:</p>
 <p>• Select the number of knots. Let it be k.
 • Choose the location of the knots based on quantiles. For k knots, the locations are c(1:k)/(k+1) quatile points.
 • Make model with k knots at locations stated above and estimate the 2 fold CV.
 • Follow step 1-3 for different k values, using the same partitions of the data.
 • Select k, where 2 fold CV is the minimum</p>
-<p>Varying k from 1 to 10, the 2 fold CV were evaluated. The resulting plot has been shown above: We see that selecting 5 knots gives the minimum 2 fold CV estimate. The resulting fit with 5 knots is shown in Figure 10.</p>
-<p>We see that all the coefficient estimated have statistical significance with minimal p-value. The resulted fit is shown in Figure 11.</p>
+<p>Varying k from 1 to 10, the 2 fold CV were evaluated. From the resulting plot, we see that selecting 5 knots gives the minimum 2 fold CV estimate. The resulting fit with 5 knots is shown in the figure above.</p>
+<p>We see that all the coefficient estimated have statistical significance with minimal p-value. The resulted fit is shown in the figure above.</p>
 <p>Now, we will fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-20-4.png" width="672" />
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-2.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-3.png" width="672" /><img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-4.png" width="672" />
 DF was varied from 3 to 12. The resulting fits are shown in the figure. From the figure, we see that RSS decreases with the increase of DF, with exceptions in two occasions. RSS increased using DF=9 or DF=11 than one less df for the respective cases. Looking at the resulting fits, we see that the curves becomes too wiggly as we go higher number of DF, as a result of overfitting.</p>
 <p>Next, we will perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.
-<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<img src="/post/Cross_validation/Cross_validation_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <pre><code>##  [1]        NA        NA 0.9735581 0.9734583 0.9306550 0.9327974 0.9298878
 ##  [8] 0.9283337 0.9309293 0.9207512 0.9194232 0.9172597 0.9257124 0.9284066
 ## [15] 0.9291819 0.9319902 0.9268974 0.9268746 0.9267172 0.9276754</code></pre>
 <pre><code>## [1] 12</code></pre>
-<p>To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the Figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.</p>
+<p>To select the optimal number of DF, 2-fold CV was used. The 2-fold CV estimate against DF is shown in the figure. The 2-fold CV estimate tends to jump back and forth. In 2-fold CV criterion, 12 seems to be the optimal DF as it has lowest 2-fold CV.</p>
 <p>This question relates to the <span class="math inline">\({College}\)</span> dataset. We will use this to split into a training set and a test set. We will use <code>out-of-state</code> tuition as the response and the other variables as the predictors to perform <code>forward stepwise</code> selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.</p>
 <pre><code>## [1] 777  18</code></pre>
 <pre><code>## [1] 388</code></pre>
