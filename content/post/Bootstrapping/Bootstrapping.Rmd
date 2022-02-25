@@ -35,7 +35,8 @@ def=Default
 logmodela=glm(default~income+balance,data=def, family=binomial)
 summary(logmodela)
 ```
-Using income and balance predictor, a logistic model was built using all the data (nothing was stated if any subset to be used). The estimated standard errors of the coefficients of the logistic model were found to be 4.985*10-6 and 2.274*10-4 for income and balance variables, respectively.
+Using income and balance predictor, a logistic model was built using all the data (nothing was stated if any subset to be used). The estimated standard errors of the coefficients of the logistic model were found to be ${\displaystyle 4.98*10^{-6}}$ and ${\displaystyle 2.27*10^{-4}}$ for income and balance variables, respectively.
+
 
 (b) We will write a function, `boot.fn()`, that takes as input the Default data set as well as an index of the observations, and that outputs the coefficient estimates for income and balance in the multiple logistic regression model.
 ```{r}
