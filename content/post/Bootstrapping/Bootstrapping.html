@@ -1,0 +1,830 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Bootstrapping"
+date: 2021-10-18T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>Bootstrapping is any test or metric that uses random sampling with replacement (e.g. mimicking the sampling process), and falls under the broader class of resampling methods. Bootstrapping assigns measures of accuracy (bias, variance, confidence intervals, prediction error, etc.) to sample estimates. This technique allows estimation of the sampling distribution of almost any statistic using random sampling methods.</p>
+<p>Bootstrapping estimates the properties of an estimator (such as its variance) by measuring those properties when sampling from an approximating distribution.</p>
+<p>We will continue to consider the use of a logistic regression model to predict the probability of default using income and balance on the Default data set. In particular, we will now compute estimates for the standard errors of the income and balance logistic regression co- efficients in two different ways:</p>
+<ol style="list-style-type: lower-alpha">
+<li>Using the summary() and glm() functions, determine the estimated standard errors for the coefficients associated with income and balance in a multiple logistic regression model that uses both predictors.</li>
+</ol>
+<pre class="r"><code>library(ISLR)
+data(Default)
+def=Default
+
+logmodela=glm(default~income+balance,data=def, family=binomial)
+summary(logmodela)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = default ~ income + balance, family = binomial, 
+##     data = def)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.4725  -0.1444  -0.0574  -0.0211   3.7245  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.154e+01  4.348e-01 -26.545  &lt; 2e-16 ***
+## income       2.081e-05  4.985e-06   4.174 2.99e-05 ***
+## balance      5.647e-03  2.274e-04  24.836  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 2920.6  on 9999  degrees of freedom
+## Residual deviance: 1579.0  on 9997  degrees of freedom
+## AIC: 1585
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<p>Using income and balance predictor, a logistic model was built using all the data (nothing was stated if any subset to be used). The estimated standard errors of the coefficients of the logistic model were found to be 4.985<em>10-6 and 2.274</em>10-4 for income and balance variables, respectively.</p>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>We will write a function, <code>boot.fn()</code>, that takes as input the Default data set as well as an index of the observations, and that outputs the coefficient estimates for income and balance in the multiple logistic regression model.</li>
+</ol>
+<pre class="r"><code>boot.fn=function(Default,index){ ## 1          
+  subdata=Default[index,]        ## 2
+  bootmodel=glm(default~income+balance,data=subdata, family=binomial) ## 3
+  return((bootmodel$coeff)[c(2,3)]) ## 4
+}
+
+cat(&quot;For testing purpose&quot;)</code></pre>
+<pre><code>## For testing purpose</code></pre>
+<pre class="r"><code>boot.fn(def, c(1:dim(def)[1])) ## same as the original model</code></pre>
+<pre><code>##       income      balance 
+## 2.080898e-05 5.647103e-03</code></pre>
+<p>Next, we use the <code>boot()</code> function together with our <code>boot.fn()</code> function to estimate the standard errors of the logistic regression coefficients for income and balance.</p>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Default, statistic = boot.fn, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##         original       bias     std. error
+## t1* 2.080898e-05 9.002416e-07 4.932794e-06
+## t2* 5.647103e-03 1.925878e-05 2.431225e-04</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-3-2.png" width="672" />
+We see that the bootstrap estimates are very close to the estimated values by the logistic model using glm. The bootstrap was performed for a number of B values, where B indicates the number of bootstrap replicates. The two figures show the bootstrap estimation of SE of the variables using different B. Each time the operation was started with the same seed value. Dashed line shows the estimation by glm method. It is seen that as we increase B, the bootstrap estimation gets more stability.</p>
+<p>We will now use the Boston housing data set, from the MASS library. Based on this dataset, we will provide an estimate for the population mean of medv. We will call this estimate <span class="math inline">\({μ}\)</span>.</p>
+<pre class="r"><code>library(MASS)
+data(Boston)
+BH=Boston
+cat(&quot;Estimation of the population mean is the sample mean&quot;)</code></pre>
+<pre><code>## Estimation of the population mean is the sample mean</code></pre>
+<pre class="r"><code>muhat=mean(BH$medv)
+print(muhat)</code></pre>
+<pre><code>## [1] 22.53281</code></pre>
+<p>A straightforward estimation of the population mean is the sample mean. The estimated population mean of medv was found to be 22.53281.</p>
+<p>Next, we will provide an estimate of the standard error of <span class="math inline">\({μ}\)</span>. We can compute the standard error of the sample mean by dividing the sample standard deviation by the square root of the number of observations.</p>
+<pre class="r"><code>SEmuhat=sqrt(var(BH$medv)/dim(BH)[1])
+print(SEmuhat)</code></pre>
+<pre><code>## [1] 0.4088611</code></pre>
+<p>Now estimate the standard error of <span class="math inline">\({μ}\)</span>ˆusing the bootstrap and compare this our prior estimates.</p>
+<pre class="r"><code>medv.mean=function(BH,index){
+  return(mean(BH[index,]$medv))
+}
+
+B_values=c(50,100,200,300,400,500,1000,1500,2000,2500,3000,3500,4000)
+medbootsd=rep(NA,length(B_values))
+for(i in 1:length(B_values)){
+  set.seed(702)
+  medbootsd[i]= sd((boot(BH,medv.mean,R=B_values[i]))$t)
+}
+plot(medbootsd~B_values,type=&quot;b&quot;,pch=4,col=&quot;salmon&quot;,lwd=2,ylim=c(0.35,0.45),
+     ylab=&quot;Est. SE of muhat&quot;,xlab=&quot;Number of Bootstrap replicates&quot;)
+abline(h=c(36:44)/100,v=c(0:8)*500,lty=3,col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+The figure here plots the estimated SE of for different B values. We see the estimation does not stabilize within B=4000 (note: each time we used seed 702).
+We chose 3000 as our B value. Using 3000 bootstrap replicates and 702 as seed, the standard error of was found to be 0.4130941. This is a bit larger (by 1.03%) than the estimated value calculated previously.</p>
+<p>Based on our bootstrap estimate, we now provide a 95 % confidence interval for the mean of medv. We can approximate a 95 % confidence interval using the formula <span class="math inline">\({[μˆ − 2SE(μˆ), μˆ + 2SE(μˆ)]}\)</span> (which is normal based method).</p>
+<pre class="r"><code>qnorm(0.975)</code></pre>
+<pre><code>## [1] 1.959964</code></pre>
+<pre class="r"><code>set.seed(702)
+medvboot=boot(BH,medv.mean,R=3000)
+medvboot</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = BH, statistic = medv.mean, R = 3000)
+## 
+## 
+## Bootstrap Statistics :
+##     original      bias    std. error
+## t1* 22.53281 0.007650395   0.4088044</code></pre>
+<pre class="r"><code>boot.ci(medvboot,conf = 0.95)</code></pre>
+<pre><code>## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 3000 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = medvboot, conf = 0.95)
+## 
+## Intervals : 
+## Level      Normal              Basic         
+## 95%   (21.72, 23.33 )   (21.73, 23.30 )  
+## 
+## Level     Percentile            BCa          
+## 95%   (21.76, 23.34 )   (21.74, 23.33 )  
+## Calculations and Intervals on Original Scale</code></pre>
+<pre class="r"><code>hist(medvboot$t,prob=T,col=&quot;tan&quot;,xlab=expression(hat(mu)))</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>t.test(BH$medv)</code></pre>
+<pre><code>## 
+##  One Sample t-test
+## 
+## data:  BH$medv
+## t = 55.111, df = 505, p-value &lt; 2.2e-16
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  21.72953 23.33608
+## sample estimates:
+## mean of x 
+##  22.53281</code></pre>
+<p>The function returned the 95% CI based on four methods, normal based, basic, percentile based and adjusted percentile based (BCa). Percentile based picks the 2.5th percentile and 97.5th percentile from the mean values calculated for all the bootstrap replicates. All the methods resulted in almost the same CI.
+The figure plots the probability density function (PDF) of all the muhat values, calculated for all 3000 bootstrap replicates. It looks like a nice normal shape. So, normal based CI (21.73, 23.34) should be pretty good estimation for this case. In fact, t.test gave the same answer within 2 decimal points.</p>
+<p>Now, based on this dataset, we will provide an estimate, <span class="math inline">\({\hat{\mu_{med}}}\)</span>, for the median value of medv in the population.</p>
+<pre class="r"><code>hist(BH$medv,breaks=25,col=&quot;aliceblue&quot;,prob=T,xlab=&quot;medv&quot;)</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>medhat=median(BH$medv)
+medhat</code></pre>
+<pre><code>## [1] 21.2</code></pre>
+<p>In general, the sample median is the best estimate of the population median. Things get complex if the data is clustered. This figure above shows the PDF of medv. With relatively low bin width, there seems to be no clusters. Hence the sample median was chosen as an estimate of the population mean, which is 21.2. This is lower than the estimated population. This is expected, as the medv distribution is right skewed.</p>
+<p>We now would like to estimate the standard error of <span class="math inline">\({\hat{\mu_{med}}}\)</span>. Unfortunately, there is no simple formula for computing the standard error of the median. Instead, we will estimate the standard error of the median using the bootstrap.</p>
+<pre class="r"><code>medv.med=function(BH,index){
+  return(median(BH[index,]$medv))
+}
+
+medianbootsd=rep(NA,length(B_values))
+for(i in 1:length(B_values)){
+  set.seed(702)
+  medbootsd[i]= sd((boot(BH,medv.med,R=B_values[i]))$t)
+}
+
+plot(medbootsd~B_values,type=&quot;b&quot;,pch=4,col=&quot;deepskyblue&quot;,lwd=2,ylim=c(0.3, 0.42),
+     ylab=&quot;Est. SE of muhatmedian&quot;,xlab=&quot;Number of Bootstrap replicates&quot;)
+abline(h=c(30:42)/100,v=c(0:8)*500,lty=3,col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>medianboot=boot(BH,medv.med,R=1500)
+medianboot</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = BH, statistic = medv.med, R = 1500)
+## 
+## 
+## Bootstrap Statistics :
+##     original      bias    std. error
+## t1*     21.2 -0.02676667   0.3820984</code></pre>
+<p>The figure above shows the bootstrap estimation of the standard error of for several values of B. We see the bootstrap estimation is quite stable for B&gt;1500. So, we chose B=1500. Using 1500 bootstrap replicates, the estimated standard error of by bootstrap method is 0.3848604. This value is little less than the estimated standard error of sample mean.
+Based on this data set, provide an estimate for the tenth per- centile of medv in Boston suburbs. Call this quantity <span class="math inline">\({\hat{\mu_{0.1}}}\)</span>. Here, we can use the <code>quantile()</code> function.</p>
+<pre class="r"><code>muhat.1=quantile(BH$medv, probs=0.1)
+muhat.1</code></pre>
+<pre><code>##   10% 
+## 12.75</code></pre>
+<p>The population 10th percentile is estimated by the sample 10th percentile, which is 12.75.
+Here, we will use the bootstrap to estimate the standard error of <span class="math inline">\({\hat{\mu_{0.1}}}\)</span>.</p>
+<pre class="r"><code>medv.1=function(BH,index){
+  return(quantile(BH[index,]$medv,probs=0.1))
+}
+
+B_values=c(50,100,200,300,400,500,1000,1500,2000,2500,3000,3500,4000,5000,6000)
+bootsd.1=rep(NA,length(B_values))
+for(i in 1:length(B_values)){
+  set.seed(702)
+  bootsd.1[i]= sd((boot(BH,medv.1,R=B_values[i]))$t)
+}
+plot(bootsd.1~B_values,type=&quot;b&quot;,pch=4,col=&quot;darkgreen&quot;,lwd=2,ylim=c(0.38, 0.52),
+     ylab=&quot;Est. SE of muhat0.1&quot;,xlab=&quot;Number of Bootstrap replicates&quot;)
+abline(h=c(38:52)/100,v=c(0:12)*500,lty=3,col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>set.seed(702)
+bootlast=boot(BH,medv.1,R=5000)
+bootlast</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = BH, statistic = medv.1, R = 5000)
+## 
+## 
+## Bootstrap Statistics :
+##     original   bias    std. error
+## t1*    12.75 -0.00758   0.5042702</code></pre>
+<pre class="r"><code>P=c(1:99)/100
+xvalues=qnorm(P)
+fx=dnorm(xvalues)
+
+variance=P*(1-P)/length(P)/(fx^2)
+plot(variance~P,col=&quot;coral&quot;,type=&quot;l&quot;,lwd=3,xlab=&quot;Percentile&quot;,
+     ylab=&quot;proportional to variance&quot;)
+abline(v=c(0:10)/10,h=c(2:14)/100,lty=3, col=&quot;gray&quot;)</code></pre>
+<p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-11-2.png" width="672" />
+In the past, we have used different classification methods to analyze the dataset. Now we will use the following:</p>
+<ol style="list-style-type: lower-roman">
+<li>Validation Set Approach (VSA)</li>
+<li>LOOCV and 5-fold Cross Validation to estimate the test error for the following models. Choose the best model based on test error.</li>
+<li>Logistic Regression (or Multinomial Logistic Regression for more than two classes) iv) KNN (choose the best of K)</li>
+<li>LDA vi) QDA</li>
+<li>MclustDA - best model chosen by BIC viii) MclustDA with modelType=“EDDA”</li>
+<li>Find a new method that can do classification.</li>
+</ol>
+<pre class="r"><code>library(MASS)
+library(mclust)
+library(class)
+library(rpart)
+data(&quot;biopsy&quot;)
+set.seed(702)
+
+bc &lt;- biopsy
+colnames(bc) &lt;- c(&quot;Samplecodenumber &quot;,&quot;Clumpthinkness&quot;,&quot;CellSize&quot;,&quot;Cellshape &quot;,&quot;MarAd&quot;,&quot;SingleEpithelialCellSize&quot;,&quot;BareNu&quot;,&quot;BlandCh&quot;,&quot;NormalNu&quot;,&quot;Mitoses&quot;,&quot;Class&quot;)
+
+#View(bc)
+dim(bc)</code></pre>
+<pre><code>## [1] 699  11</code></pre>
+<pre class="r"><code>summary(bc)</code></pre>
+<pre><code>##  Samplecodenumber   Clumpthinkness      CellSize        Cellshape     
+##  Length:699         Min.   : 1.000   Min.   : 1.000   Min.   : 1.000  
+##  Class :character   1st Qu.: 2.000   1st Qu.: 1.000   1st Qu.: 1.000  
+##  Mode  :character   Median : 4.000   Median : 1.000   Median : 1.000  
+##                     Mean   : 4.418   Mean   : 3.134   Mean   : 3.207  
+##                     3rd Qu.: 6.000   3rd Qu.: 5.000   3rd Qu.: 5.000  
+##                     Max.   :10.000   Max.   :10.000   Max.   :10.000  
+##                                                                       
+##      MarAd        SingleEpithelialCellSize     BareNu          BlandCh      
+##  Min.   : 1.000   Min.   : 1.000           Min.   : 1.000   Min.   : 1.000  
+##  1st Qu.: 1.000   1st Qu.: 2.000           1st Qu.: 1.000   1st Qu.: 2.000  
+##  Median : 1.000   Median : 2.000           Median : 1.000   Median : 3.000  
+##  Mean   : 2.807   Mean   : 3.216           Mean   : 3.545   Mean   : 3.438  
+##  3rd Qu.: 4.000   3rd Qu.: 4.000           3rd Qu.: 6.000   3rd Qu.: 5.000  
+##  Max.   :10.000   Max.   :10.000           Max.   :10.000   Max.   :10.000  
+##                                            NA&#39;s   :16                       
+##     NormalNu         Mitoses             Class    
+##  Min.   : 1.000   Min.   : 1.000   benign   :458  
+##  1st Qu.: 1.000   1st Qu.: 1.000   malignant:241  
+##  Median : 1.000   Median : 1.000                  
+##  Mean   : 2.867   Mean   : 1.589                  
+##  3rd Qu.: 4.000   3rd Qu.: 1.000                  
+##  Max.   :10.000   Max.   :10.000                  
+## </code></pre>
+<pre class="r"><code>#removing ID
+bc&lt;-as.data.frame(bc[,-1])
+cat(&quot;Removing the variable BareNu due to missing values; we can also impute missing or use na.omit&quot;)</code></pre>
+<pre><code>## Removing the variable BareNu due to missing values; we can also impute missing or use na.omit</code></pre>
+<pre class="r"><code>bc&lt;-as.data.frame(bc[,-6])
+#View(bc)
+cat(&quot;Changing the response variable into binomial&quot;)</code></pre>
+<pre><code>## Changing the response variable into binomial</code></pre>
+<pre class="r"><code>bc$Class&lt;-ifelse(bc$Class==&#39;benign&#39;,0,1)
+#full model
+full&lt;-glm(Class~.,data=bc,family=binomial())
+summary(full)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Class ~ ., family = binomial(), data = bc)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -3.4985  -0.1407  -0.0780   0.0250   2.8749  
+## 
+## Coefficients:
+##                          Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)              -9.94564    1.03236  -9.634  &lt; 2e-16 ***
+## Clumpthinkness            0.57757    0.11903   4.852 1.22e-06 ***
+## CellSize                 -0.01155    0.17591  -0.066  0.94764    
+## `Cellshape `              0.56794    0.19127   2.969  0.00298 ** 
+## MarAd                     0.31368    0.10036   3.125  0.00178 ** 
+## SingleEpithelialCellSize  0.13056    0.14060   0.929  0.35308    
+## BlandCh                   0.57995    0.14558   3.984 6.79e-05 ***
+## NormalNu                  0.12319    0.09869   1.248  0.21193    
+## Mitoses                   0.60785    0.32416   1.875  0.06077 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 900.53  on 698  degrees of freedom
+## Residual deviance: 140.67  on 690  degrees of freedom
+## AIC: 158.67
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<pre class="r"><code>cat(&quot;stepwise selection&quot;)</code></pre>
+<pre><code>## stepwise selection</code></pre>
+<pre class="r"><code>null=glm(Class~1,data=bc,family=binomial())
+
+step_model=step(null, scope =list(lower=null, upper=full),direction = &quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=902.53
+## Class ~ 1
+## 
+##                            Df Deviance    AIC
+## + CellSize                  1   275.55 279.55
+## + `Cellshape `              1   284.25 288.25
+## + BlandCh                   1   401.35 405.35
+## + Clumpthinkness            1   464.05 468.05
+## + SingleEpithelialCellSize  1   481.71 485.71
+## + NormalNu                  1   488.51 492.51
+## + MarAd                     1   492.55 496.55
+## + Mitoses                   1   731.08 735.08
+## &lt;none&gt;                          900.53 902.53
+## 
+## Step:  AIC=279.55
+## Class ~ CellSize
+## 
+##                            Df Deviance    AIC
+## + Clumpthinkness            1   212.31 218.31
+## + BlandCh                   1   226.67 232.67
+## + `Cellshape `              1   239.65 245.65
+## + NormalNu                  1   249.14 255.14
+## + MarAd                     1   253.31 259.31
+## + Mitoses                   1   260.35 266.35
+## + SingleEpithelialCellSize  1   262.73 268.73
+## &lt;none&gt;                          275.55 279.55
+## - CellSize                  1   900.53 902.53
+## 
+## Step:  AIC=218.31
+## Class ~ CellSize + Clumpthinkness
+## 
+##                            Df Deviance    AIC
+## + BlandCh                   1   174.26 182.26
+## + MarAd                     1   189.89 197.89
+## + `Cellshape `              1   190.00 198.00
+## + NormalNu                  1   193.03 201.03
+## + SingleEpithelialCellSize  1   199.48 207.48
+## + Mitoses                   1   205.88 213.88
+## &lt;none&gt;                          212.31 218.31
+## - Clumpthinkness            1   275.55 279.55
+## - CellSize                  1   464.05 468.05
+## 
+## Step:  AIC=182.26
+## Class ~ CellSize + Clumpthinkness + BlandCh
+## 
+##                            Df Deviance    AIC
+## + MarAd                     1   160.02 170.02
+## + `Cellshape `              1   160.42 170.42
+## + NormalNu                  1   166.69 176.69
+## + Mitoses                   1   169.11 179.11
+## + SingleEpithelialCellSize  1   169.27 179.27
+## &lt;none&gt;                          174.26 182.26
+## - BlandCh                   1   212.31 218.31
+## - Clumpthinkness            1   226.67 232.67
+## - CellSize                  1   236.68 242.68
+## 
+## Step:  AIC=170.02
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd
+## 
+##                            Df Deviance    AIC
+## + `Cellshape `              1   148.29 160.29
+## + NormalNu                  1   154.60 166.60
+## + SingleEpithelialCellSize  1   155.72 167.72
+## + Mitoses                   1   155.74 167.74
+## &lt;none&gt;                          160.02 170.02
+## - MarAd                     1   174.26 182.26
+## - CellSize                  1   184.57 192.57
+## - BlandCh                   1   189.89 197.89
+## - Clumpthinkness            1   215.31 223.31
+## 
+## Step:  AIC=160.29
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd + `Cellshape `
+## 
+##                            Df Deviance    AIC
+## + Mitoses                   1   143.90 157.90
+## - CellSize                  1   149.03 159.03
+## + NormalNu                  1   145.66 159.66
+## &lt;none&gt;                          148.29 160.29
+## + SingleEpithelialCellSize  1   146.33 160.33
+## - `Cellshape `              1   160.02 170.02
+## - MarAd                     1   160.42 170.42
+## - BlandCh                   1   171.78 181.78
+## - Clumpthinkness            1   190.28 200.28
+## 
+## Step:  AIC=157.9
+## Class ~ CellSize + Clumpthinkness + BlandCh + MarAd + `Cellshape ` + 
+##     Mitoses
+## 
+##                            Df Deviance    AIC
+## - CellSize                  1   144.05 156.05
+## + NormalNu                  1   141.54 157.54
+## &lt;none&gt;                          143.90 157.90
+## + SingleEpithelialCellSize  1   142.24 158.24
+## - Mitoses                   1   148.29 160.29
+## - MarAd                     1   154.91 166.91
+## - `Cellshape `              1   155.74 167.74
+## - BlandCh                   1   166.24 178.24
+## - Clumpthinkness            1   176.50 188.50
+## 
+## Step:  AIC=156.05
+## Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses
+## 
+##                            Df Deviance    AIC
+## + NormalNu                  1   141.55 155.55
+## &lt;none&gt;                          144.05 156.05
+## + SingleEpithelialCellSize  1   142.25 156.25
+## + CellSize                  1   143.90 157.90
+## - Mitoses                   1   149.03 159.03
+## - MarAd                     1   157.01 167.01
+## - BlandCh                   1   168.34 178.34
+## - `Cellshape `              1   175.50 185.50
+## - Clumpthinkness            1   178.69 188.69
+## 
+## Step:  AIC=155.55
+## Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + 
+##     NormalNu
+## 
+##                            Df Deviance    AIC
+## &lt;none&gt;                          141.55 155.55
+## - NormalNu                  1   144.05 156.05
+## + SingleEpithelialCellSize  1   140.67 156.67
+## + CellSize                  1   141.54 157.54
+## - Mitoses                   1   145.91 157.91
+## - MarAd                     1   153.37 165.37
+## - BlandCh                   1   161.37 173.37
+## - `Cellshape `              1   162.45 174.45
+## - Clumpthinkness            1   172.96 184.96</code></pre>
+<pre class="r"><code>cat(&quot;Class ~ clumpthinkness + BlandCh + MarAd + cellshape + Mitoses + NormalNu is the best model&quot;)</code></pre>
+<pre><code>## Class ~ clumpthinkness + BlandCh + MarAd + cellshape + Mitoses + NormalNu is the best model</code></pre>
+<pre class="r"><code>set.seed(24688)
+cat(&quot;Divide the dataset into two sets&quot;)</code></pre>
+<pre><code>## Divide the dataset into two sets</code></pre>
+<pre class="r"><code>index_num &lt;- sample(dim(bc)[1], size = 350)
+train &lt;- bc[index_num,]
+test &lt;- bc[-index_num,]
+
+cat(&quot;glm&quot;)</code></pre>
+<pre><code>## glm</code></pre>
+<pre class="r"><code>best_model_glm = glm(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train ,family = binomial())
+vsa.glm &lt;- (mean((ifelse(predict(best_model_glm, test, type = &quot;response&quot;)&gt;=.5,1,0)-test$Class)^2))
+vsa.glm*100</code></pre>
+<pre><code>## [1] 4.011461</code></pre>
+<pre class="r"><code>cat(&quot;lda&quot;)</code></pre>
+<pre><code>## lda</code></pre>
+<pre class="r"><code>best_model_lda = lda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu, data = train)
+Auto_pred = predict(best_model_lda, test)
+vsa.lda &lt;- mean(Auto_pred$class != test$Class)
+vsa.lda</code></pre>
+<pre><code>## [1] 0.05444126</code></pre>
+<pre class="r"><code>cat(&quot;qda&quot;)</code></pre>
+<pre><code>## qda</code></pre>
+<pre class="r"><code>best_model_qda = qda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu, data = train)
+Auto_pred_1 = predict(best_model_qda, test)
+vsa.qda &lt;- mean(Auto_pred_1$class != test$Class)
+vsa.qda</code></pre>
+<pre><code>## [1] 0.06017192</code></pre>
+<pre class="r"><code>cat(&quot;knn&quot;)</code></pre>
+<pre><code>## knn</code></pre>
+<pre class="r"><code>best_model_knn = knn(train, test, train$Class, k = 1)
+table(best_model_knn, test$Class )</code></pre>
+<pre><code>##               
+## best_model_knn   0   1
+##              0 219   7
+##              1  11 112</code></pre>
+<pre class="r"><code>vsa.knn &lt;- mean(best_model_knn != test$Class)
+vsa.knn</code></pre>
+<pre><code>## [1] 0.05157593</code></pre>
+<pre class="r"><code>cat(&quot;mclust&quot;)</code></pre>
+<pre><code>## mclust</code></pre>
+<pre class="r"><code>model1.mclust &lt;- MclustDA(train, train$Class, G = 1)
+model2.mclust &lt;- MclustDA(train, train$Class, G = 2)
+model3.mclust &lt;- MclustDA(train, train$Class, G = 3)
+model4.mclust &lt;- MclustDA(train, train$Class, G = 4)
+model5.mclust &lt;- MclustDA(train, train$Class, G = 5)
+
+#BIC_for_mclust &lt;- c(model1.mclust$bic, model2.mclust$bic, model3.mclust$bic, model4.mclust$bic , model5.mclust$bic)
+#BIC_for_mclust
+
+results.1 = cbind(paste(predict.MclustDA(model1.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.2 = cbind(paste(predict.MclustDA(model2.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.3 = cbind(paste(predict.MclustDA(model3.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.4 = cbind(paste(predict.MclustDA(model4.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+results.5 = cbind(paste(predict.MclustDA(model5.mclust, newdata = test[, -9])$classification), paste(test[, 9]))
+
+cat(&quot;error rate&quot;)</code></pre>
+<pre><code>## error rate</code></pre>
+<pre class="r"><code>err1 &lt;- mean(results.1[, 1] != results.1[, 2])
+err2 &lt;- mean(results.2[, 1] != results.2[, 2])
+err3 &lt;- mean(results.3[, 1] != results.3[, 2])
+err4 &lt;- mean(results.4[, 1] != results.4[, 2])
+err5 &lt;- mean(results.5[, 1] != results.5[, 2])
+
+cat(&quot;best mclust chosen by BIC&quot;)</code></pre>
+<pre><code>## best mclust chosen by BIC</code></pre>
+<pre class="r"><code>vsa.mcl.2&lt;-mean(results.2[, 1] != results.2[, 2])
+vsa.mcl.2</code></pre>
+<pre><code>## [1] 0.06876791</code></pre>
+<pre class="r"><code>cat(&quot;Mclust EDDA&quot;)</code></pre>
+<pre><code>## Mclust EDDA</code></pre>
+<pre class="r"><code>model.EDDA &lt;- MclustDA(train[, -9], train[, 9], modelType = &quot;EDDA&quot;)
+summary(model.EDDA)</code></pre>
+<pre><code>## ------------------------------------------------ 
+## Gaussian finite mixture model for classification 
+## ------------------------------------------------ 
+## 
+## EDDA model summary: 
+## 
+##  log-likelihood   n df       BIC
+##       -4390.254 350 81 -9255.001
+##        
+## Classes   n     % Model G
+##       0 228 65.14   VEV 1
+##       1 122 34.86   VEV 1
+## 
+## Training confusion matrix:
+##      Predicted
+## Class   0   1
+##     0 215  13
+##     1   2 120
+## Classification error = 0.0429 
+## Brier score          = 0.0394</code></pre>
+<pre class="r"><code>results.EDDA = cbind(paste(predict.MclustDA(model.EDDA, newdata = test[, -9])$classification), paste(test[, 9]))
+vsa.edda &lt;- mean(results.EDDA[, 1] != results.EDDA[, 2])
+vsa.edda</code></pre>
+<pre><code>## [1] 0.06590258</code></pre>
+<pre class="r"><code>cat(&quot;rpart&quot;)</code></pre>
+<pre><code>## rpart</code></pre>
+<pre class="r"><code>tree_fit &lt;- rpart(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train)
+vsa.rpart &lt;- (mean((ifelse(predict(tree_fit, test)&gt;=.5,1,0)-test$Class)^2))
+vsa.rpart</code></pre>
+<pre><code>## [1] 0.07449857</code></pre>
+<pre class="r"><code>cat(&quot;LOOCV&quot;)</code></pre>
+<pre><code>## LOOCV</code></pre>
+<pre class="r"><code>cnt = rep(0, dim(bc)[1])
+for (i in 1:(dim(bc)[1])) {
+  best_glm &lt;- glm(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train ,family = binomial())
+  prob = ifelse(predict(best_glm, bc[i,], type = &quot;response&quot;)&gt;=.5,1,0)
+  if (prob != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.glm &lt;- sum(cnt)/dim(bc)[1]
+loocv.glm*100</code></pre>
+<pre><code>## [1] 3.862661</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  best_model_lda = lda(Class ~  Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=bc[-i,])
+  Auto_pred = predict(best_model_lda, bc[i,])
+  if (Auto_pred$class != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.lda &lt;- sum(cnt)/dim(bc)[1]
+loocv.lda</code></pre>
+<pre><code>## [1] 0.06151645</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  best_model_qda = qda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=bc[-i,])
+  Auto_pred = predict(best_model_qda, bc[i,])
+  if (Auto_pred$class != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.qda &lt;- sum(cnt)/dim(bc)[1]
+loocv.qda*100</code></pre>
+<pre><code>## [1] 8.297568</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  knn_fit_10 = knn(bc[-i,], bc[i,], bc$Class[-i], k = 10)
+  if (knn_fit_10 != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.knn &lt;- sum(cnt)/dim(bc)[1]
+loocv.knn</code></pre>
+<pre><code>## [1] 0.08297568</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  model2.mclust &lt;- MclustDA(bc[-i,], bc$Class[-i], G = 2)
+  mpred&lt;-predict.MclustDA(model2.mclust, newdata = bc[i,])$classification
+  if (mpred != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.mcl.2 &lt;- sum(cnt)/dim(bc)[1]
+loocv.mcl.2</code></pre>
+<pre><code>## [1] 0.08440629</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  model.EDDA &lt;- MclustDA(bc[-i,], bc$Class[-i], modelType = &quot;EDDA&quot;)
+  mpred&lt;-predict.MclustDA(model.EDDA, newdata = bc[i,])$classification
+  if (mpred != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.edda &lt;- sum(cnt)/dim(bc)[1]
+loocv.edda</code></pre>
+<pre><code>## [1] 0.08583691</code></pre>
+<pre class="r"><code>for (i in 1:(dim(bc)[1])) {
+  best_tree=rpart(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train)
+  prob = ifelse(predict(best_tree, bc[i,])&gt;=.5,1,0)
+  if (prob != bc$Class[i]) 
+    cnt[i] = 1
+}
+loocv.rpart &lt;- sum(cnt)/dim(bc)[1]
+loocv.rpart</code></pre>
+<pre><code>## [1] 0.1030043</code></pre>
+<pre class="r"><code>cat(&quot;5 fold&quot;)</code></pre>
+<pre><code>## 5 fold</code></pre>
+<pre class="r"><code>begin &lt;- 1
+fitted&lt;-NULL
+glm.error&lt;-NULL
+lda.error&lt;-NULL
+qda.error&lt;-NULL
+knn.error&lt;-NULL
+mcl.error&lt;-NULL
+edda.error&lt;-NULL
+rpart.error&lt;-NULL
+for(i in 1:5) {
+  begin &lt;- (i-1)*nrow(bc)/5
+  end &lt;-(i)*nrow(bc)/5
+  train &lt;- bc[-(begin:end),]
+  test &lt;- bc[begin:end,]
+  
+  best_model_glm=glm(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train,family=binomial())
+  fitted &lt;- ifelse(predict(best_model_glm, test, type = &quot;response&quot;)&gt;=.5,1,0)
+  glm.error[i]&lt;-sum((test$Class-fitted)^2)/dim(test)[1]
+  
+  best_model_lda = lda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu , data = train)
+  Auto_pred = predict(best_model_lda, test)
+  lda.error[i]&lt;-mean(Auto_pred$class != test$Class)
+  
+  best_model_qda = qda(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu , data = train)
+  Auto_pred1 = predict(best_model_qda, test)
+  qda.error[i]&lt;-mean(Auto_pred1$class != test$Class)
+  
+  knn_fit_10 = knn(train, test, train$Class, k = 10)
+  table(knn_fit_10, test$Class )
+  knn.error[i]&lt;-mean(knn_fit_10 != test$Class)
+  
+  model2.mclust &lt;- MclustDA(train, train$Class, G = 2)
+  mpred&lt;-predict.MclustDA(model4.mclust, newdata = test)$classification
+  mcl.error[i]&lt;-mean(mpred != test$Class)
+  
+  model.EDDA &lt;- MclustDA(train, train$Class, modelType = &quot;EDDA&quot;)
+  eddapred&lt;-predict.MclustDA(model.EDDA, newdata = test)$classification
+  edda.error[i]&lt;-mean(eddapred != test$Class)
+  
+  model.rpart&lt;- rpart(Class ~ Clumpthinkness + BlandCh + MarAd + `Cellshape ` + Mitoses + NormalNu ,data=train)
+  rpart.error[i] &lt;- (mean((ifelse(predict(tree_fit, test)&gt;=.5,1,0)-test$Class)^2))
+}
+fold5.glm&lt;-mean(glm.error)
+fold5.lda&lt;-mean(lda.error)
+fold5.qda&lt;-mean(qda.error)
+fold5.knn&lt;-mean(knn.error)
+fold5.mcl.2&lt;-mean(mcl.error)
+fold5.edda&lt;-mean(edda.error)
+fold5.rpart&lt;-mean(rpart.error)
+
+glm.tot&lt;-cbind(vsa.glm,loocv.glm,fold5.glm)
+lda.tot&lt;-cbind(vsa.lda,loocv.lda,fold5.lda)
+qda.tot&lt;-cbind(vsa.qda,loocv.qda,fold5.qda)
+knn.tot&lt;-cbind(vsa.knn,loocv.knn,fold5.knn)
+mcl.tot&lt;-cbind(vsa.mcl.2,loocv.mcl.2,fold5.mcl.2)
+edda.tot&lt;-cbind(vsa.edda,loocv.edda,fold5.edda)
+rpart.tot&lt;-cbind(vsa.rpart,loocv.rpart,fold5.rpart)
+
+result.table&lt;-rbind(glm.tot,lda.tot,qda.tot,knn.tot,mcl.tot,edda.tot,rpart.tot)
+colnames(result.table)&lt;-c(&quot;VSA&quot;,&quot;LOOCV&quot;,&quot;5-FOLD CV&quot;)
+rownames(result.table)&lt;-c(&quot;GLM&quot;,&quot;LDA&quot;,&quot;QDA&quot;,&quot;KNN&quot;,&quot;MCLUST&quot;,&quot;M.EDDA&quot;,&quot;RPART&quot;)
+result.table</code></pre>
+<pre><code>##               VSA      LOOCV  5-FOLD CV
+## GLM    0.04011461 0.03862661 0.04297020
+## LDA    0.05444126 0.06151645 0.05730730
+## QDA    0.06017192 0.08297568 0.05726619
+## KNN    0.05157593 0.08297568 0.04150051
+## MCLUST 0.06876791 0.08440629 0.04577595
+## M.EDDA 0.06590258 0.08583691 0.03865365
+## RPART  0.07449857 0.10300429 0.05869476</code></pre>
+<pre class="r"><code>library(knitr)
+library(kableExtra)
+
+Method &lt;- c(&quot;GLM&quot;,&quot;LDA&quot;,&quot;QDA&quot;,&quot;KNN&quot;,&quot;MclustDA&quot;,&quot;MclustDA.EDDA&quot;,&quot;RPART&quot;)
+VSA &lt;- c(vsa.glm,vsa.lda,vsa.qda,vsa.knn,vsa.mcl.2,vsa.edda,vsa.rpart)
+LOOCV &lt;- c(loocv.glm,loocv.lda,loocv.qda,loocv.knn,loocv.mcl.2,loocv.edda,loocv.rpart)
+Five.FoldCV &lt;- c(fold5.glm,fold5.lda,fold5.qda,fold5.knn,fold5.mcl.2,fold5.edda,fold5.rpart)
+#Test_error &lt;- c(m1,m2,m3)
+temp &lt;- as.data.frame(cbind(Method,VSA,LOOCV,Five.FoldCV))
+kable(temp, align=&quot;r&quot;)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Method
+</th>
+<th style="text-align:right;">
+VSA
+</th>
+<th style="text-align:right;">
+LOOCV
+</th>
+<th style="text-align:right;">
+Five.FoldCV
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+GLM
+</td>
+<td style="text-align:right;">
+0.0401146131805158
+</td>
+<td style="text-align:right;">
+0.0386266094420601
+</td>
+<td style="text-align:right;">
+0.0429701952723535
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+LDA
+</td>
+<td style="text-align:right;">
+0.0544412607449857
+</td>
+<td style="text-align:right;">
+0.061516452074392
+</td>
+<td style="text-align:right;">
+0.0573072970195272
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+QDA
+</td>
+<td style="text-align:right;">
+0.0601719197707736
+</td>
+<td style="text-align:right;">
+0.0829756795422032
+</td>
+<td style="text-align:right;">
+0.0572661870503597
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+KNN
+</td>
+<td style="text-align:right;">
+0.0515759312320917
+</td>
+<td style="text-align:right;">
+0.0829756795422032
+</td>
+<td style="text-align:right;">
+0.0415005138746146
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+MclustDA
+</td>
+<td style="text-align:right;">
+0.0687679083094556
+</td>
+<td style="text-align:right;">
+0.0844062947067239
+</td>
+<td style="text-align:right;">
+0.045775950668037
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+MclustDA.EDDA
+</td>
+<td style="text-align:right;">
+0.0659025787965616
+</td>
+<td style="text-align:right;">
+0.0858369098712446
+</td>
+<td style="text-align:right;">
+0.0386536485097636
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+RPART
+</td>
+<td style="text-align:right;">
+0.0744985673352436
+</td>
+<td style="text-align:right;">
+0.103004291845494
+</td>
+<td style="text-align:right;">
+0.0586947584789311
+</td>
+</tr>
+</tbody>
+</table>
