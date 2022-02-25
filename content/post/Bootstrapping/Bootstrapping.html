@@ -110,7 +110,7 @@ plot(medbootsd~B_values,type=&quot;b&quot;,pch=4,col=&quot;salmon&quot;,lwd=2,yl
      ylab=&quot;Est. SE of muhat&quot;,xlab=&quot;Number of Bootstrap replicates&quot;)
 abline(h=c(36:44)/100,v=c(0:8)*500,lty=3,col=&quot;gray&quot;)</code></pre>
 <p><img src="/post/Bootstrapping/Bootstrapping_files/figure-html/unnamed-chunk-6-1.png" width="672" />
-The figure here plots the estimated SE of for different B values. We see the estimation does not stabilize within B=4000 (note: each time we used seed 702).
+The figure here plots the estimated SE for different B values. We see the estimation does not stabilize within B=4000 (note: each time we used seed 702).
 We chose 3000 as our B value. Using 3000 bootstrap replicates and 702 as seed, the standard error of was found to be 0.4130941. This is a bit larger (by 1.03%) than the estimated value calculated previously.</p>
 <p>Based on our bootstrap estimate, we now provide a 95 % confidence interval for the mean of medv. We can approximate a 95 % confidence interval using the formula <span class="math inline">\({[μˆ − 2SE(μˆ), μˆ + 2SE(μˆ)]}\)</span> (which is normal based method).</p>
 <pre class="r"><code>qnorm(0.975)</code></pre>

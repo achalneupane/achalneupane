@@ -122,7 +122,7 @@ plot(medbootsd~B_values,type="b",pch=4,col="salmon",lwd=2,ylim=c(0.35,0.45),
      ylab="Est. SE of muhat",xlab="Number of Bootstrap replicates")
 abline(h=c(36:44)/100,v=c(0:8)*500,lty=3,col="gray")
 ```
-The figure here plots the estimated SE of  for different B values. We see the estimation does not stabilize within B=4000 (note: each time we used seed 702).
+The figure here plots the estimated SE for different B values. We see the estimation does not stabilize within B=4000 (note: each time we used seed 702).
 We chose 3000 as our B value. Using 3000 bootstrap replicates and 702 as seed, the standard error of  was found to be 0.4130941. This is a bit larger (by 1.03%) than the estimated value calculated previously. 
 
 
