@@ -28,9 +28,9 @@ interests:
 highlight_name: true
 
 organizations:
-- name: Washington University in St. Louis
-  url: https://www.wustl.edu/
-role: Bioinformatics Scientist | Data scientist
+- name: St. Jude Children's Research Hospital
+  url: https://www.stjude.org/
+role: Bioinformatics Research Scientist | Data scientist
 social:
 # - icon: envelope
 #   icon_pack: fas
