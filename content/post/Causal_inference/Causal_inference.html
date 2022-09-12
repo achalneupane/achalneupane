@@ -1,0 +1,385 @@
+---
+title: "Modeling Causal Inference"
+output: html_document
+---
+
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.2.1</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+## ✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(broom)</code></pre>
+<pre><code>## Warning: package &#39;broom&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>library(rsample)</code></pre>
+<pre><code>## Warning: package &#39;rsample&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>library(ggdag)</code></pre>
+<pre><code>## Warning: package &#39;ggdag&#39; was built under R version 4.2.1</code></pre>
+<pre><code>## 
+## Attaching package: &#39;ggdag&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre class="r"><code>library(causaldata)</code></pre>
+<pre><code>## Warning: package &#39;causaldata&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>library(tidysmd)</code></pre>
+<pre><code>## Warning: package &#39;tidysmd&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>set.seed(1234)</code></pre>
+<div id="causal-modeling" class="section level2">
+<h2>Causal Modeling</h2>
+<p>In this tutorial, we’ll attempt to answer a causal question: <strong>does quitting smoking make you gain weight?</strong> Causal modeling has a special place in the history of smoking research: the studies that demonstrated that smoking causes lung cancer were observational. Thanks to other studies, we also know that, if you’re already a smoker, quitting smoking reduces your risk of lung cancer. However, some have observed that former smokers tend to gain weight. Is this the result of quitting smoking, or does something else explain this effect? In the book Causal Inference by Hernán and Robins, the authors analyze this question using several causal inference techniques.</p>
+<p>To answer this question, we’ll use causal inference methods to examine the relationship between quitting smoking and gaining weight. First, we’ll draw our assumptions with a causal diagram (a directed acyclic graph, or DAG), which will guide our model. Then, we’ll use a modeling approach called inverse probability weighting–one of many causal modeling techniques–to estimate the causal effect we’re interested in.</p>
+<p>We’ll use data from NHEFS to try to estimate the causal effect of quitting smoking on weight game. NHEFS is a longitudinal, observational study that has many of the variables we’ll need. Take a look at <code>nhefs_codebook</code> if you want to know more about the variables in this data set. These data are included in the {causaldata} package. We’ll use the <code>nhefs_complete</code> data set, but we’ll remove people who were lost to follow-up.</p>
+<pre class="r"><code>nhefs_complete_uc &lt;- nhefs_complete %&gt;% 
+  filter(censored == 0)
+nhefs_complete_uc</code></pre>
+<pre><code>## # A tibble: 1,566 × 67
+##     seqn  qsmk death yrdth modth dadth   sbp   dbp sex     age race  income
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;
+##  1   233     0     0    NA    NA    NA   175    96 0        42 1         19
+##  2   235     0     0    NA    NA    NA   123    80 0        36 0         18
+##  3   244     0     0    NA    NA    NA   115    75 1        56 1         15
+##  4   245     0     1    85     2    14   148    78 0        68 1         15
+##  5   252     0     0    NA    NA    NA   118    77 0        40 0         18
+##  6   257     0     0    NA    NA    NA   141    83 1        43 1         11
+##  7   262     0     0    NA    NA    NA   132    69 1        56 0         19
+##  8   266     0     0    NA    NA    NA   100    53 1        29 0         22
+##  9   419     0     1    84    10    13   163    79 0        51 0         18
+## 10   420     0     1    86    10    17   184   106 0        43 0         16
+## # … with 1,556 more rows, and 55 more variables: marital &lt;dbl&gt;, school &lt;dbl&gt;,
+## #   education &lt;fct&gt;, ht &lt;dbl&gt;, wt71 &lt;dbl&gt;, wt82 &lt;dbl&gt;, wt82_71 &lt;dbl&gt;,
+## #   birthplace &lt;dbl&gt;, smokeintensity &lt;dbl&gt;, smkintensity82_71 &lt;dbl&gt;,
+## #   smokeyrs &lt;dbl&gt;, asthma &lt;dbl&gt;, bronch &lt;dbl&gt;, tb &lt;dbl&gt;, hf &lt;dbl&gt;, hbp &lt;dbl&gt;,
+## #   pepticulcer &lt;dbl&gt;, colitis &lt;dbl&gt;, hepatitis &lt;dbl&gt;, chroniccough &lt;dbl&gt;,
+## #   hayfever &lt;dbl&gt;, diabetes &lt;dbl&gt;, polio &lt;dbl&gt;, tumor &lt;dbl&gt;,
+## #   nervousbreak &lt;dbl&gt;, alcoholpy &lt;dbl&gt;, alcoholfreq &lt;dbl&gt;, …</code></pre>
+<p>Let’s look at the distribution of weight gain between the two groups.</p>
+<pre class="r"><code>colors &lt;- c(&quot;#E69F00&quot;, &quot;#56B4E9&quot;)
+
+nhefs_complete_uc %&gt;%
+  ggplot(aes(wt82_71, fill = factor(qsmk))) + 
+  geom_vline(xintercept = 0, color = &quot;grey60&quot;, size = 1) +
+  geom_density(color = &quot;white&quot;, alpha = .75, size = .5) +
+  scale_fill_manual(values = colors) + 
+  theme_minimal() +
+  theme(legend.position = &quot;bottom&quot;) + 
+  labs(
+    x = &quot;change in weight (kg)&quot;,
+    fill = &quot;quit smoking (1 = yes)&quot;
+  )</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>There’s a difference–former smokers do seemed to have gained a bit more weight–but there’s also a lot of variation. Let’s look at the numeric summaries.</p>
+<pre class="r"><code># ~2.5 kg gained for quit vs. not quit
+nhefs_complete_uc %&gt;% 
+  group_by(qsmk) %&gt;% 
+  summarize(
+    mean_weight_change = mean(wt82_71), 
+    sd = sd(wt82_71),
+    .groups = &quot;drop&quot;
+  )</code></pre>
+<pre><code>## # A tibble: 2 × 3
+##    qsmk mean_weight_change    sd
+##   &lt;dbl&gt;              &lt;dbl&gt; &lt;dbl&gt;
+## 1     0               1.98  7.45
+## 2     1               4.53  8.75</code></pre>
+<hr />
+<pre class="r"><code># ~2.5 kg gained for quit vs. not quit
+nhefs_complete_uc %&gt;% 
+  group_by(qsmk) %&gt;% 
+  summarize(
+    mean_weight_change = mean(wt82_71), 
+    sd = sd(wt82_71),
+    .groups = &quot;drop&quot;
+  )</code></pre>
+<pre><code>## # A tibble: 2 × 3
+##    qsmk mean_weight_change    sd
+##   &lt;dbl&gt;              &lt;dbl&gt; &lt;dbl&gt;
+## 1     0               1.98  7.45
+## 2     1               4.53  8.75</code></pre>
+<p>Here, it looks like those who quit smoking gained, on average, 2.5 kg. But is there something else that could explain these results? There are many factors associated with both quitting smoking and gaining weight; could one of those factors explain away the results we’re seeing here?</p>
+<p>To truly answer this question, we need to specify a causal diagram based on domain knowledge. Sadly, for most circumstances, there is no data-driven approach that consistently identify confounders. Only our causal assumptions can help us identify them. Causal diagrams are a visual expression of those assumptions linked to rigorous mathematics that allow us to understand what we need to account for in our model.</p>
+<p>In R, we can visualize and analyze our DAGs with the {ggdag} package. {ggdag} uses {ggplot2} and {ggraph} to visualize diagrams and {dagitty} to analyze them. Let’s set up our assumptions. The <code>dagify()</code> function takes formulas, much like <code>lm()</code> and friends, to express assumptions. We have two basic causal structures: the causes of quitting smoking and the causes of gaining weight. Here, we’re assuming that the set of variables here affect both. Additionally, we’re adding <code>qsmk</code> as a cause of <code>wt82_71</code>, which is our causal question; we also identify these as our outcome and exposure. Finally, we’ll add some labels so the diagram is easier to understand. The result is a <code>dagitty</code> object, and we can transform it to a <code>tidy_dagitty</code> data set with <code>tidy_dagitty()</code>.</p>
+<pre class="r"><code># set up DAG
+smk_wt_dag &lt;- dagify(
+  # specify causes of quitting smoking and weight gain:
+  qsmk ~ sex + race + age + education + 
+    smokeintensity + smokeyrs + exercise + active + wt71,
+  wt82_71 ~ qsmk + sex + race + age + education + 
+    smokeintensity + smokeyrs + exercise + active + wt71,
+  # specify causal question:
+  exposure = &quot;qsmk&quot;, 
+  outcome = &quot;wt82_71&quot;,
+  # set up labels:
+  # here, I&#39;ll use the same variable names as the data set, but I&#39;ll label them
+  # with clearer names
+  labels = c(
+    # causal question
+    &quot;qsmk&quot; = &quot;quit\nsmoking&quot;,
+    &quot;wt82_71&quot; = &quot;change in\nweight&quot;,
+    
+    # demographics
+    &quot;age&quot; = &quot;age&quot;,
+    &quot;sex&quot; = &quot;sex&quot;,
+    &quot;race&quot; = &quot;race&quot;,
+    &quot;education&quot; = &quot;education&quot;,
+    
+    # health
+    &quot;wt71&quot; = &quot;baseline\nweight&quot;,
+    &quot;active&quot; = &quot;daily\nactivity\nlevel&quot;,
+    &quot;exercise&quot; = &quot;exercise&quot;,
+    
+    # smoking history
+    &quot;smokeintensity&quot; = &quot;smoking\nintensity&quot;,
+    &quot;smokeyrs&quot; = &quot;yrs of\nsmoking&quot;
+  )
+) %&gt;% tidy_dagitty(layout = &quot;star&quot;)
+
+smk_wt_dag</code></pre>
+<pre><code>## # A DAG with 11 nodes and 19 edges
+## #
+## # Exposure: qsmk
+## # Outcome: wt82_71
+## #
+## # A tibble: 20 × 9
+##    name                x         y direction to       xend   yend circular label
+##    &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;    &lt;chr&gt;
+##  1 active          0      0        -&gt;        qsmk   -0.309  0.951 FALSE    &quot;dai…
+##  2 active          0      0        -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;dai…
+##  3 age             1      0        -&gt;        qsmk   -0.309  0.951 FALSE    &quot;age&quot;
+##  4 age             1      0        -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;age&quot;
+##  5 education       0.809  5.88e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;edu…
+##  6 education       0.809  5.88e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;edu…
+##  7 exercise        0.309  9.51e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;exe…
+##  8 exercise        0.309  9.51e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;exe…
+##  9 qsmk           -0.309  9.51e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;qui…
+## 10 race           -0.809  5.88e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;rac…
+## 11 race           -0.809  5.88e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;rac…
+## 12 sex            -1      1.22e-16 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;sex&quot;
+## 13 sex            -1      1.22e-16 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;sex&quot;
+## 14 smokeintensity -0.809 -5.88e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;smo…
+## 15 smokeintensity -0.809 -5.88e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;smo…
+## 16 smokeyrs       -0.309 -9.51e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;yrs…
+## 17 smokeyrs       -0.309 -9.51e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;yrs…
+## 18 wt71            0.309 -9.51e- 1 -&gt;        qsmk   -0.309  0.951 FALSE    &quot;bas…
+## 19 wt71            0.309 -9.51e- 1 -&gt;        wt82_…  0.809 -0.588 FALSE    &quot;bas…
+## 20 wt82_71         0.809 -5.88e- 1 &lt;NA&gt;      &lt;NA&gt;   NA     NA     FALSE    &quot;cha…</code></pre>
+<p>Let’s visualize our assumptions with <code>ggdag()</code>.</p>
+<pre class="r"><code>smk_wt_dag %&gt;% 
+  ggdag(text = FALSE, use_labels = &quot;label&quot;)</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>What do we need to control for to estimate an unbiased effect of quitting smoking on weight gain? In many DAGs, there will be many sets of variables–called adjustment sets–that will give us the right effect (assuming our DAG is correct–a big, unverifiable assumption!). <code>ggdag_adjustment_set()</code> can help you visualize them. Here, there’s only one adjustment set: we need to control for everything! While we’re add it, since a {ggdag} plot is just a {ggplot2} plot, let’s clean it up a bit, too.</p>
+<pre class="r"><code>smk_wt_dag %&gt;% 
+  ggdag_adjustment_set(text = FALSE, use_labels = &quot;label&quot;) +
+  theme_dag() +
+  scale_color_manual(values = colors) + 
+  scale_fill_manual(values = colors)</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Let’s fit a model with these variables. Note that we’ll fit all continuous variables with squared terms, as well, to allow them a bit of flexibility.</p>
+<pre class="r"><code>lm(
+  wt82_71~ qsmk + sex + 
+    race + age + I(age^2) + education + 
+    smokeintensity + I(smokeintensity^2) + 
+    smokeyrs + I(smokeyrs^2) + exercise + active + 
+    wt71 + I(wt71^2), 
+  data = nhefs_complete_uc
+) %&gt;% 
+  tidy(conf.int = TRUE) %&gt;% 
+  filter(term == &quot;qsmk&quot;)</code></pre>
+<pre><code>## # A tibble: 1 × 7
+##   term  estimate std.error statistic  p.value conf.low conf.high
+##   &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 qsmk      3.46     0.438      7.90 5.36e-15     2.60      4.32</code></pre>
+<p>When we adjust for the variables in our DAG, we get an estimate of about 3.5 kg–people who quit smoking gained about this amount of weight. However, we are trying to answer a specific causal question: how much weight would a person gain if the quit smoking vs. if the same person did not quit smoking? Let’s use an inverse probability weighting model to try to estimate that effect at the population level (what if <em>everyone</em> quit smoking vs what if <em>no one</em> quit smoking).</p>
+<p>For a simple IPW model, we have two modeling steps. First, we fit a propensity score model, which predicts the probability that you received a treatment or exposure (here, that a participant quit smoking). We use this model to calculate inverse probability weights–1 / your probability of treatment. Then, in the second step, we use this weights in the outcome model, which estimates the effect of exposure on the outcome (here, the effect of quitting smoking on gaining weight).</p>
+<p>For the propensity score model, we’ll use logistic regression (since quitting smoking is a binary variable). The outcome is quitting smoking, and the variables in the model are all those included in our adjustment set. Then, we’ll use <code>augment()</code> from {broom} (which calls <code>predict()</code> on the inside) to calculate our weights and save it back into our data set.</p>
+<pre class="r"><code>propensity_model &lt;- glm(
+  qsmk ~ sex + 
+    race + age + I(age^2) + education + 
+    smokeintensity + I(smokeintensity^2) + 
+    smokeyrs + I(smokeyrs^2) + exercise + active + 
+    wt71 + I(wt71^2), 
+  family = binomial(), 
+  data = nhefs_complete_uc
+)
+
+nhefs_complete_uc &lt;- propensity_model %&gt;% 
+  # predict whether quit smoking
+  augment(type.predict = &quot;response&quot;, data = nhefs_complete_uc) %&gt;% 
+  # calculate inverse probability
+  mutate(wts = 1 / ifelse(qsmk == 0, 1 - .fitted, .fitted))
+
+nhefs_complete_uc %&gt;% 
+  select(qsmk, .fitted, wts)</code></pre>
+<pre><code>## # A tibble: 1,566 × 3
+##     qsmk .fitted   wts
+##    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+##  1     0  0.0987  1.11
+##  2     0  0.140   1.16
+##  3     0  0.126   1.14
+##  4     0  0.400   1.67
+##  5     0  0.294   1.42
+##  6     0  0.170   1.20
+##  7     0  0.220   1.28
+##  8     0  0.345   1.53
+##  9     0  0.283   1.40
+## 10     0  0.265   1.36
+## # … with 1,556 more rows</code></pre>
+<p>Let’s look at the distribution of the weights.</p>
+<pre class="r"><code>ggplot(nhefs_complete_uc, aes(wts)) +
+  geom_density(col = &quot;#E69F00&quot;, fill = &quot;#E69F0095&quot;, size = .8) + 
+  #  use a log scale for the x axis
+  scale_x_log10() + 
+  theme_minimal(base_size = 20) + 
+  xlab(&quot;Weights&quot;)</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>It looks a little skewed, particularly that there are some participants with much higher weights. There are a few techniques for dealing with this–trimming weights and stabilizing weights–but we’ll keep it simple for now and just use them as is.</p>
+<p>The main goal here is to <em>break</em> the non-causal associations between quitting smoking and gaining weight–the other paths that might distort our results. In other words, if we succeed, there should be no differences in these variables between our two groups, those who quit smoking and those who didn’t. This is where randomized trials shine; you can often assume that there is no baseline differences among potential confounders between your treatment groups (of course, no study is perfect, and there’s a whole set of literature on dealing with this problem in randomized trials).</p>
+<p>Standardized mean differences (SMD) are a simple measurement of differences that work across variable types. In general, the closer to 0 we are, the better job we have done eliminating the non-causal relationships we drew in our DAG. Note that low SMDs for everything we adjust for does <em>not</em> mean that there is not something else that might confound our study. Unmeasured confounders or misspecified DAGs can still distort our effects, even if our SMDs look great!</p>
+<p>We’ll use the {tidysmd} package to calculate the SMDs, then visualize them.</p>
+<pre class="r"><code>vars &lt;- c(
+  &quot;sex&quot;, &quot;race&quot;, &quot;age&quot;, &quot;education&quot;, 
+  &quot;smokeintensity&quot;, &quot;smokeyrs&quot;, 
+  &quot;exercise&quot;, &quot;active&quot;, &quot;wt71&quot;
+)
+
+plot_df &lt;- tidy_smd(
+    nhefs_complete_uc,
+    all_of(vars),
+    qsmk,
+    wts
+)
+
+ggplot(
+    data = plot_df,
+    mapping = aes(x = abs(smd), y = variable, group = weights, color = weights)
+) +
+    geom_line(orientation = &quot;y&quot;) +
+    geom_point() + 
+    geom_vline(xintercept = 0.1, color = &quot;black&quot;, size = 0.1)</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>These look pretty good! Some variables are better than others, but weighting appears to have done a much better job eliminating these differences than an unadjusted analysis.</p>
+<p>We could do more here to analyze our assumptions, but let’s move on to our second step: fitting the outcome model weighted by our inverse probabilities. Some researchers call these Marginal Structural Models, in part because the model is marginal; we only need to include our outcome (<code>wt82_71</code>) and exposure (<code>qsmk</code>). The other variables aren’t in the model; they are accounted for with the IPWs!</p>
+<pre class="r"><code>ipw_model &lt;- lm(
+  wt82_71 ~ qsmk, 
+  data = nhefs_complete_uc, 
+  weights = wts # inverse probability weights
+) 
+
+ipw_estimate &lt;- ipw_model %&gt;% 
+  tidy(conf.int = TRUE) %&gt;% 
+  filter(term == &quot;qsmk&quot;)
+
+ipw_estimate</code></pre>
+<pre><code>## # A tibble: 1 × 7
+##   term  estimate std.error statistic  p.value conf.low conf.high
+##   &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 qsmk      3.44     0.408      8.43 7.47e-17     2.64      4.24</code></pre>
+<p>This estimate is pretty similar to what we saw before, if a little smaller. In fact, for simple causal questions, this is often the case: adjusting for confounders directly in your regression model sometimes estimates the same effect as IPWs and other causal techniques. Causal techniques are special, though, in that the use counterfactual modeling, which allows you to deal with many circumstances, such as when you have selection bias or time-dependendent confounding. They also often have variance properties.</p>
+<p>But we have other problem that we need to address. While we’re just using <code>lm()</code> to estimate our IPW model, it doesn’t properly account for the weights. That means our standard error is too small, which will artificially narrow confidence intervals and artificially shrink p-values. There are many ways to address this, including robust estimators. We’ll focus on using the bootstrap via the {rsamples} package in this workshop, but here’s one way to do it with robust standard errors:</p>
+<pre class="r"><code># also see robustbase, survey, gee, and others
+library(estimatr)</code></pre>
+<pre><code>## Warning: package &#39;estimatr&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>ipw_model_robust &lt;- lm_robust( #&lt;&lt;
+  wt82_71 ~ qsmk, #&lt;&lt;
+  data = nhefs_complete_uc, 
+  weights = wts #&lt;&lt;
+) 
+
+ipw_estimate_robust &lt;- ipw_model_robust %&gt;% 
+  tidy(conf.int = TRUE) %&gt;% 
+  filter(term == &quot;qsmk&quot;)
+
+ipw_estimate_robust</code></pre>
+<pre><code>##   term estimate std.error statistic      p.value conf.low conf.high   df
+## 1 qsmk 3.440535 0.5264638  6.535179 8.573524e-11 2.407886  4.473185 1564
+##   outcome
+## 1 wt82_71</code></pre>
+<p>Now let’s try the bootstrap. First, we need to wrap our model in a function so we can call it many times on our bootstrapped data. A function like this might be your instinct; however, it’s not quite right.</p>
+<pre class="r"><code># fit ipw model for a single bootstrap sample
+fit_ipw_not_quite_rightly &lt;- function(split, ...) {
+  # get bootstrapped data sample with `rsample::analysis()`
+  .df &lt;- analysis(split)
+  
+  # fit ipw model
+  lm(wt82_71 ~ qsmk, data = .df, weights = wts) %&gt;% 
+    tidy()
+}</code></pre>
+<p>The problem is that we need to account for the <em>entire</em> modeling process, so we need to include the first step of our analysis – fitting the inverse probability weights.</p>
+<pre class="r"><code>fit_ipw &lt;- function(split, ...) {
+  .df &lt;- analysis(split)
+  
+  # fit propensity score model
+  propensity_model &lt;- glm(
+    qsmk ~ sex + 
+      race + age + I(age^2) + education + 
+      smokeintensity + I(smokeintensity^2) + 
+      smokeyrs + I(smokeyrs^2) + exercise + active + 
+      wt71 + I(wt71^2), 
+    family = binomial(), 
+    data = .df
+  )
+  
+  # calculate inverse probability weights
+  .df &lt;- propensity_model %&gt;% 
+    augment(type.predict = &quot;response&quot;, data = .df) %&gt;% 
+    mutate(wts = 1 / ifelse(qsmk == 0, 1 - .fitted, .fitted))
+  
+  # fit correctly bootsrapped ipw model
+  lm(wt82_71 ~ qsmk, data = .df, weights = wts) %&gt;% 
+    tidy()
+}</code></pre>
+<p>{rsample} makes the rest easy for us: <code>bootstraps()</code> resamples our data 1000 times, then we can use <code>purrr::map()</code> to apply our function to each resampled set (<code>splits</code>). {rsample}’s <code>int_*()</code> functions help us get confidence intervals for our estimate.</p>
+<pre class="r"><code># fit ipw model to bootstrapped samples
+ipw_results &lt;- bootstraps(nhefs_complete, 1000, apparent = TRUE) %&gt;% 
+  mutate(results = map(splits, fit_ipw))
+
+# get t-statistic-based CIs
+boot_estimate &lt;- int_t(ipw_results, results) %&gt;% 
+  filter(term == &quot;qsmk&quot;)
+
+boot_estimate</code></pre>
+<pre><code>## # A tibble: 1 × 6
+##   term  .lower .estimate .upper .alpha .method  
+##   &lt;chr&gt;  &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    
+## 1 qsmk    2.43      3.45   4.40   0.05 student-t</code></pre>
+<p>Let’s compare to our naive weighted model that just used a single estimate from <code>lm()</code></p>
+<pre class="r"><code>bind_rows(
+  ipw_estimate %&gt;% 
+    select(estimate, conf.low, conf.high) %&gt;% 
+    mutate(type = &quot;ols&quot;),
+  ipw_estimate_robust %&gt;% 
+    select(estimate, conf.low, conf.high) %&gt;% 
+    mutate(type = &quot;robust&quot;),
+  boot_estimate %&gt;% 
+    select(estimate = .estimate, conf.low = .lower, conf.high = .upper) %&gt;% 
+    mutate(type = &quot;bootstrap&quot;)
+) %&gt;% 
+  #  calculate CI width to sort by it
+  mutate(width = conf.high - conf.low) %&gt;% 
+  arrange(width) %&gt;% 
+  #  fix the order of the model types for the plot  
+  mutate(type = fct_inorder(type)) %&gt;% 
+  ggplot(aes(x = type, y = estimate, ymin = conf.low, ymax = conf.high)) + 
+    geom_pointrange(color = &quot;#0172B1&quot;, size = 1, fatten = 3) +
+    coord_flip() +
+    theme_minimal(base_size = 20) +
+    theme(axis.title.y = element_blank())</code></pre>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>Our bootstrapped confidence intervals are wider, which is expected; remember that they were artificially narrow in the naive OLS model!</p>
+<p>So, we have a final estimate for our causal effect: on average, a person who quits smoking will gain 3.5 kg (95% CI 2.4 kg, 4.4 kg) versus if they had not quit smoking.</p>
+<p>What do you think? Is this estimate reliable? Did we do a good job addressing the assumptions we need to make for a causal effect, particularly that there is no confounding? How might you criticize this model, and what would you do differently?</p>
+<hr />
+</div>
+<div id="take-aways" class="section level1">
+<h1>Take aways</h1>
+<ul>
+<li>The broad strokes for a causal analysis are: 1) identify your causal question 2) make your assumptions clear 3) check your assumptions as best you can and 4) use the right estimator for the question you’re trying to ask. As scientists, we should be able to critique each of these steps, and that’s a good thing!</li>
+<li>To create marginal structural models, first fit a propensity model for the weights with the exposure as the outcome. Then, use the inverse of the predicted probabilities as weights in a model with just the outcome and exposure.</li>
+</ul>
+</div>
