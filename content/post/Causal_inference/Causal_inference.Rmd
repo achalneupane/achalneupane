@@ -1,9 +1,26 @@
 ---
-title: "Modeling Causal Inference"
+Authors: ["**Achal Neupane**"]
+title: "Causal inference modelling"
+date: 2022-04-18T17:26:23-05:00
+draft: false
 output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
 ---
 
-```{r setup}
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+```{r global options, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+```
+
+
+```{r}
 library(tidyverse)
 library(broom)
 library(rsample)

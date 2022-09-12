@@ -1,36 +1,28 @@
 ---
-title: "Modeling Causal Inference"
+Authors: ["**Achal Neupane**"]
+title: "Causal inference modelling"
+date: 2022-04-18T17:26:23-05:00
+draft: false
 output: html_document
+tags:
+- R
+- Statistics
+- Machine Learning
+summary: Statistics series
 ---
 
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.2.1</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
-## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
-## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
-## ✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(broom)</code></pre>
-<pre><code>## Warning: package &#39;broom&#39; was built under R version 4.2.1</code></pre>
-<pre class="r"><code>library(rsample)</code></pre>
-<pre><code>## Warning: package &#39;rsample&#39; was built under R version 4.2.1</code></pre>
-<pre class="r"><code>library(ggdag)</code></pre>
-<pre><code>## Warning: package &#39;ggdag&#39; was built under R version 4.2.1</code></pre>
-<pre><code>## 
-## Attaching package: &#39;ggdag&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:stats&#39;:
-## 
-##     filter</code></pre>
-<pre class="r"><code>library(causaldata)</code></pre>
-<pre><code>## Warning: package &#39;causaldata&#39; was built under R version 4.2.1</code></pre>
-<pre class="r"><code>library(tidysmd)</code></pre>
-<pre><code>## Warning: package &#39;tidysmd&#39; was built under R version 4.2.1</code></pre>
-<pre class="r"><code>set.seed(1234)</code></pre>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<pre class="r"><code>library(tidyverse)
+library(broom)
+library(rsample)
+library(ggdag)
+library(causaldata)
+library(tidysmd)
+
+set.seed(1234)</code></pre>
 <div id="causal-modeling" class="section level2">
 <h2>Causal Modeling</h2>
 <p>In this tutorial, we’ll attempt to answer a causal question: <strong>does quitting smoking make you gain weight?</strong> Causal modeling has a special place in the history of smoking research: the studies that demonstrated that smoking causes lung cancer were observational. Thanks to other studies, we also know that, if you’re already a smoker, quitting smoking reduces your risk of lung cancer. However, some have observed that former smokers tend to gain weight. Is this the result of quitting smoking, or does something else explain this effect? In the book Causal Inference by Hernán and Robins, the authors analyze this question using several causal inference techniques.</p>
@@ -73,7 +65,7 @@ nhefs_complete_uc %&gt;%
     x = &quot;change in weight (kg)&quot;,
     fill = &quot;quit smoking (1 = yes)&quot;
   )</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>There’s a difference–former smokers do seemed to have gained a bit more weight–but there’s also a lot of variation. Let’s look at the numeric summaries.</p>
 <pre class="r"><code># ~2.5 kg gained for quit vs. not quit
 nhefs_complete_uc %&gt;% 
@@ -172,14 +164,14 @@ smk_wt_dag</code></pre>
 <p>Let’s visualize our assumptions with <code>ggdag()</code>.</p>
 <pre class="r"><code>smk_wt_dag %&gt;% 
   ggdag(text = FALSE, use_labels = &quot;label&quot;)</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>What do we need to control for to estimate an unbiased effect of quitting smoking on weight gain? In many DAGs, there will be many sets of variables–called adjustment sets–that will give us the right effect (assuming our DAG is correct–a big, unverifiable assumption!). <code>ggdag_adjustment_set()</code> can help you visualize them. Here, there’s only one adjustment set: we need to control for everything! While we’re add it, since a {ggdag} plot is just a {ggplot2} plot, let’s clean it up a bit, too.</p>
 <pre class="r"><code>smk_wt_dag %&gt;% 
   ggdag_adjustment_set(text = FALSE, use_labels = &quot;label&quot;) +
   theme_dag() +
   scale_color_manual(values = colors) + 
   scale_fill_manual(values = colors)</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>Let’s fit a model with these variables. Note that we’ll fit all continuous variables with squared terms, as well, to allow them a bit of flexibility.</p>
 <pre class="r"><code>lm(
   wt82_71~ qsmk + sex + 
@@ -237,7 +229,7 @@ nhefs_complete_uc %&gt;%
   scale_x_log10() + 
   theme_minimal(base_size = 20) + 
   xlab(&quot;Weights&quot;)</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>It looks a little skewed, particularly that there are some participants with much higher weights. There are a few techniques for dealing with this–trimming weights and stabilizing weights–but we’ll keep it simple for now and just use them as is.</p>
 <p>The main goal here is to <em>break</em> the non-causal associations between quitting smoking and gaining weight–the other paths that might distort our results. In other words, if we succeed, there should be no differences in these variables between our two groups, those who quit smoking and those who didn’t. This is where randomized trials shine; you can often assume that there is no baseline differences among potential confounders between your treatment groups (of course, no study is perfect, and there’s a whole set of literature on dealing with this problem in randomized trials).</p>
 <p>Standardized mean differences (SMD) are a simple measurement of differences that work across variable types. In general, the closer to 0 we are, the better job we have done eliminating the non-causal relationships we drew in our DAG. Note that low SMDs for everything we adjust for does <em>not</em> mean that there is not something else that might confound our study. Unmeasured confounders or misspecified DAGs can still distort our effects, even if our SMDs look great!</p>
@@ -262,7 +254,7 @@ ggplot(
     geom_line(orientation = &quot;y&quot;) +
     geom_point() + 
     geom_vline(xintercept = 0.1, color = &quot;black&quot;, size = 0.1)</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>These look pretty good! Some variables are better than others, but weighting appears to have done a much better job eliminating these differences than an unadjusted analysis.</p>
 <p>We could do more here to analyze our assumptions, but let’s move on to our second step: fitting the outcome model weighted by our inverse probabilities. Some researchers call these Marginal Structural Models, in part because the model is marginal; we only need to include our outcome (<code>wt82_71</code>) and exposure (<code>qsmk</code>). The other variables aren’t in the model; they are accounted for with the IPWs!</p>
 <pre class="r"><code>ipw_model &lt;- lm(
@@ -283,9 +275,8 @@ ipw_estimate</code></pre>
 <p>This estimate is pretty similar to what we saw before, if a little smaller. In fact, for simple causal questions, this is often the case: adjusting for confounders directly in your regression model sometimes estimates the same effect as IPWs and other causal techniques. Causal techniques are special, though, in that the use counterfactual modeling, which allows you to deal with many circumstances, such as when you have selection bias or time-dependendent confounding. They also often have variance properties.</p>
 <p>But we have other problem that we need to address. While we’re just using <code>lm()</code> to estimate our IPW model, it doesn’t properly account for the weights. That means our standard error is too small, which will artificially narrow confidence intervals and artificially shrink p-values. There are many ways to address this, including robust estimators. We’ll focus on using the bootstrap via the {rsamples} package in this workshop, but here’s one way to do it with robust standard errors:</p>
 <pre class="r"><code># also see robustbase, survey, gee, and others
-library(estimatr)</code></pre>
-<pre><code>## Warning: package &#39;estimatr&#39; was built under R version 4.2.1</code></pre>
-<pre class="r"><code>ipw_model_robust &lt;- lm_robust( #&lt;&lt;
+library(estimatr)
+ipw_model_robust &lt;- lm_robust( #&lt;&lt;
   wt82_71 ~ qsmk, #&lt;&lt;
   data = nhefs_complete_uc, 
   weights = wts #&lt;&lt;
@@ -370,7 +361,7 @@ boot_estimate</code></pre>
     coord_flip() +
     theme_minimal(base_size = 20) +
     theme(axis.title.y = element_blank())</code></pre>
-<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="/post/Causal_inference/Causal_inference_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>Our bootstrapped confidence intervals are wider, which is expected; remember that they were artificially narrow in the naive OLS model!</p>
 <p>So, we have a final estimate for our causal effect: on average, a person who quits smoking will gain 3.5 kg (95% CI 2.4 kg, 4.4 kg) versus if they had not quit smoking.</p>
 <p>What do you think? Is this estimate reliable? Did we do a good job addressing the assumptions we need to make for a causal effect, particularly that there is no confounding? How might you criticize this model, and what would you do differently?</p>
