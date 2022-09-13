@@ -1,0 +1,186 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Imbalance dataset: an example of credit-card fraud detection problem"
+date: 2022-04-19T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- Python
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+
+# vi $HOME/.Renviron
+# RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
+
+library(reticulate)
+repl_python()
+```
+
+The challenge is to recognize fraudulent credit card transactions so that the customers of credit card companies are not charged for items that they did not purchase.
+
+Main challenges involved in credit card fraud detection are:
+
+1. Enormous Data is processed every day and the model build must be fast enough to respond to the scam in time.
+2. Imbalanced Data i.e most of the transactions (99.8%) are not fraudulent which makes it really hard for detecting the fraudulent ones
+3. Data availability as the data is mostly private.
+4. Misclassified Data can be another major issue, as not every fraudulent transaction is caught and reported.
+5. Adaptive techniques used against the model by the scammers.
+
+How to tackle these challenges?
+
+1. The model used must be simple and fast enough to detect the anomaly and classify it as a fraudulent transaction as quickly as possible.
+2. Imbalance can be dealt with by properly using some methods which we will talk about in the next paragraph
+3. For protecting the privacy of the user the dimensionality of the data can be reduced.
+4. A more trustworthy source must be taken which double-check the data, at least for training the model.
+5. We can make the model simple and interpretable so that when the scammer adapts to it with just some tweaks we can have a new model up and running to deploy.
+
+```{python}
+# import the necessary packages
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib import gridspec
+```
+
+```{python}
+# Load the dataset from the csv file using pandas best way is to mount the drive
+# on colab and copy the path for the csv file; download from
+# https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud?resource=download&select=creditcard.csv
+data = pd.read_csv("/Users/aneupane/Desktop/python/kaggle_data/creditcard.csv.zip")
+data.head(n=5)
+
+
+# Print the shape of the data
+# data = data.sample(frac = 0.1, random_state = 48)
+print(data.shape)
+print(data.describe())
+
+# Determine number of fraud cases in dataset
+fraud = data[data.Class == 1] # how many frauds
+valid = data[data.Class == 0] # how many valid
+outlierFraction = len(fraud)/float(len(valid))
+print(outlierFraction)
+print('Fraud Cases: {}'.format(len(data[data['Class'] == 1])))
+print('Valid Transactions: {}'.format(len(data[data['Class'] == 0])))
+```
+
+Only 0.17% fraudulent transaction out all the transactions. The data is highly Unbalanced. Lets first apply our models without balancing it and if we don’t get a good accuracy then we can find a way to balance this dataset. But first, let’s implement the model without it and will balance the data only if needed.
+
+
+```{python}
+print("Amount details of the fraudulent transaction")
+fraud.Amount.describe()
+
+print("details of valid transaction")
+valid.Amount.describe()
+```
+
+Correlation matrix graphically gives us an idea of how features correlate with each other and can help us predict what are the features that are most relevant for the prediction.
+
+```{python}
+# Correlation matrix
+corrmat = data.corr()
+fig = plt.figure(figsize = (12, 9))
+sns.heatmap(corrmat, vmax = .8, square = True)
+plt.show()
+```
+
+In the HeatMap, we can clearly see that most of the features do not correlate to other features but there are some features that either has a positive or a negative correlation with each other. For example, V2 and V5 are highly negatively correlated with the feature called Amount. We also see some correlation with V20 and Amount. This gives us a deeper understanding of the Data available to us.
+
+
+Dividing the data into inputs parameters and outputs value format
+
+```{python}
+# dividing the X and the Y from the dataset
+X = data.drop(['Class'], axis = 1)
+Y = data["Class"]
+print(X.shape)
+print(Y.shape)
+# getting just the values for the sake of processing
+# (its a numpy array with no columns)
+xData = X.values
+yData = Y.values
+
+df=pd.DataFrame([Y]).T.value_counts()
+```
+
+Next, we will be dividing the dataset into two main groups. One for training the model and the other for Testing our trained model’s performance.
+
+```{python}
+# Using Scikit-learn to split data into training and testing sets
+from sklearn.model_selection import train_test_split
+# Split the data into training and testing sets
+xTrain, xTest, yTrain, yTest = train_test_split(
+		xData, yData, test_size = 0.2, random_state = 42)
+
+
+# Building the Random Forest Classifier (RANDOM FOREST)
+from sklearn.ensemble import RandomForestClassifier
+# random forest model creation
+rfc = RandomForestClassifier()
+rfc.fit(xTrain, yTrain)
+# predictions
+yPred = rfc.predict(xTest)
+```
+
+Now, we will evaluate the model parameters.
+
+```{python}
+# Evaluating the classifier
+# printing every score of the classifier
+# scoring in anything
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import f1_score, matthews_corrcoef
+from sklearn.metrics import confusion_matrix
+
+n_outliers = len(fraud)
+n_errors = (yPred != yTest).sum()
+print("The model used is Random Forest classifier")
+
+acc = accuracy_score(yTest, yPred)
+print("The accuracy is {}".format(acc))
+
+prec = precision_score(yTest, yPred)
+print("The precision is {}".format(prec))
+
+rec = recall_score(yTest, yPred)
+print("The recall is {}".format(rec))
+
+f1 = f1_score(yTest, yPred)
+print("The F1-Score is {}".format(f1))
+
+MCC = matthews_corrcoef(yTest, yPred)
+print("The Matthews correlation coefficient is {}".format(MCC))
+```
+
+Visualizing the confusion matrix
+
+```{python}
+# printing the confusion matrix
+LABELS = ['Normal', 'Fraud']
+conf_matrix = confusion_matrix(yTest, yPred)
+plt.figure(figsize =(12, 12))
+sns.heatmap(conf_matrix, xticklabels = LABELS,
+			yticklabels = LABELS, annot = True, fmt ="d");
+plt.title("Confusion matrix")
+plt.ylabel('True class')
+plt.xlabel('Predicted class')
+plt.show()
+```
+
+Comparison with other algorithms without dealing with the imbalancing of the data.
+
+![Results from other models.](C:/Users/aneupane/Desktop/achalneupane/content/post/Imbalance_dataset/image1.jfif)
+
+As we can clearly see that with our Random Forest Model we are getting a better result even for the recall which is the most tricky part.

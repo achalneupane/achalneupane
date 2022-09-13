@@ -1,0 +1,107 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Imbalance dataset: an example of credit-card fraud detection problem"
+date: 2022-04-19T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- Python
+- Statistics
+- Machine Learning
+summary: Statistics series
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>The challenge is to recognize fraudulent credit card transactions so that the customers of credit card companies are not charged for items that they did not purchase.</p>
+<p>Main challenges involved in credit card fraud detection are:</p>
+<ol style="list-style-type: decimal">
+<li>Enormous Data is processed every day and the model build must be fast enough to respond to the scam in time.</li>
+<li>Imbalanced Data i.e most of the transactions (99.8%) are not fraudulent which makes it really hard for detecting the fraudulent ones</li>
+<li>Data availability as the data is mostly private.</li>
+<li>Misclassified Data can be another major issue, as not every fraudulent transaction is caught and reported.</li>
+<li>Adaptive techniques used against the model by the scammers.</li>
+</ol>
+<p>How to tackle these challenges?</p>
+<ol style="list-style-type: decimal">
+<li>The model used must be simple and fast enough to detect the anomaly and classify it as a fraudulent transaction as quickly as possible.</li>
+<li>Imbalance can be dealt with by properly using some methods which we will talk about in the next paragraph</li>
+<li>For protecting the privacy of the user the dimensionality of the data can be reduced.</li>
+<li>A more trustworthy source must be taken which double-check the data, at least for training the model.</li>
+<li>We can make the model simple and interpretable so that when the scammer adapts to it with just some tweaks we can have a new model up and running to deploy.</li>
+</ol>
+<pre class="python"><code># import the necessary packages
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib import gridspec</code></pre>
+<pre class="python"><code># Load the dataset from the csv file using pandas best way is to mount the drive
+# on colab and copy the path for the csv file; download from
+# https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud?resource=download&amp;select=creditcard.csv
+data = pd.read_csv(&quot;/Users/aneupane/Desktop/python/kaggle_data/creditcard.csv.zip&quot;)
+data.head(n=5)
+
+
+# Print the shape of the data
+# data = data.sample(frac = 0.1, random_state = 48)</code></pre>
+<pre><code>##    Time        V1        V2        V3  ...       V27       V28  Amount  Class
+## 0   0.0 -1.359807 -0.072781  2.536347  ...  0.133558 -0.021053  149.62      0
+## 1   0.0  1.191857  0.266151  0.166480  ... -0.008983  0.014724    2.69      0
+## 2   1.0 -1.358354 -1.340163  1.773209  ... -0.055353 -0.059752  378.66      0
+## 3   1.0 -0.966272 -0.185226  1.792993  ...  0.062723  0.061458  123.50      0
+## 4   2.0 -1.158233  0.877737  1.548718  ...  0.219422  0.215153   69.99      0
+## 
+## [5 rows x 31 columns]</code></pre>
+<pre class="python"><code>print(data.shape)</code></pre>
+<pre><code>## (284807, 31)</code></pre>
+<pre class="python"><code>print(data.describe())
+
+# Determine number of fraud cases in dataset</code></pre>
+<pre><code>##                 Time            V1  ...         Amount          Class
+## count  284807.000000  2.848070e+05  ...  284807.000000  284807.000000
+## mean    94813.859575  1.168375e-15  ...      88.349619       0.001727
+## std     47488.145955  1.958696e+00  ...     250.120109       0.041527
+## min         0.000000 -5.640751e+01  ...       0.000000       0.000000
+## 25%     54201.500000 -9.203734e-01  ...       5.600000       0.000000
+## 50%     84692.000000  1.810880e-02  ...      22.000000       0.000000
+## 75%    139320.500000  1.315642e+00  ...      77.165000       0.000000
+## max    172792.000000  2.454930e+00  ...   25691.160000       1.000000
+## 
+## [8 rows x 31 columns]</code></pre>
+<pre class="python"><code>fraud = data[data.Class == 1] # how many frauds
+valid = data[data.Class == 0] # how many valid
+outlierFraction = len(fraud)/float(len(valid))
+print(outlierFraction)</code></pre>
+<pre><code>## 0.0017304750013189597</code></pre>
+<pre class="python"><code>print(&#39;Fraud Cases: {}&#39;.format(len(data[data[&#39;Class&#39;] == 1])))</code></pre>
+<pre><code>## Fraud Cases: 492</code></pre>
+<pre class="python"><code>print(&#39;Valid Transactions: {}&#39;.format(len(data[data[&#39;Class&#39;] == 0])))</code></pre>
+<pre><code>## Valid Transactions: 284315</code></pre>
+<p>Only 0.17% fraudulent transaction out all the transactions. The data is highly Unbalanced. Lets first apply our models without balancing it and if we don’t get a good accuracy then we can find a way to balance this dataset. But first, let’s implement the model without it and will balance the data only if needed.</p>
+<pre class="python"><code>print(&quot;Amount details of the fraudulent transaction&quot;)</code></pre>
+<pre><code>## Amount details of the fraudulent transaction</code></pre>
+<pre class="python"><code>fraud.Amount.describe()</code></pre>
+<pre><code>## count     492.000000
+## mean      122.211321
+## std       256.683288
+## min         0.000000
+## 25%         1.000000
+## 50%         9.250000
+## 75%       105.890000
+## max      2125.870000
+## Name: Amount, dtype: float64</code></pre>
+<pre class="python"><code>print(&quot;details of valid transaction&quot;)</code></pre>
+<pre><code>## details of valid transaction</code></pre>
+<pre class="python"><code>valid.Amount.describe()</code></pre>
+<pre><code>## count    284315.000000
+## mean         88.291022
+## std         250.105092
+## min           0.000000
+## 25%           5.650000
+## 50%          22.000000
+## 75%          77.050000
+## max       25691.160000
+## Name: Amount, dtype: float64</code></pre>
