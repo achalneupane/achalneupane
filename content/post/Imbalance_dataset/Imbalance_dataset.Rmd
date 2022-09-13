@@ -54,13 +54,10 @@ from matplotlib import gridspec
 
 
 
-
-
-
 Comparison with other algorithms without dealing with the imbalancing of the data.
 
-```{r pressure, echo=FALSE, fig.cap="Results from other methods", out.width = '30%'}
-knitr::include_graphics("image1.jfif")
-```
+
+![Results from other methods.](./image1.jfif)
+
 
 As we can clearly see that with our Random Forest Model we are getting a better result even for the recall which is the most tricky part.
