@@ -59,5 +59,8 @@ Comparison with other algorithms without dealing with the imbalancing of the dat
 
 ![Results from other methods.](./image1.jfif)
 
+<div style="width:300px; height:200px">
+![Image](./image1.jfif)
+</div>
 
 As we can clearly see that with our Random Forest Model we are getting a better result even for the recall which is the most tricky part.
