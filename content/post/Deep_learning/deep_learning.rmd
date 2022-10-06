@@ -429,13 +429,14 @@ for i, imb in enumerate(imbalances):
         ax[i].set_title(f"{['a', 'b', 'c'][i]}): Imbalance ratio {imb}")
 ```
 
-::: {.output .display_data}
-![](0973baabc5ed9756a4fe45780bdd88fe7bd25929.png)
-:::
-:::
-
 ::: {.cell .markdown}
 ### Final Results
+
+``` {.python}
+
+knitr::include_graphics("/models.png", error = FALSE)
+
+```
 
 The results demonstrate that computational models can provide accurate
 and useful predictions of pre-miRNAs in the SARS-CoV-2 genome,

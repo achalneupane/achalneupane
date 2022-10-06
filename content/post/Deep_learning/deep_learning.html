@@ -370,7 +370,7 @@ for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
 
 df = pd.DataFrame(res, columns=[&quot;model&quot;, &quot;imb&quot;, &quot;precision&quot;, &quot;recall&quot;, &quot;f1&quot;])</code></pre>
 </div>
-<div id="behmqIwfwPON" class="cell code" colab="{&quot;height&quot;:350,&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}" outputId="461b4070-fbcf-4f41-cb8f-9eeefba3e553" scrolled="true">
+<p>::: {.cell .code colab=“{"height":350,"base_uri":"<a href="https://localhost:8080/\" class="uri">https://localhost:8080/\</a>”}” id=“behmqIwfwPON” outputId=“461b4070-fbcf-4f41-cb8f-9eeefba3e553” scrolled=“true”}</p>
 <pre class="python"><code>import seaborn as sns
 from matplotlib import pyplot as plt
 
@@ -406,12 +406,11 @@ for i, imb in enumerate(imbalances):
         ax[i].spines[&#39;right&#39;].set_visible(False)
         ax[i].spines[&#39;top&#39;].set_visible(False)
         ax[i].set_title(f&quot;{[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;][i]}): Imbalance ratio {imb}&quot;)</code></pre>
-<div class="output display_data">
-<p><img src="0973baabc5ed9756a4fe45780bdd88fe7bd25929.png" /></p>
-</div>
-</div>
 <div id="final-results" class="section level3 cell markdown">
 <h3>Final Results</h3>
+<pre class="python"><code>
+knitr::include_graphics(&quot;/models.png&quot;, error = FALSE)
+</code></pre>
 <p>The results demonstrate that computational models can provide accurate
 and useful predictions of pre-miRNAs in the SARS-CoV-2 genome,
 underscoring the relevance of machine learning in the response to a
