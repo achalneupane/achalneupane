@@ -429,11 +429,13 @@ for i, imb in enumerate(imbalances):
 
 ### Final Results
 
-```{r}
+```{r, out.width='100%'}
 
 knitr::include_graphics("models.png", error = FALSE)
 
 ```
+
+
 
 The results demonstrate that computational models can provide accurate
 and useful predictions of pre-miRNAs in the SARS-CoV-2 genome,
