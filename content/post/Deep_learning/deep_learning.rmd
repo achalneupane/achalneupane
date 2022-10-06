@@ -16,7 +16,16 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-::: {.cell .markdown id="oW7HrxV3GL96"}
+```{r setup, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+
+# vi $HOME/.Renviron
+# RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
+
+library(reticulate)
+repl_python()
+```
+
 ## Comparison of ML models for virus miRNAs prediction
 
 This notebook reproduces the numerical comparison of three different
@@ -163,17 +172,15 @@ mirDNN was trained using the known viral pre-miRNAs as positive class
 and 1 million of negative sequences from the human genome. After
 training, the complete genome of the SARS-CoV-2 virus was used for
 prediction.
-:::
 
-::: {.cell .markdown id="q6I9WyJwG8Q-"}
+
 ### Install and import packages
 
 Run this cell to download the dataset and install all required
 libraries.
-:::
 
-::: {.cell .code execution_count="1" id="MUITMGqLHTgK"}
-``` {.python}
+
+```{python, eval = FALSE}
 import os
 
 # # Download dataset
@@ -200,18 +207,17 @@ import pickle
 from scipy.stats import zscore 
 from Bio import Seq, SeqIO
 ```
-:::
 
-::: {.cell .markdown id="nfdpZqPAG_iU"}
+
+
 ### Prepare dataset
 
 mirBase virus miRNAs are used as positive class, along with non-mirna
 hairpin-like sequences from the human genome. Data is split to perform a
 10-fold cross-validation with each method.
-:::
 
-::: {.cell .code id="6ycMVzV4PHIO"}
-``` {.python}
+
+```{python, eval = FALSE}
 # all the known virus miRNAs are used as positive examples
 features_virus_mirnas = pd.read_csv('dataset/features_virus_miRNAs.csv')
 
@@ -231,24 +237,21 @@ features[np.where(np.isnan(features))] = 0
 test_ind = pickle.load(open("test_partitions.pk", "rb"))
 nfolds = 10
 ```
-:::
 
-::: {.cell .markdown id="uyDrSnYAIcX6"}
+
+
 ### Run experiment: train and evaluate each model with 10 repetitions
-:::
 
-::: {.cell .code id="-Kioh-n2X_cf"}
-``` {.python}
+
+```{python, eval = FALSE}
 scores = {}
 ```
-:::
 
-::: {.cell .markdown id="9KnLlfqxSg_p"}
+
 #### OC-SVM
-:::
 
-::: {.cell .code id="CrxevJglIi9k"}
-``` {.python}
+
+```{python, eval = FALSE}
 for imb in ["1:50", "1:100", "1:200"]:
     m_name = "OC-SVM " + imb
     scores[m_name] = []
@@ -264,14 +267,13 @@ for imb in ["1:50", "1:100", "1:200"]:
         scores[m_name].append(model.decision_function(features[test_ind[imb][fold], :]))
 print("Done!")
 ```
-:::
 
-::: {.cell .markdown id="r_CCsNmjSqod"}
+
 #### deeSOM
-:::
 
-::: {.cell .code id="0Md_SPhxSsu1"}
-``` {.python}
+
+
+```{python, eval = FALSE}
 for imb in ["1:50", "1:100", "1:200"]:
     m_name = "deeSOM_full_train_data" + imb
     scores[m_name] = []
@@ -289,14 +291,11 @@ for imb in ["1:50", "1:100", "1:200"]:
 
 print("Done!")
 ```
-:::
 
-::: {.cell .markdown id="NHT75TolZGri"}
 #### mirDNN
-:::
 
-::: {.cell .code id="Z6_rRdueZJMJ"}
-``` {.python}
+
+```{python, eval = FALSE}
 import shutil
 npos = int(np.sum(labels))
 
@@ -347,14 +346,13 @@ for fold in range(9, nfolds):
     ! python3 mirDNN/mirdnn_eval.py -i tmp/test_sequences.fold -o res/mirdnn_predictions_{imb}_{fold}.csv -m tmp/out_model.pmt -s 160 -d "cuda"
     
 ```
-:::
 
-::: {.cell .markdown id="IHkCPGc8IjZE"}
+
 ### Analyze results
-:::
 
-::: {.cell .code id="cyCK-RfJImF9"}
-``` {.python}
+
+
+```{python, eval = FALSE}
 from sklearn.metrics import average_precision_score
 from matplotlib import pyplot as plt 
 from sklearn.metrics import precision_recall_curve
@@ -388,10 +386,9 @@ for imb in ["1:50", "1:100", "1:200"]:
 
 df = pd.DataFrame(res, columns=["model", "imb", "precision", "recall", "f1"])
 ```
-:::
 
-::: {.cell .code colab="{\"height\":350,\"base_uri\":\"https://localhost:8080/\"}" id="behmqIwfwPON" outputId="461b4070-fbcf-4f41-cb8f-9eeefba3e553" scrolled="true"}
-``` {.python}
+
+```{python, eval = FALSE}
 import seaborn as sns
 from matplotlib import pyplot as plt
 
@@ -429,12 +426,12 @@ for i, imb in enumerate(imbalances):
         ax[i].set_title(f"{['a', 'b', 'c'][i]}): Imbalance ratio {imb}")
 ```
 
-::: {.cell .markdown}
+
 ### Final Results
 
-``` {.python}
+```{r}
 
-knitr::include_graphics("/models.png", error = FALSE)
+knitr::include_graphics("C:/Users/aneupane/Desktop/achalneupane/content/post/Deep_learning/models.pdf", error = FALSE)
 
 ```
 
@@ -445,9 +442,3 @@ global sanitary emergency. Moreover, the interpretability of our model
 shed light on the molecular mechanisms underlying the viral infection,
 thus contributing to the fight against the COVID-19 pandemic and the
 fast development of new treatments.
-:::
-
-::: {.cell .code}
-``` {.python}
-```
-:::

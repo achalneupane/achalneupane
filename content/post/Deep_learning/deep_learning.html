@@ -16,7 +16,6 @@ summary: Statistics series
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-<div id="oW7HrxV3GL96" class="cell markdown">
 <div id="comparison-of-ml-models-for-virus-mirnas-prediction" class="section level2">
 <h2>Comparison of ML models for virus miRNAs prediction</h2>
 <p>This notebook reproduces the numerical comparison of three different
@@ -159,16 +158,10 @@ and 1 million of negative sequences from the human genome. After
 training, the complete genome of the SARS-CoV-2 virus was used for
 prediction.</p>
 </div>
-</div>
-</div>
-<div id="q6I9WyJwG8Q-" class="cell markdown">
 <div id="install-and-import-packages" class="section level3">
 <h3>Install and import packages</h3>
 <p>Run this cell to download the dataset and install all required
 libraries.</p>
-</div>
-</div>
-<div id="MUITMGqLHTgK" class="cell code" execution_count="1">
 <pre class="python"><code>import os
 
 # # Download dataset
@@ -195,15 +188,11 @@ import pickle
 from scipy.stats import zscore 
 from Bio import Seq, SeqIO</code></pre>
 </div>
-<div id="nfdpZqPAG_iU" class="cell markdown">
 <div id="prepare-dataset" class="section level3">
 <h3>Prepare dataset</h3>
 <p>mirBase virus miRNAs are used as positive class, along with non-mirna
 hairpin-like sequences from the human genome. Data is split to perform a
 10-fold cross-validation with each method.</p>
-</div>
-</div>
-<div id="id_6ycMVzV4PHIO" class="cell code">
 <pre class="python"><code># all the known virus miRNAs are used as positive examples
 features_virus_mirnas = pd.read_csv(&#39;dataset/features_virus_miRNAs.csv&#39;)
 
@@ -223,20 +212,11 @@ features[np.where(np.isnan(features))] = 0
 test_ind = pickle.load(open(&quot;test_partitions.pk&quot;, &quot;rb&quot;))
 nfolds = 10</code></pre>
 </div>
-<div id="uyDrSnYAIcX6" class="cell markdown">
 <div id="run-experiment-train-and-evaluate-each-model-with-10-repetitions" class="section level3">
 <h3>Run experiment: train and evaluate each model with 10 repetitions</h3>
-</div>
-</div>
-<div id="id_-Kioh-n2X_cf" class="cell code">
 <pre class="python"><code>scores = {}</code></pre>
-</div>
-<div id="id_9KnLlfqxSg_p" class="cell markdown">
 <div id="oc-svm" class="section level4">
 <h4>OC-SVM</h4>
-</div>
-</div>
-<div id="CrxevJglIi9k" class="cell code">
 <pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
     m_name = &quot;OC-SVM &quot; + imb
     scores[m_name] = []
@@ -252,12 +232,8 @@ nfolds = 10</code></pre>
         scores[m_name].append(model.decision_function(features[test_ind[imb][fold], :]))
 print(&quot;Done!&quot;)</code></pre>
 </div>
-<div id="r_CCsNmjSqod" class="cell markdown">
 <div id="deesom" class="section level4">
 <h4>deeSOM</h4>
-</div>
-</div>
-<div id="id_0Md_SPhxSsu1" class="cell code">
 <pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
     m_name = &quot;deeSOM_full_train_data&quot; + imb
     scores[m_name] = []
@@ -275,12 +251,8 @@ print(&quot;Done!&quot;)</code></pre>
 
 print(&quot;Done!&quot;)</code></pre>
 </div>
-<div id="NHT75TolZGri" class="cell markdown">
 <div id="mirdnn" class="section level4">
 <h4>mirDNN</h4>
-</div>
-</div>
-<div id="Z6_rRdueZJMJ" class="cell code">
 <pre class="python"><code>import shutil
 npos = int(np.sum(labels))
 
@@ -328,15 +300,11 @@ for fold in range(9, nfolds):
     ! python3 mirDNN/mirdnn_fit.py -i tmp/negative_sequences.fold -i tmp/positive_sequences.fold -m tmp/out_model.pmt -l tmp/train_{imb}_{fold}.log -d &quot;cuda&quot; -s 160
 
     # Run test script
-    ! python3 mirDNN/mirdnn_eval.py -i tmp/test_sequences.fold -o res/mirdnn_predictions_{imb}_{fold}.csv -m tmp/out_model.pmt -s 160 -d &quot;cuda&quot;
-    </code></pre>
+    ! python3 mirDNN/mirdnn_eval.py -i tmp/test_sequences.fold -o res/mirdnn_predictions_{imb}_{fold}.csv -m tmp/out_model.pmt -s 160 -d &quot;cuda&quot;</code></pre>
 </div>
-<div id="IHkCPGc8IjZE" class="cell markdown">
+</div>
 <div id="analyze-results" class="section level3">
 <h3>Analyze results</h3>
-</div>
-</div>
-<div id="cyCK-RfJImF9" class="cell code">
 <pre class="python"><code>from sklearn.metrics import average_precision_score
 from matplotlib import pyplot as plt 
 from sklearn.metrics import precision_recall_curve
@@ -369,8 +337,6 @@ for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
                 res.append([model, imb, p, r, f1])
 
 df = pd.DataFrame(res, columns=[&quot;model&quot;, &quot;imb&quot;, &quot;precision&quot;, &quot;recall&quot;, &quot;f1&quot;])</code></pre>
-</div>
-<p>::: {.cell .code colab=“{"height":350,"base_uri":"<a href="https://localhost:8080/\" class="uri">https://localhost:8080/\</a>”}” id=“behmqIwfwPON” outputId=“461b4070-fbcf-4f41-cb8f-9eeefba3e553” scrolled=“true”}</p>
 <pre class="python"><code>import seaborn as sns
 from matplotlib import pyplot as plt
 
@@ -406,11 +372,11 @@ for i, imb in enumerate(imbalances):
         ax[i].spines[&#39;right&#39;].set_visible(False)
         ax[i].spines[&#39;top&#39;].set_visible(False)
         ax[i].set_title(f&quot;{[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;][i]}): Imbalance ratio {imb}&quot;)</code></pre>
-<div id="final-results" class="section level3 cell markdown">
+</div>
+<div id="final-results" class="section level3">
 <h3>Final Results</h3>
-<pre class="python"><code>
-knitr::include_graphics(&quot;/models.png&quot;, error = FALSE)
-</code></pre>
+<pre class="r"><code>knitr::include_graphics(&quot;C:/Users/aneupane/Desktop/achalneupane/content/post/Deep_learning/models.pdf&quot;, error = FALSE)</code></pre>
+<p><embed src="models.pdf" /><!-- --></p>
 <p>The results demonstrate that computational models can provide accurate
 and useful predictions of pre-miRNAs in the SARS-CoV-2 genome,
 underscoring the relevance of machine learning in the response to a
@@ -419,6 +385,4 @@ shed light on the molecular mechanisms underlying the viral infection,
 thus contributing to the fight against the COVID-19 pandemic and the
 fast development of new treatments.</p>
 </div>
-<div class="cell code">
-<pre class="python"><code></code></pre>
 </div>
