@@ -431,7 +431,7 @@ for i, imb in enumerate(imbalances):
 
 ```{r}
 
-knitr::include_graphics("models.pdf", error = FALSE)
+knitr::include_graphics("models.png", error = FALSE)
 
 ```
 
