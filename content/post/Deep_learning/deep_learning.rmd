@@ -430,7 +430,7 @@ for i, imb in enumerate(imbalances):
 ```
 
 ::: {.output .display_data}
-![](vertopal_ca809bdbf6724aeebae3150ad319ffdf/0973baabc5ed9756a4fe45780bdd88fe7bd25929.png)
+![](0973baabc5ed9756a4fe45780bdd88fe7bd25929.png)
 :::
 :::
 
