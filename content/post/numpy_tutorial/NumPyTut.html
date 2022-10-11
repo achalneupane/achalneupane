@@ -1,0 +1,968 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Numpy tutorial"
+date: 2016-06-19T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- Python
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<div id="numpy-tutorial" class="section level3">
+<h3>NumPy Tutorial</h3>
+<p>NumPy is an amazing scientific computing library that is used by
+numerous other Python Data Science libraries. It contains many
+mathematical, array and string functions that are extremely useful.
+Along with all the basic math functions you'll also find them for
+Linear Algebra, Statistics, Simulation, etc.</p>
+<p>I recommend that you use the Jupyter setup I use with Anaconda so that
+you'll have access to all of NumPys dependencies.</p>
+<p>NumPy utilizes vector (1D Arrays) and matrice arrays (2D Arrays).</p>
+</div>
+<div id="numpy-arrays--creating-arrays" class="section level3">
+<h3>NumPy Arrays : Creating Arrays</h3>
+<pre class="python"><code>import numpy as np
+# Provides beautiful plots of numerous type that are either
+# static, animated and/or interactive
+import matplotlib.pylab as plt
+from numpy import random
+
+# A Python list
+list_1 = [1, 2, 3, 4, 5]
+
+# Create NumPy 1 dimensional (a axis) array list object of type byte (-128 to 127)
+# A N-dimensional array is a usyally fixed size multidimensional
+# array that contains items of the same type. 
+np_arr_1 = np.array(list_1, dtype=np.int8)
+np_arr_1
+# Create multidimenional list</code></pre>
+<pre><code>## array([1, 2, 3, 4, 5], dtype=int8)</code></pre>
+<pre class="python"><code>m_list_1 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+# Create NumPy multidimensional (2 axis) array without defining type
+np_m_arr_1 = np.array(m_list_1)
+
+# You can also create arrays by defining the start value,
+# stop value (up to but not include stop) and step amount
+np.arange(1, 10)
+
+# With floats define start, end and number of values</code></pre>
+<pre><code>## array([1, 2, 3, 4, 5, 6, 7, 8, 9])</code></pre>
+<pre class="python"><code>np.linspace(0, 5, 7)
+
+# You can create a 3 item array of zeroes</code></pre>
+<pre><code>## array([0.        , 0.83333333, 1.66666667, 2.5       , 3.33333333,
+##        4.16666667, 5.        ])</code></pre>
+<pre class="python"><code>np.zeros(4)
+
+# You can create multidimensional arrays of zeroes by passing
+# a tuple with the 1st value being rows and the 2nd columns</code></pre>
+<pre><code>## array([0., 0., 0., 0.])</code></pre>
+<pre class="python"><code>np.zeros((2, 3))
+
+# Create array of 1s</code></pre>
+<pre><code>## array([[0., 0., 0.],
+##        [0., 0., 0.]])</code></pre>
+<pre class="python"><code>np.ones((2, 3))
+
+# Get number of items in the array</code></pre>
+<pre><code>## array([[1., 1., 1.],
+##        [1., 1., 1.]])</code></pre>
+<pre class="python"><code>np_m_arr_1.size</code></pre>
+<pre><code>## 9</code></pre>
+<pre class="python"><code>np_m_arr_1.shape
+
+# Create array with defined values</code></pre>
+<pre><code>## (3, 3)</code></pre>
+<pre class="python"><code>np_arr_2 = np.array([1, 2, 3, 4, 5, 6])
+
+# Get type for array
+np_arr_2.dtype
+
+# Data Types
+# Boolean : np.bool_
+# Char : np.byte
+# Short : np.short
+# Integer : np.short
+# Long : np.int_
+# Float : np.single &amp; np.float32
+# Double : np.double &amp; np.float64
+# np.int8 : -128 to 127
+# np.int16 : -32768 to 32767
+# np.int32 : -2147483648 to 2147483647
+# np.int64 : -9223372036854775808 to 9223372036854775807
+
+# Create random 5 value 1D array from 10 to 50</code></pre>
+<pre><code>## dtype(&#39;int32&#39;)</code></pre>
+<pre class="python"><code>np.random.randint(10, 50, 5)
+# Create random matrix 2x3 with values between 10 and 50</code></pre>
+<pre><code>## array([35, 36, 37, 25, 33])</code></pre>
+<pre class="python"><code>np.random.randint(10, 50, size=(2, 3))
+
+# # Get help with a function
+# np.random.randint?
+
+# # Within R studio
+# ?np.random.randint</code></pre>
+<pre><code>## array([[45, 45, 20],
+##        [45, 44, 13]])</code></pre>
+</div>
+<div id="slicing-and-indexes" class="section level3">
+<h3>Slicing and Indexes</h3>
+<pre class="python"><code># Change value at index
+# np_m_arr_1[0,0] = 2
+# np_m_arr_1.itemset((0,1), 1)
+np_m_arr_1
+# Get size of array</code></pre>
+<pre><code>## array([[1, 2, 3],
+##        [4, 5, 6],
+##        [7, 8, 9]])</code></pre>
+<pre class="python"><code>np_m_arr_1.shape
+# Get value by index</code></pre>
+<pre><code>## (3, 3)</code></pre>
+<pre class="python"><code>np_m_arr_1[0,1]</code></pre>
+<pre><code>## 2</code></pre>
+<pre class="python"><code>np_m_arr_1.item(0,1)
+
+# Get specific indices</code></pre>
+<pre><code>## 2</code></pre>
+<pre class="python"><code>np.take(np_m_arr_1, [0, 3, 6])
+# Replace provided index values with new values</code></pre>
+<pre><code>## array([1, 4, 7])</code></pre>
+<pre class="python"><code>np.put(np_m_arr_1, [0, 3, 6], [10, 10, 10])
+print(np_m_arr_1)
+
+# Start at 1st through 5th with 2 step</code></pre>
+<pre><code>## [[10  2  3]
+##  [10  5  6]
+##  [10  8  9]]</code></pre>
+<pre class="python"><code>np_arr_1[:5:2]
+# Get 2nd value from each row</code></pre>
+<pre><code>## array([1, 3, 5], dtype=int8)</code></pre>
+<pre class="python"><code>np_m_arr_1[:,1]
+# Flip Array</code></pre>
+<pre><code>## array([2, 5, 8])</code></pre>
+<pre class="python"><code>np_arr_1[::-1]
+
+# Get evens</code></pre>
+<pre><code>## array([5, 4, 3, 2, 1], dtype=int8)</code></pre>
+<pre class="python"><code>evens = np_m_arr_1[np_m_arr_1%2==0]
+evens
+
+# Get values &gt; 5</code></pre>
+<pre><code>## array([10,  2, 10,  6, 10,  8])</code></pre>
+<pre class="python"><code>np_m_arr_1[np_m_arr_1 &gt; 5]
+# 5 &lt; value &lt; 9</code></pre>
+<pre><code>## array([10, 10,  6, 10,  8,  9])</code></pre>
+<pre class="python"><code>np_m_arr_1[(np_m_arr_1 &gt; 5) &amp; (np_m_arr_1 &lt; 9)]
+# 5 &gt; value or value = 10</code></pre>
+<pre><code>## array([6, 8])</code></pre>
+<pre class="python"><code>np_m_arr_1[(np_m_arr_1 &lt; 5) | (np_m_arr_1 == 10)]
+
+# Find uniques</code></pre>
+<pre><code>## array([10,  2,  3, 10, 10])</code></pre>
+<pre class="python"><code>np.unique(np_m_arr_1)</code></pre>
+<pre><code>## array([ 2,  3,  5,  6,  8,  9, 10])</code></pre>
+<pre><code>[[10  2  3]
+ [10  5  6]
+ [10  8  9]]
+
+
+
+array([ 2,  3,  5,  6,  8,  9, 10])</code></pre>
+</div>
+<div id="reshaping-arrays" class="section level3">
+<h3>Reshaping Arrays</h3>
+<pre class="python"><code># Reshape array to 1 by 9
+np_m_arr_1.reshape((1, 9))</code></pre>
+<pre><code>## array([[10,  2,  3, 10,  5,  6, 10,  8,  9]])</code></pre>
+<pre class="python"><code>np_m_arr_1
+# Reshape array to 2 by 5 (Items are either lost or 0s added)</code></pre>
+<pre><code>## array([[10,  2,  3],
+##        [10,  5,  6],
+##        [10,  8,  9]])</code></pre>
+<pre class="python"><code>np_m_arr_1_saved_orig = np_m_arr_1
+np_m_arr_1_saved = np_m_arr_1[:] # save array
+import copy
+np_m_arr_1_saved_deep = copy.deepcopy(np_m_arr_1)
+np_m_arr_1.resize((2,5), refcheck=False) # np_m_arr_1_saved_orig = np_m_arr_1 both gets resized, because np_m_arr_1_saved_orig is mirrored view of np_m_arr_1
+np_m_arr_1
+# Transpose axes</code></pre>
+<pre><code>## array([[10,  2,  3, 10,  5],
+##        [ 6, 10,  8,  9,  0]])</code></pre>
+<pre class="python"><code>np_m_arr_1.transpose()
+# Swap axes </code></pre>
+<pre><code>## array([[10,  6],
+##        [ 2, 10],
+##        [ 3,  8],
+##        [10,  9],
+##        [ 5,  0]])</code></pre>
+<pre class="python"><code>np_m_arr_1.swapaxes(0,1)
+# Flatten in order</code></pre>
+<pre><code>## array([[10,  6],
+##        [ 2, 10],
+##        [ 3,  8],
+##        [10,  9],
+##        [ 5,  0]])</code></pre>
+<pre class="python"><code>np_m_arr_1.flatten()
+# Flatten in column order</code></pre>
+<pre><code>## array([10,  2,  3, 10,  5,  6, 10,  8,  9,  0])</code></pre>
+<pre class="python"><code>np_m_arr_1.flatten(&#39;F&#39;)
+# Sort rows</code></pre>
+<pre><code>## array([10,  6,  2, 10,  3,  8, 10,  9,  5,  0])</code></pre>
+<pre class="python"><code>np_m_arr_1.sort(axis=1)
+print(np_m_arr_1)
+# Sort columns</code></pre>
+<pre><code>## [[ 2  3  5 10 10]
+##  [ 0  6  8  9 10]]</code></pre>
+<pre class="python"><code>np_m_arr_1.sort(axis=0)
+np_m_arr_1</code></pre>
+<pre><code>## array([[ 0,  3,  5,  9, 10],
+##        [ 2,  6,  8, 10, 10]])</code></pre>
+<pre><code>[[ 2  3  5 10 10]
+ [ 0  6  8  9 10]]
+
+
+
+array([[ 0,  3,  5,  9, 10],
+       [ 2,  6,  8, 10, 10]])</code></pre>
+</div>
+<div id="stacking--splitting" class="section level3">
+<h3>Stacking &amp; Splitting</h3>
+<pre class="python"><code># Generate random arrays
+ss_arr_1 = np.random.randint(10, size=(2, 2))
+print(&quot;ss_arr_1\n&quot;, ss_arr_1)</code></pre>
+<pre><code>## ss_arr_1
+##  [[2 8]
+##  [8 7]]</code></pre>
+<pre class="python"><code>ss_arr_2 = np.random.randint(10, size=(2, 2))
+print(&quot;ss_arr_2\n&quot;, ss_arr_2)
+
+# Stack arr_2 under arr_1</code></pre>
+<pre><code>## ss_arr_2
+##  [[2 6]
+##  [0 5]]</code></pre>
+<pre class="python"><code>np.vstack((ss_arr_1, ss_arr_2))
+# Stack horizontally</code></pre>
+<pre><code>## array([[2, 8],
+##        [8, 7],
+##        [2, 6],
+##        [0, 5]])</code></pre>
+<pre class="python"><code>np.hstack((ss_arr_1, ss_arr_2))
+
+# Delete 2nd row on each array</code></pre>
+<pre><code>## array([[2, 8, 2, 6],
+##        [8, 7, 0, 5]])</code></pre>
+<pre class="python"><code>ss_arr_3 = np.delete(ss_arr_1, 1, 0)
+ss_arr_4 = np.delete(ss_arr_2, 1, 0)
+print(&quot;ss_arr_3\n&quot;, ss_arr_3)</code></pre>
+<pre><code>## ss_arr_3
+##  [[2 8]]</code></pre>
+<pre class="python"><code>print(&quot;ss_arr_4\n&quot;, ss_arr_4)
+# Combine arrays</code></pre>
+<pre><code>## ss_arr_4
+##  [[2 6]]</code></pre>
+<pre class="python"><code>np.column_stack((ss_arr_3, ss_arr_4))
+# Stack in a 2D array</code></pre>
+<pre><code>## array([[2, 8, 2, 6]])</code></pre>
+<pre class="python"><code>np.row_stack((ss_arr_3, ss_arr_4))
+
+# Generate 2x10 array</code></pre>
+<pre><code>## array([[2, 8],
+##        [2, 6]])</code></pre>
+<pre class="python"><code>ss_arr_5 = np.random.randint(10, size=(2, 10))
+print(&quot;ss_arr_5\n&quot;, ss_arr_5)
+# Split into 5 arrays taking from both arrays in multidimensional array</code></pre>
+<pre><code>## ss_arr_5
+##  [[4 4 1 6 5 7 4 8 5 3]
+##  [6 3 0 3 2 8 7 9 1 3]]</code></pre>
+<pre class="python"><code>np.hsplit(ss_arr_5, 5)
+# Split after 2nd &amp; 4th column</code></pre>
+<pre><code>## [array([[4, 4],
+##        [6, 3]]), array([[1, 6],
+##        [0, 3]]), array([[5, 7],
+##        [2, 8]]), array([[4, 8],
+##        [7, 9]]), array([[5, 3],
+##        [1, 3]])]</code></pre>
+<pre class="python"><code>np.hsplit(ss_arr_5, (2, 4))</code></pre>
+<pre><code>## [array([[4, 4],
+##        [6, 3]]), array([[1, 6],
+##        [0, 3]]), array([[5, 7, 4, 8, 5, 3],
+##        [2, 8, 7, 9, 1, 3]])]</code></pre>
+<pre><code>ss_arr_1
+ [[5 9]
+ [3 8]]
+ss_arr_2
+ [[7 1]
+ [5 6]]
+ss_arr_3
+ [[5 9]]
+ss_arr_4
+ [[7 1]]
+ss_arr_5
+ [[6 7 1 4 1 1 2 2 1 5]
+ [8 3 9 7 6 0 1 9 9 2]]
+
+
+
+[array([[6, 7],
+        [8, 3]]),
+ array([[1, 4],
+        [9, 7]]),
+ array([[1, 1, 2, 2, 1, 5],
+        [6, 0, 1, 9, 9, 2]])]</code></pre>
+</div>
+<div id="copying" class="section level3">
+<h3>Copying</h3>
+<pre class="python"><code>cp_arr_1 = np.random.randint(10, size=(2, 2))
+# Both variables point at the same array
+cp_arr_2 = cp_arr_1
+# Change value
+cp_arr_1[0,0] = 2
+print(&quot;cp_arr_1\n&quot;, cp_arr_1)</code></pre>
+<pre><code>## cp_arr_1
+##  [[2 5]
+##  [9 6]]</code></pre>
+<pre class="python"><code>print(&quot;cp_arr_2\n&quot;, cp_arr_2)
+# Create a view of data where changes don&#39;t effect original</code></pre>
+<pre><code>## cp_arr_2
+##  [[2 5]
+##  [9 6]]</code></pre>
+<pre class="python"><code>cp_arr_3 = cp_arr_1.view()
+print(&quot;cp_arr_3\n&quot;, cp_arr_3)</code></pre>
+<pre><code>## cp_arr_3
+##  [[2 5]
+##  [9 6]]</code></pre>
+<pre class="python"><code>cp_arr_3 = cp_arr_3.flatten(&#39;F&#39;)
+print(&quot;cp_arr_3\n&quot;, cp_arr_3)</code></pre>
+<pre><code>## cp_arr_3
+##  [2 9 5 6]</code></pre>
+<pre class="python"><code>print(&quot;cp_arr_1\n&quot;, cp_arr_1)
+# Copy and create new array</code></pre>
+<pre><code>## cp_arr_1
+##  [[2 5]
+##  [9 6]]</code></pre>
+<pre class="python"><code>cp_arr_4 = cp_arr_1.copy()</code></pre>
+<pre><code>cp_arr_1
+ [[2 4]
+ [6 4]]
+cp_arr_2
+ [[2 4]
+ [6 4]]
+cp_arr_3
+ [[2 4]
+ [6 4]]
+cp_arr_3
+ [2 6 4 4]
+cp_arr_1
+ [[2 4]
+ [6 4]]</code></pre>
+</div>
+<div id="basic-math" class="section level3">
+<h3>Basic Math</h3>
+<pre class="python"><code>arr_3 = np.array([1, 2, 3, 4])
+arr_4 = np.array([2, 4, 6, 8])
+# Add values
+arr_3 + arr_4
+# Subtract</code></pre>
+<pre><code>## array([ 3,  6,  9, 12])</code></pre>
+<pre class="python"><code>arr_3 - arr_4
+# Multiply</code></pre>
+<pre><code>## array([-1, -2, -3, -4])</code></pre>
+<pre class="python"><code>arr_3 * arr_4
+# Divide</code></pre>
+<pre><code>## array([ 2,  8, 18, 32])</code></pre>
+<pre class="python"><code>arr_3 / arr_4
+# Random 4 digit 1D array between 0 to 100</code></pre>
+<pre><code>## array([0.5, 0.5, 0.5, 0.5])</code></pre>
+<pre class="python"><code>arr_5 = random.randint(100, size=(4))
+arr_5
+# Random 2 by 3 digit 2D array between 0 to 100</code></pre>
+<pre><code>## array([52, 46, 54, 73])</code></pre>
+<pre class="python"><code>arr_6 = random.randint(100, size=(2, 3))
+arr_6
+# 4 random floats</code></pre>
+<pre><code>## array([[ 4, 33, 11],
+##        [22,  4, 77]])</code></pre>
+<pre class="python"><code>random.rand(4)
+# Get random value from an array</code></pre>
+<pre><code>## array([0.34843574, 0.54531257, 0.97197191, 0.36996721])</code></pre>
+<pre class="python"><code>random.choice(arr_3)
+
+# Sum of values in array</code></pre>
+<pre><code>## 4</code></pre>
+<pre class="python"><code>arr_3.sum()
+# Sum columns</code></pre>
+<pre><code>## 10</code></pre>
+<pre class="python"><code>print(arr_6)</code></pre>
+<pre><code>## [[ 4 33 11]
+##  [22  4 77]]</code></pre>
+<pre class="python"><code>arr_6.sum(axis=0)
+# Cumulative sum of rows</code></pre>
+<pre><code>## array([26, 37, 88])</code></pre>
+<pre class="python"><code>arr_6.cumsum(axis=1)
+
+# Min of each row</code></pre>
+<pre><code>## array([[  4,  37,  48],
+##        [ 22,  26, 103]], dtype=int32)</code></pre>
+<pre class="python"><code>arr_6.min(axis=1)
+# Max of each column</code></pre>
+<pre><code>## array([4, 4])</code></pre>
+<pre class="python"><code>arr_6.max(axis=0)</code></pre>
+<pre><code>## array([22, 33, 77])</code></pre>
+<pre class="python"><code>print(&quot;arr_3&quot;, arr_3)</code></pre>
+<pre><code>## arr_3 [1 2 3 4]</code></pre>
+<pre class="python"><code>print(&quot;arr_4&quot;, arr_4)
+# Add individual numbers to array</code></pre>
+<pre><code>## arr_4 [2 4 6 8]</code></pre>
+<pre class="python"><code>np.add(arr_3, 5)
+# Add arrays</code></pre>
+<pre><code>## array([6, 7, 8, 9])</code></pre>
+<pre class="python"><code>np.add(arr_3, arr_4)
+# Subtract</code></pre>
+<pre><code>## array([ 3,  6,  9, 12])</code></pre>
+<pre class="python"><code>np.subtract(arr_3, arr_4)
+# Multiply</code></pre>
+<pre><code>## array([-1, -2, -3, -4])</code></pre>
+<pre class="python"><code>np.multiply(arr_3, arr_4)
+# Divide</code></pre>
+<pre><code>## array([ 2,  8, 18, 32])</code></pre>
+<pre class="python"><code>np.divide(arr_3, arr_4)</code></pre>
+<pre><code>## array([0.5, 0.5, 0.5, 0.5])</code></pre>
+<pre class="python"><code>arr_5 = np.array([[1, 2], [3, 4]])
+arr_6 = np.array([[2, 4], [6, 9]])
+print(&quot;arr_5\n&quot;, arr_5)</code></pre>
+<pre><code>## arr_5
+##  [[1 2]
+##  [3 4]]</code></pre>
+<pre class="python"><code>print(&quot;arr_6\n&quot;, arr_6)
+# Divides elements in 1st array by 2nd array and returns remainder</code></pre>
+<pre><code>## arr_6
+##  [[2 4]
+##  [6 9]]</code></pre>
+<pre class="python"><code>np.remainder(arr_6, arr_5)</code></pre>
+<pre><code>## array([[0, 0],
+##        [0, 1]], dtype=int32)</code></pre>
+<pre class="python"><code>np.remainder([4, 7], [2, 3])
+
+# Return values in 1st array to powers defined in 2nd array</code></pre>
+<pre><code>## array([0, 1], dtype=int32)</code></pre>
+<pre class="python"><code>np.power(arr_6, arr_5)
+# Square root</code></pre>
+<pre><code>## array([[   2,   16],
+##        [ 216, 6561]], dtype=int32)</code></pre>
+<pre class="python"><code>np.sqrt(arr_3)
+# Cube root</code></pre>
+<pre><code>## array([1.        , 1.41421356, 1.73205081, 2.        ])</code></pre>
+<pre class="python"><code>np.cbrt(arr_3)
+# Absolute value of every element</code></pre>
+<pre><code>## array([1.        , 1.25992105, 1.44224957, 1.58740105])</code></pre>
+<pre class="python"><code>np.absolute([-1, -2])
+# Exponential of all elements in array</code></pre>
+<pre><code>## array([1, 2])</code></pre>
+<pre class="python"><code>np.exp(arr_3)
+# log functions</code></pre>
+<pre><code>## array([ 2.71828183,  7.3890561 , 20.08553692, 54.59815003])</code></pre>
+<pre class="python"><code>np.log(arr_3)</code></pre>
+<pre><code>## array([0.        , 0.69314718, 1.09861229, 1.38629436])</code></pre>
+<pre class="python"><code>np.log2(arr_3)</code></pre>
+<pre><code>## array([0.       , 1.       , 1.5849625, 2.       ])</code></pre>
+<pre class="python"><code>np.log10(arr_3)
+# Greatest common divisor</code></pre>
+<pre><code>## array([0.        , 0.30103   , 0.47712125, 0.60205999])</code></pre>
+<pre class="python"><code>np.gcd.reduce([9, 12, 15])
+# Lowest common multiple</code></pre>
+<pre><code>## 3</code></pre>
+<pre class="python"><code>np.lcm.reduce([9, 12, 15])
+
+# Round down</code></pre>
+<pre><code>## 180</code></pre>
+<pre class="python"><code>np.floor([1.2, 2.5])
+# Round up</code></pre>
+<pre><code>## array([1., 2.])</code></pre>
+<pre class="python"><code>np.ceil([1.2, 2.5])
+
+# Can receive 6 values and square them</code></pre>
+<pre><code>## array([2., 3.])</code></pre>
+<pre class="python"><code>sq_arr = np.arange(6)**2
+sq_arr[arr_3]</code></pre>
+<pre><code>## array([ 1,  4,  9, 16], dtype=int32)</code></pre>
+<pre class="python"><code>arr_7 = random.randint(100, size=(5, 3))
+print(&quot;arr_7\n&quot;, arr_7)
+# Get index for max value per column</code></pre>
+<pre><code>## arr_7
+##  [[14 91 86]
+##  [33 37 90]
+##  [23 36 55]
+##  [18 18 16]
+##  [95 11 69]]</code></pre>
+<pre class="python"><code>mc_index = arr_7.argmax(axis=0)
+mc_index
+# Get numbers corresponding to indexes</code></pre>
+<pre><code>## array([4, 0, 1], dtype=int64)</code></pre>
+<pre class="python"><code>max_nums = arr_7[mc_index]
+arr_7[mc_index, range(arr_7.shape[1])]</code></pre>
+<pre><code>## array([95, 91, 90])</code></pre>
+<pre><code>[[67  7 80]
+ [67 56 17]]
+arr_3 [1 2 3 4]
+arr_4 [2 4 6 8]
+arr_5
+ [[1 2]
+ [3 4]]
+arr_6
+ [[2 4]
+ [6 9]]
+arr_7
+ [[22 65 89]
+ [62 17 79]
+ [74 92 46]
+ [94 69 48]
+ [48 81 43]]
+
+
+
+array([94, 92, 89])</code></pre>
+</div>
+<div id="reading-from-files" class="section level3">
+<h3>Reading from Files</h3>
+<pre class="python"><code># Pandas is used to manipulate tabular data and more
+import pandas as pd
+# Import using NumPy
+from numpy import genfromtxt
+
+# Read table of data from CSV file and convert to Numpy array
+ic_sales = pd.read_csv(&#39;icecreamsales.csv&#39;).to_numpy()
+ic_sales
+
+# Read data using NumPy</code></pre>
+<pre><code>## array([[ 37, 292],
+##        [ 40, 228],
+##        [ 49, 324],
+##        [ 61, 376],
+##        [ 72, 440],
+##        [ 79, 496],
+##        [ 83, 536],
+##        [ 81, 556],
+##        [ 75, 496],
+##        [ 64, 412],
+##        [ 53, 324],
+##        [ 40, 320]], dtype=int64)</code></pre>
+<pre class="python"><code>ic_sales_2 = genfromtxt(&#39;icecreamsales.csv&#39;, delimiter=&#39;,&#39;)
+# Remove NANs
+ic_sales_2 = [row[~np.isnan(row)] for row in ic_sales_2]
+ic_sales_2</code></pre>
+<pre><code>## [array([], dtype=float64), array([ 37., 292.]), array([ 40., 228.]), array([ 49., 324.]), array([ 61., 376.]), array([ 72., 440.]), array([ 79., 496.]), array([ 83., 536.]), array([ 81., 556.]), array([ 75., 496.]), array([ 64., 412.]), array([ 53., 324.]), array([ 40., 320.])]</code></pre>
+<pre><code>[array([], dtype=float64),
+ array([ 37., 292.]),
+ array([ 40., 228.]),
+ array([ 49., 324.]),
+ array([ 61., 376.]),
+ array([ 72., 440.]),
+ array([ 79., 496.]),
+ array([ 83., 536.]),
+ array([ 81., 556.]),
+ array([ 75., 496.]),
+ array([ 64., 412.]),
+ array([ 53., 324.]),
+ array([ 40., 320.])]</code></pre>
+</div>
+<div id="statistics-functions" class="section level3">
+<h3>Statistics Functions</h3>
+<pre class="python"><code># Array 1 - 5
+sarr_1 = np.arange(1, 6)
+np.mean(sarr_1)</code></pre>
+<pre><code>## 3.0</code></pre>
+<pre class="python"><code>np.median(sarr_1)</code></pre>
+<pre><code>## 3.0</code></pre>
+<pre class="python"><code>np.average(sarr_1)</code></pre>
+<pre><code>## 3.0</code></pre>
+<pre class="python"><code>np.std([4, 6, 3, 5, 2]) # Standard Deviation</code></pre>
+<pre><code>## 1.4142135623730951</code></pre>
+<pre class="python"><code>np.var([4, 6, 3, 5, 2]) # Variance
+# Also nanmedian, nanmean, nanstd, nanvar</code></pre>
+<pre><code>## 2.0</code></pre>
+<pre class="python"><code>print(&quot;ic_sales\n&quot;, ic_sales)
+# Get the 50th percentile of the data</code></pre>
+<pre><code>## ic_sales
+##  [[ 37 292]
+##  [ 40 228]
+##  [ 49 324]
+##  [ 61 376]
+##  [ 72 440]
+##  [ 79 496]
+##  [ 83 536]
+##  [ 81 556]
+##  [ 75 496]
+##  [ 64 412]
+##  [ 53 324]
+##  [ 40 320]]</code></pre>
+<pre class="python"><code>np.percentile(ic_sales, 50, axis=0)
+# Get 1st column</code></pre>
+<pre><code>## array([ 62.5, 394. ])</code></pre>
+<pre class="python"><code>ic_sales[:,0]
+
+# Correlation coefficient : Measure of correlation between data
+# Closer to 1 the more the data is correlated</code></pre>
+<pre><code>## array([37, 40, 49, 61, 72, 79, 83, 81, 75, 64, 53, 40], dtype=int64)</code></pre>
+<pre class="python"><code>np.corrcoef(ic_sales[:,0], ic_sales[:,1])
+
+# Calculating Regression line
+# Σ(x-x̅)*(y-ȳ) / Σ(x-x̅)2</code></pre>
+<pre><code>## array([[1.        , 0.96181329],
+##        [0.96181329, 1.        ]])</code></pre>
+<pre class="python"><code>temp_mean = np.mean(ic_sales[:,0])
+sales_mean = np.mean(ic_sales[:,1])
+numerator = np.sum(((ic_sales[:,0] - temp_mean)*(ic_sales[:,1] - sales_mean)))
+denominator = np.sum(np.square(ic_sales[:,0] - temp_mean))
+slope = numerator/denominator
+# Calculate y intercept
+y_i = sales_mean - slope * temp_mean
+y_i</code></pre>
+<pre><code>## 35.56162100218779</code></pre>
+<pre class="python"><code>reg_arr = ic_sales[:,0] * slope + y_i
+reg_arr</code></pre>
+<pre><code>## array([256.01208459, 273.8864465 , 327.50953224, 399.00697989,
+##        464.54630691, 506.25315137, 530.08563392, 518.16939265,
+##        482.42066882, 416.88134181, 351.34201479, 273.8864465 ])</code></pre>
+<pre><code>ic_sales
+ [[ 37 292]
+ [ 40 228]
+ [ 49 324]
+ [ 61 376]
+ [ 72 440]
+ [ 79 496]
+ [ 83 536]
+ [ 81 556]
+ [ 75 496]
+ [ 64 412]
+ [ 53 324]
+ [ 40 320]]
+
+
+
+array([256.01208459, 273.8864465 , 327.50953224, 399.00697989,
+       464.54630691, 506.25315137, 530.08563392, 518.16939265,
+       482.42066882, 416.88134181, 351.34201479, 273.8864465 ])</code></pre>
+</div>
+<div id="trig-functions" class="section level3">
+<h3>Trig Functions</h3>
+<pre class="python"><code># Generate array of 200 values between -pi &amp; pi
+t_arr = np.linspace(-np.pi, np.pi, 200)
+
+# Plot with x axis &amp; y axis data 
+# plt.plot(t_arr, np.sin(t_arr)) # SIN
+# plt.plot(t_arr, np.cos(t_arr)) # COS
+# plt.plot(t_arr, np.tan(t_arr)) # TAN
+# Display plot
+# plt.show()
+
+# Provides inverse of If y = cos(x), x = arccos(y)
+np.arcsin(1)</code></pre>
+<pre><code>## 1.5707963267948966</code></pre>
+<pre class="python"><code>np.arccos(1)</code></pre>
+<pre><code>## 0.0</code></pre>
+<pre class="python"><code>np.arctan(0)
+
+# Also arctan2, sinh, cosh, tanh, arcsinh, arccosh, arctanh
+
+# Radians to degrees</code></pre>
+<pre><code>## 0.0</code></pre>
+<pre class="python"><code>np.rad2deg(np.pi)
+# Degrees to radians</code></pre>
+<pre><code>## 180.0</code></pre>
+<pre class="python"><code>np.deg2rad(180)
+
+# Hypotenuse c = √w² + h²</code></pre>
+<pre><code>## 3.141592653589793</code></pre>
+<pre class="python"><code>np.hypot(10,10)</code></pre>
+<pre><code>## 14.142135623730951</code></pre>
+<pre><code>14.142135623730951</code></pre>
+</div>
+<div id="matrix-functions" class="section level3">
+<h3>Matrix Functions</h3>
+<pre class="python"><code>from numpy import linalg as LA
+
+print(&quot;arr_5\n&quot;, arr_5)</code></pre>
+<pre><code>## arr_5
+##  [[1 2]
+##  [3 4]]</code></pre>
+<pre class="python"><code>print(&quot;arr_6\n&quot;, arr_6)</code></pre>
+<pre><code>## arr_6
+##  [[2 4]
+##  [6 9]]</code></pre>
+<pre class="python"><code>arr_8 = np.array([[5, 6], [7, 8]])
+
+# Matrix multiplication with Dot Product
+# (1 * 2) + (2 * 6) = 14 [0,0]
+# (1 * 4) + (2 * 9) = 22 [0,1]
+# (3 * 2) + (4 * 6) = 30 [1,0]
+# (3 * 4) + (4 * 9) = 12 + 36 = 48 [1,1]
+np.dot(arr_5, arr_6)
+# Compute dot product of 2 or more arrays</code></pre>
+<pre><code>## array([[14, 22],
+##        [30, 48]])</code></pre>
+<pre class="python"><code>LA.multi_dot([arr_5, arr_6, arr_8])
+
+# Inner product 
+# (1 * 2) + (2 * 4) = 10 [0,0]
+# (1 * 6) + (2 * 9) = 24 [0,1]
+# (3 * 2) + (4 * 4) = 22 [1,0]
+# (3 * 6) + (4 * 9) = 54 [1,1]</code></pre>
+<pre><code>## array([[224, 260],
+##        [486, 564]])</code></pre>
+<pre class="python"><code>np.inner(arr_5, arr_6)</code></pre>
+<pre><code>## array([[10, 24],
+##        [22, 54]])</code></pre>
+<pre class="python"><code>np.dot(arr_5, arr_6)
+
+# Tensor Dot Product
+# (1 * 1) + (2 * 2) + (3 * 3) + (4 * 4) = 30
+# (5 * 1) + (6 * 2) + (7 * 3) + (8 * 4) = </code></pre>
+<pre><code>## array([[14, 22],
+##        [30, 48]])</code></pre>
+<pre class="python"><code>arr_9 = np.array([[[1, 2],
+        [3, 4]],
+       [[5, 6],
+        [7, 8]]])
+arr_10 = np.array([[1, 2],
+       [3, 4]], dtype=object)
+np.tensordot(arr_9, arr_10)
+
+# Einstein Summation : Provides many ways to perform
+# operations on multiple arrays</code></pre>
+<pre><code>## array([30, 70], dtype=object)</code></pre>
+<pre class="python"><code>arr_11 = np.array([0, 1])
+arr_12 = np.array([[0, 1, 2, 3], [4, 5, 6, 7]])
+# Left Side of -&gt; : 1 axis for arr_11 and 2 axis for arr_12
+# Right of -&gt; : Array we want (1D Array)
+# ij : Means multiply arr_11 single item by each column of arr_12 and sum
+# [0, 4 + 5 + 6 + 7]
+np.einsum(&#39;i,ij-&gt;i&#39;, arr_11, arr_12)
+# Sum values in arr_11</code></pre>
+<pre><code>## array([ 0, 22])</code></pre>
+<pre class="python"><code>np.einsum(&#39;i-&gt;&#39;, arr_11)
+# Dot Product</code></pre>
+<pre><code>## 1</code></pre>
+<pre class="python"><code>print(&quot;arr_3\n&quot;, arr_3)</code></pre>
+<pre><code>## arr_3
+##  [1 2 3 4]</code></pre>
+<pre class="python"><code>print(&quot;arr_4\n&quot;, arr_4)</code></pre>
+<pre><code>## arr_4
+##  [2 4 6 8]</code></pre>
+<pre class="python"><code>np.einsum(&#39;i,i-&gt;&#39;, arr_3, arr_4)
+# Matrix multiplication</code></pre>
+<pre><code>## 60</code></pre>
+<pre class="python"><code>np.einsum(&#39;ij,jk&#39;, arr_5, arr_6)
+# Get diagonal</code></pre>
+<pre><code>## array([[14, 22],
+##        [30, 48]])</code></pre>
+<pre class="python"><code>np.einsum(&#39;ii&#39;, arr_5)
+# Transpose</code></pre>
+<pre><code>## 5</code></pre>
+<pre class="python"><code>np.einsum(&#39;ji&#39;, arr_5)
+
+# Raise matrix to the power of n
+# Given [[a, b], [c, d]]
+# [[a² + bc, ab +db], [ac + dc, d² + bc]</code></pre>
+<pre><code>## array([[1, 3],
+##        [2, 4]])</code></pre>
+<pre class="python"><code>LA.matrix_power(arr_5, 2)
+
+# Kronecker product of 2 arrays
+# Given [[a, b], [c, d]], [[e, f], [g, h]]
+# [[a*e, a*f, b*e, b*f], [a*g, a*h, b*g, b*h], ...]</code></pre>
+<pre><code>## array([[ 7, 10],
+##        [15, 22]])</code></pre>
+<pre class="python"><code>np.kron(arr_5, arr_6)
+
+# Compute eigenvalues</code></pre>
+<pre><code>## array([[ 2,  4,  4,  8],
+##        [ 6,  9, 12, 18],
+##        [ 6, 12,  8, 16],
+##        [18, 27, 24, 36]])</code></pre>
+<pre class="python"><code>LA.eig(arr_5) # Returns eigenvectors</code></pre>
+<pre><code>## (array([-0.37228132,  5.37228132]), array([[-0.82456484, -0.41597356],
+##        [ 0.56576746, -0.90937671]]))</code></pre>
+<pre class="python"><code>LA.eigvals(arr_5)
+
+# Get Vector Norm sqrt(sum(x**2))</code></pre>
+<pre><code>## array([-0.37228132,  5.37228132])</code></pre>
+<pre class="python"><code>LA.norm(arr_5)
+
+# Get Multiplicative Inverse of a matrix</code></pre>
+<pre><code>## 5.477225575051661</code></pre>
+<pre class="python"><code>LA.inv(arr_5)
+
+# Get Condition number of matrix</code></pre>
+<pre><code>## array([[-2. ,  1. ],
+##        [ 1.5, -0.5]])</code></pre>
+<pre class="python"><code>LA.cond(arr_5)
+
+# Determinates are used to compute volume, area, to solve systems
+# of equations and more. It is a way you can multiply values in a
+# matrix to get 1 number.
+# For a matrix to have an inverse its determinate must not equal 0
+# det([[a, b], [c, d]]) = a*d - b*c</code></pre>
+<pre><code>## 14.933034373659268</code></pre>
+<pre class="python"><code>arr_12 = np.array([[1, 2], [3, 4]])
+# 1*4 - 2*3 = -2
+LA.det(arr_12)
+
+# Determinate of 3x3 Matrix
+# det([[a, b, c], [d, e, f], [g, h, i]]) = a*e*i - b*d*i + c*d*h
+# - a*f*h + b*f*g - c*e*g
+
+# When we multiply a matrix times its inverse we get the identity
+# matrix [[1,0],[0,1]] for a 2x2 matrix
+# Calculate the inverse 1/(a*d - b*c) * [[d, -b], [-c, a]]
+# 1/(4 - 6) = -.5 -&gt; [[-.5*4, -.5*-2], [-.5*-3, -.5*a]]</code></pre>
+<pre><code>## -2.0000000000000004</code></pre>
+<pre class="python"><code>arr_12_i = LA.inv(arr_12)
+arr_12_i</code></pre>
+<pre><code>## array([[-2. ,  1. ],
+##        [ 1.5, -0.5]])</code></pre>
+<pre class="python"><code>np.dot(arr_12, arr_12_i)
+
+# Solving Systems of Linear Equations
+# If you have 3x + 5 = 9x -&gt; 5 = 6x -&gt; x = 5/6
+# If you have x + 4y = 10 &amp; 6x + 18y = 42
+# Isolate x -&gt; x = 10 - 4y
+# 6(10 - 4y) + 18y = 42 -&gt; 60 - 24y + 18y = 42 - &gt; -6y = -18 -&gt; y = 3
+# x + 4*3 = 10 -&gt; x = -2</code></pre>
+<pre><code>## array([[1.0000000e+00, 0.0000000e+00],
+##        [8.8817842e-16, 1.0000000e+00]])</code></pre>
+<pre class="python"><code>arr_13 = np.array([[1, 4], [6, 18]])
+arr_14 = np.array([10, 42])
+# Solve will solve this for you as well
+LA.solve(arr_13, arr_14)
+
+# Return a identity matrix with defined number of rows and columns</code></pre>
+<pre><code>## array([-2.,  3.])</code></pre>
+<pre class="python"><code>np.eye(2, 2, dtype=int)</code></pre>
+<pre><code>## array([[1, 0],
+##        [0, 1]])</code></pre>
+<pre><code>arr_5
+ [[1 2]
+ [3 4]]
+arr_6
+ [[2 4]
+ [6 9]]
+arr_3
+ [1 2 3 4]
+arr_4
+ [2 4 6 8]
+
+
+
+array([[1, 0],
+       [0, 1]])</code></pre>
+</div>
+<div id="saving--loading-numpy-objects" class="section level3">
+<h3>Saving &amp; Loading NumPy Objects</h3>
+<pre class="python"><code>arr_15 = np.array([[1, 2], [3, 4]])
+# Save as randarray.npy
+np.save(&#39;randarray&#39;, arr_15)
+# Load saved array 
+arr_16 = np.load(&#39;randarray.npy&#39;)
+arr_16
+
+# Save as a CSV </code></pre>
+<pre><code>## array([[1, 2],
+##        [3, 4]])</code></pre>
+<pre class="python"><code>np.savetxt(&#39;randcsv.csv&#39;, arr_15)
+# Load CSV
+arr_17 = np.loadtxt(&#39;randcsv.csv&#39;)
+arr_17</code></pre>
+<pre><code>## array([[1., 2.],
+##        [3., 4.]])</code></pre>
+<pre><code>array([[1., 2.],
+       [3., 4.]])</code></pre>
+</div>
+<div id="financial-functions" class="section level3">
+<h3>Financial Functions</h3>
+<pre class="python"><code># Install in Conda terminal with
+# conda install pip
+# pip install numpy-financial
+import numpy_financial as npf
+
+# Compute future value of $400 investment every month
+# with an annual rate of 8% after 10 years
+npf.fv(.08/12, 10*12, -400, -400)
+
+# Calculate interest portion of payment on a loan of $3,000
+# at 9.25% per year compounded monthly
+# Period of loan (year)</code></pre>
+<pre><code>## 74066.27016650053</code></pre>
+<pre class="python"><code>period = np.arange(1*12) + 1
+principle = 3000.00
+# Interest Payment
+ipmt = npf.ipmt(0.0925/12, period, 1*12, principle)
+# Principle Payment
+ppmt = npf.ppmt(0.0925/12, period, 1*12, principle)
+for payment in period:
+    index = payment - 1
+    principle = principle + ppmt[index]
+    print(f&quot;{payment}   {np.round(ppmt[index], 2)}    {np.round(ipmt[index],2)}    {np.round(principle, 2)}&quot;)
+
+# Compute number of payments to pay off $3,000 if you paid
+# $150 per month with an interest rate of 9.25%</code></pre>
+<pre><code>## 1   -239.58    -23.12    2760.42
+## 2   -241.42    -21.28    2519.0
+## 3   -243.29    -19.42    2275.71
+## 4   -245.16    -17.54    2030.55
+## 5   -247.05    -15.65    1783.5
+## 6   -248.95    -13.75    1534.55
+## 7   -250.87    -11.83    1283.67
+## 8   -252.81    -9.89    1030.87
+## 9   -254.76    -7.95    776.11
+## 10   -256.72    -5.98    519.39
+## 11   -258.7    -4.0    260.69
+## 12   -260.69    -2.01    0.0</code></pre>
+<pre class="python"><code>np.round(npf.nper(0.0925/12, -150, 3000.00), 2)
+
+# Calculate net present value of cash flows of $4,000, $5,000
+# $6,000, $7,000 after $15,000 investment with .08 rate per period</code></pre>
+<pre><code>## 21.8</code></pre>
+<pre class="python"><code>npf.npv(0.08, [-15000, 4000, 5000, 6000, 7000]).round(2)</code></pre>
+<pre><code>## 2898.6</code></pre>
+<pre><code>1   -239.58    -23.12    2760.42
+2   -241.42    -21.28    2519.0
+3   -243.29    -19.42    2275.71
+4   -245.16    -17.54    2030.55
+5   -247.05    -15.65    1783.5
+6   -248.95    -13.75    1534.55
+7   -250.87    -11.83    1283.67
+8   -252.81    -9.89    1030.87
+9   -254.76    -7.95    776.11
+10   -256.72    -5.98    519.39
+11   -258.7    -4.0    260.69
+12   -260.69    -2.01    0.0
+
+
+
+2898.6</code></pre>
+</div>
+<div id="comparison-functions" class="section level3">
+<h3>Comparison Functions</h3>
+<pre class="python"><code>carr_1 = np.array([2, 3])
+carr_2 = np.array([3, 2])
+# Returns boolean based on whether arr_1 value Comparison arr_2 value
+np.greater(carr_1, carr_2)</code></pre>
+<pre><code>## array([False,  True])</code></pre>
+<pre class="python"><code>np.greater_equal(carr_1, carr_2)</code></pre>
+<pre><code>## array([False,  True])</code></pre>
+<pre class="python"><code>np.less(carr_1, carr_2)</code></pre>
+<pre><code>## array([ True, False])</code></pre>
+<pre class="python"><code>np.less_equal(carr_1, carr_2)</code></pre>
+<pre><code>## array([ True, False])</code></pre>
+<pre class="python"><code>np.not_equal(carr_1, carr_2)</code></pre>
+<pre><code>## array([ True,  True])</code></pre>
+<pre class="python"><code>np.equal(carr_1, carr_2)</code></pre>
+<pre><code>## array([False, False])</code></pre>
+<pre><code>array([False, False])</code></pre>
+</div>
