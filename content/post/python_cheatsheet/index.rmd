@@ -1,0 +1,68 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Python cheatsheet"
+date: 2020-05-29T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- Python
+---
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
+
+# vi $HOME/.Renviron
+# RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
+
+library(reticulate)
+repl_python()
+```
+
+
+## Cheat sheet 1
+
+```{r, out.width='100%', echo = FALSE}
+
+knitr::include_graphics("sheet1.jpg", error = FALSE)
+
+```
+
+
+## Cheat sheet 2
+
+```{r, out.width='100%', echo = FALSE}
+
+knitr::include_graphics("sheet2.jpg", error = FALSE)
+
+```
+
+
+## Cheat sheet 3
+
+```{r, out.width='100%', echo = FALSE}
+
+knitr::include_graphics("sheet3.jpg", error = FALSE)
+
+```
+
+
+
+## Cheat sheet 4
+
+```{r, out.width='100%', echo = FALSE}
+
+knitr::include_graphics("sheet4.jpg", error = FALSE)
+
+```
+
+## Cheat sheet 5
+
+```{r, out.width='100%', echo = FALSE}
+
+knitr::include_graphics("sheet5.jpg", error = FALSE)
+
+```
