@@ -16,15 +16,15 @@ summary: Statistics series
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-```{css, echo=FALSE}
-.content {
-  max-width: 1400px;
-  margin: 40px auto 10px;
-  padding: 0 15px;
-  font-size: 16px;
-  line-height: 1.7;
-  color: #333;
-```
+<!-- ```{css, echo=FALSE} -->
+<!-- .content { -->
+<!--   max-width: 700px; -->
+<!--   margin: 40px auto 10px; -->
+<!--   padding: 0 15px; -->
+<!--   font-size: 16px; -->
+<!--   line-height: 1.7; -->
+<!--   color: #333; -->
+<!-- ``` -->
 
 ```{css, echo=FALSE}
 .watch-out {
@@ -36,7 +36,7 @@ summary: Statistics series
 ```
 
 ```{r setup, include = F}
-knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE, class.source = "watch-out", class.source = ".content")
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE, class.source = "watch-out")
 
 # vi $HOME/.Renviron
 # RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
