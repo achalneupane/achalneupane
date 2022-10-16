@@ -1,12 +1,12 @@
----
-Authors: ["**Achal Neupane**"]
-title: "Python cheatsheet"
-date: 2020-05-29T17:26:23-05:00
-draft: false
-output: html_document
-tags:
-- Python
----
+# ---
+# Authors: ["**Achal Neupane**"]
+# title: "Python cheatsheet"
+# date: 2020-05-29T17:26:23-05:00
+# draft: false
+# output: html_document
+# tags:
+# - Python
+# ---
 
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
