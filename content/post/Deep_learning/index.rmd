@@ -179,9 +179,7 @@ prediction.
 Run this cell to download the dataset and install all required
 libraries.
 
-
-```{python, eval = FALSE}
-import os
+```{python, eval = FALSE, echo = FALSE}
 
 # # Download dataset
 # ! wget https://sourceforge.net/projects/sourcesinc/files/aicovid/dataset.tar.gz
@@ -198,6 +196,12 @@ import os
 # ! cd mirDNN
 # ! pip install -r requirements.txt
 # ! cd ..
+
+```
+
+
+```{python, eval = FALSE}
+import os
 
 import numpy as np
 import pandas as pd
