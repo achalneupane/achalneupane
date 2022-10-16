@@ -13,25 +13,14 @@ summary: Statistics series
 ---
 
 
+
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-
-```{r setup, include = F}
-knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE)
-
-# vi $HOME/.Renviron
-# RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
-
-library(reticulate)
-repl_python()
-```
-
-## Comparison of ML models for virus miRNAs prediction
-
-This notebook reproduces the numerical comparison of three different
-machine learning models trained to predict virus miRNAs.
-
-The approach was developed based on ML for finding pre-miRNAs within the
+<div id="comparison-of-ml-models-for-virus-mirnas-prediction" class="section level2">
+<h2>Comparison of ML models for virus miRNAs prediction</h2>
+<p>This notebook reproduces the numerical comparison of three different
+machine learning models trained to predict virus miRNAs.</p>
+<p>The approach was developed based on ML for finding pre-miRNAs within the
 novel coronavirus genome. In the first step, the complete genome of the
 SARS-CoV-2 is cut into small sequences of a fixed length. This genome
 pre-processing step is crucial because it has a strong influence on the
@@ -56,9 +45,8 @@ be long enough to correctly include a complete hairpin, as well as to
 take into account the neighborhood of any possible hairpin when
 estimating the secondary structure. This is very important since the
 results of estimating a secondary structure can be greatly affected by
-the neighborhood of the sequences.
-
-The second step consists in the prediction of the secondary structure
+the neighborhood of the sequences.</p>
+<p>The second step consists in the prediction of the secondary structure
 resulting from the folding of the sequences obtained in the previous
 windowing and cutting step. This is classically done with the RNAfold
 tool (Hofacker, 2003), an algorithm that uses dynamic programming for
@@ -81,11 +69,10 @@ selected: a classical model as baseline and two top-performing and very
 recently published proposals based on deep learning. These methods have
 already been validated individually with benchmark data from well-known
 pre-miRNAs in humans (Bugnon et al., 2021, Yones et al., 2021). Finally,
-the best model was used for the pre-miRNA predictions in SARS-CoV-2.
-
-#### Machine learning models for pre-miRNAs prediction
-
-The ML methods must be trained for identifying RNA sequences highly
+the best model was used for the pre-miRNA predictions in SARS-CoV-2.</p>
+<div id="machine-learning-models-for-pre-mirnas-prediction" class="section level4">
+<h4>Machine learning models for pre-miRNAs prediction</h4>
+<p>The ML methods must be trained for identifying RNA sequences highly
 likely to be miRNA precursors (Stegmayer et al., 2019). Among all
 possible supervised classifiers, support vector machines (SVM) have been
 the first and most widely applied algorithm for pre-miRNAs prediction
@@ -99,9 +86,8 @@ frontier only from the well-known pre-miRNAs, avoiding the large class
 imbalance issue (Yousef et al., 2010). Thus, the OC-SVM was trained with
 features from known viral pre-miRNAs only from miRBase. Then, the fitted
 model was used on the sequences extracted from the SARS-CoV-2
-full-genome.
-
-The second method was the deeSOM model (Bugnon et al., 2020), which
+full-genome.</p>
+<p>The second method was the deeSOM model (Bugnon et al., 2020), which
 consists of several hierarchical layers with self-organizing maps
 (SOMs). This model has already proven to be very suited to the pre-miRNA
 prediction task (Bugnon et al., 2021). This model has an ensemble of
@@ -125,9 +111,8 @@ viruses (positive-class samples), 1 million of negative sequences from
 the human genome, and the features of all the sequences extracted from
 the full-genome of the novel coronavirus (marked as unlabeled). The
 largest possible number of structural features available in literature
-(Yones et al., 2015) were extracted.
-
-Finally, the third method was mirDNN (Yones et al., 2021), a
+(Yones et al., 2015) were extracted.</p>
+<p>Finally, the third method was mirDNN (Yones et al., 2021), a
 convolutional neural network based on a residual network. This model is
 trained directly with raw RNA sequences, their corresponding predicted
 secondary structure and MFE. Thus, the input is represented as a
@@ -171,37 +156,13 @@ obvious negative samples, driving the learning of the network. The
 mirDNN was trained using the known viral pre-miRNAs as positive class
 and 1 million of negative sequences from the human genome. After
 training, the complete genome of the SARS-CoV-2 virus was used for
-prediction.
-
-
-### Install and import packages
-
-Run this cell to download the dataset and install all required
-libraries.
-
-```{python, eval = FALSE, echo = FALSE}
-
-# # Download dataset
-# ! wget https://sourceforge.net/projects/sourcesinc/files/aicovid/dataset.tar.gz
-# ! tar -xvf dataset.tar.gz
-# # Download predefined partitions for reproducibility 
-# ! wget https://sourceforge.net/projects/sourcesinc/files/aicovid/test_partitions.pk
-
-# # Install required python packages
-# ! wget https://sourceforge.net/projects/sourcesinc/files/aicovid/requirements.txt
-# ! pip install -r "requirements.txt"
-
-# # Install mirDNN framework
-# ! git clone --recurse-submodules https://github.com/cyones/mirDNN.git
-# ! cd mirDNN
-# ! pip install -r requirements.txt
-# ! cd ..
-
-```
-
-
-```{python, eval = FALSE}
-import os
+prediction.</p>
+</div>
+<div id="install-and-import-packages" class="section level3">
+<h3>Install and import packages</h3>
+<p>Run this cell to download the dataset and install all required
+libraries.</p>
+<pre class="python"><code>import os
 
 import numpy as np
 import pandas as pd
@@ -209,28 +170,22 @@ from sklearn.svm import OneClassSVM
 from deesom import DeeSOM
 import pickle
 from scipy.stats import zscore 
-from Bio import Seq, SeqIO
-```
-
-
-
-### Prepare dataset
-
-mirBase virus miRNAs are used as positive class, along with non-mirna
+from Bio import Seq, SeqIO</code></pre>
+</div>
+<div id="prepare-dataset" class="section level3">
+<h3>Prepare dataset</h3>
+<p>mirBase virus miRNAs are used as positive class, along with non-mirna
 hairpin-like sequences from the human genome. Data is split to perform a
-10-fold cross-validation with each method.
-
-
-```{python, eval = FALSE}
-# all the known virus miRNAs are used as positive examples
-features_virus_mirnas = pd.read_csv('dataset/features_virus_miRNAs.csv')
+10-fold cross-validation with each method.</p>
+<pre class="python"><code># all the known virus miRNAs are used as positive examples
+features_virus_mirnas = pd.read_csv(&#39;dataset/features_virus_miRNAs.csv&#39;)
 
 # The negative set is composed of a random set of hsa hairpin-like sequences 
-features_unlabeled_hairpins = pd.read_csv('dataset/features_unlabeled_hairpins.csv') # Hairpins from hsa genome
+features_unlabeled_hairpins = pd.read_csv(&#39;dataset/features_unlabeled_hairpins.csv&#39;) # Hairpins from hsa genome
 
 labels = np.concatenate((np.ones(len(features_virus_mirnas)), np.zeros(len(features_unlabeled_hairpins))))
-features = np.concatenate((features_virus_mirnas.drop(columns=["sequence_names"]), 
-                       features_unlabeled_hairpins.drop(columns=["sequence_names"]))).astype(np.float)
+features = np.concatenate((features_virus_mirnas.drop(columns=[&quot;sequence_names&quot;]), 
+                       features_unlabeled_hairpins.drop(columns=[&quot;sequence_names&quot;]))).astype(np.float)
 sequence_names = np.concatenate((features_virus_mirnas.sequence_names, features_unlabeled_hairpins.sequence_names))
 
 # Feature normalization
@@ -238,51 +193,36 @@ features[np.where(np.isnan(features))] = 0
 features = zscore(features, axis=0)
 features[np.where(np.isnan(features))] = 0
 
-test_ind = pickle.load(open("test_partitions.pk", "rb"))
-nfolds = 10
-```
-
-
-
-### Run experiment: train and evaluate each model with 10 repetitions
-
-
-```{python, eval = FALSE}
-scores = {}
-```
-
-
-#### OC-SVM
-
-
-```{python, eval = FALSE}
-for imb in ["1:50", "1:100", "1:200"]:
-    m_name = "OC-SVM " + imb
+test_ind = pickle.load(open(&quot;test_partitions.pk&quot;, &quot;rb&quot;))
+nfolds = 10</code></pre>
+</div>
+<div id="run-experiment-train-and-evaluate-each-model-with-10-repetitions" class="section level3">
+<h3>Run experiment: train and evaluate each model with 10 repetitions</h3>
+<pre class="python"><code>scores = {}</code></pre>
+<div id="oc-svm" class="section level4">
+<h4>OC-SVM</h4>
+<pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
+    m_name = &quot;OC-SVM &quot; + imb
     scores[m_name] = []
     for fold in range(nfolds):
-        print("%s fold %d/%d" % (m_name, fold + 1, nfolds))
+        print(&quot;%s fold %d/%d&quot; % (m_name, fold + 1, nfolds))
         train_ind = np.array(list(set(np.arange(len(labels))) - set(test_ind[imb][fold])))
         
         # Train
-        model= OneClassSVM(kernel="linear")
+        model= OneClassSVM(kernel=&quot;linear&quot;)
         model.fit(features[train_ind, :][labels[train_ind] == 1, :]) # OC-SVM uses only the positive set to fit
 
         # Test
         scores[m_name].append(model.decision_function(features[test_ind[imb][fold], :]))
-print("Done!")
-```
-
-
-#### deeSOM
-
-
-
-```{python, eval = FALSE}
-for imb in ["1:50", "1:100", "1:200"]:
-    m_name = "deeSOM_full_train_data" + imb
+print(&quot;Done!&quot;)</code></pre>
+</div>
+<div id="deesom" class="section level4">
+<h4>deeSOM</h4>
+<pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
+    m_name = &quot;deeSOM_full_train_data&quot; + imb
     scores[m_name] = []
     for fold in range(nfolds):
-        print("%s fold %d/%d" % (m_name, fold + 1, nfolds))
+        print(&quot;%s fold %d/%d&quot; % (m_name, fold + 1, nfolds))
         train_ind = np.array(list(set(np.arange(len(labels))) - set(test_ind[imb][fold])))
                
         # Train
@@ -291,32 +231,29 @@ for imb in ["1:50", "1:100", "1:200"]:
 
         # Test
         scores[m_name].append(model.predict_proba(features[test_ind[imb][fold], :]))
-        pickle.dump(scores, open("tmp_scores_deesom.pk", "wb"))
+        pickle.dump(scores, open(&quot;tmp_scores_deesom.pk&quot;, &quot;wb&quot;))
 
-print("Done!")
-```
-
-#### mirDNN
-
-
-```{python, eval = FALSE}
-import shutil
+print(&quot;Done!&quot;)</code></pre>
+</div>
+<div id="mirdnn" class="section level4">
+<h4>mirDNN</h4>
+<pre class="python"><code>import shutil
 npos = int(np.sum(labels))
 
-imb = "1:200" # Change to use "1:50", "1:100" or "1:200" imbalance ratio
+imb = &quot;1:200&quot; # Change to use &quot;1:50&quot;, &quot;1:100&quot; or &quot;1:200&quot; imbalance ratio
 
 def split_fasta(seq_len, ind_a, fname_in, handler_a, handler_b, maxb=None):
     ind = np.zeros(seq_len)
     ind[ind_a] = 1
     na, nb = 0, 0
-    for record, a in zip(SeqIO.parse(fname_in, "fasta"), ind):
+    for record, a in zip(SeqIO.parse(fname_in, &quot;fasta&quot;), ind):
         if a:
-            SeqIO.write(record, handler_a, "fasta")
+            SeqIO.write(record, handler_a, &quot;fasta&quot;)
             na += 1
         else:
-            if (maxb is not None) and (nb>maxb):
+            if (maxb is not None) and (nb&gt;maxb):
                 continue
-            SeqIO.write(record, handler_b, "fasta")
+            SeqIO.write(record, handler_b, &quot;fasta&quot;)
             nb += 1
 
     return nb, na 
@@ -324,59 +261,54 @@ def split_fasta(seq_len, ind_a, fname_in, handler_a, handler_b, maxb=None):
 
 for fold in range(9, nfolds):
     test_neg_ind, test_pos_ind = [], [] 
-    if os.path.isdir("tmp/"):
-      shutil.rmtree("tmp/")
-    os.mkdir("tmp/")
+    if os.path.isdir(&quot;tmp/&quot;):
+      shutil.rmtree(&quot;tmp/&quot;)
+    os.mkdir(&quot;tmp/&quot;)
     # split folds
     for t in sorted(test_ind[imb][fold]):
-        if t<npos:
+        if t&lt;npos:
             test_pos_ind.append(t)
         else:
             test_neg_ind.append(t - npos)    
 
-    with open("tmp/negative_sequences.fold", "w") as oneg, open("tmp/positive_sequences.fold", "w") as opos, open("tmp/test_sequences.fold", "w") as otest: 
+    with open(&quot;tmp/negative_sequences.fold&quot;, &quot;w&quot;) as oneg, open(&quot;tmp/positive_sequences.fold&quot;, &quot;w&quot;) as opos, open(&quot;tmp/test_sequences.fold&quot;, &quot;w&quot;) as otest: 
         
-        ptrain, ptest = split_fasta(npos, test_pos_ind, "dataset/sequences_virus_miRNAs.fold", 
+        ptrain, ptest = split_fasta(npos, test_pos_ind, &quot;dataset/sequences_virus_miRNAs.fold&quot;, 
                     otest, opos)
         # Use only a number of negatives to match imbalance ratio
-        ntrain = ptrain * (int(imb.split(":")[1]) - 1)
-        ntrain, ntest = split_fasta(len(features_unlabeled_hairpins), test_neg_ind, "dataset/sequences_unlabeled_hairpins.fold", otest, oneg, maxb=ntrain)
-        print("train", ptrain, ntrain)    
-        print("test", ptest, ntest)    
+        ntrain = ptrain * (int(imb.split(&quot;:&quot;)[1]) - 1)
+        ntrain, ntest = split_fasta(len(features_unlabeled_hairpins), test_neg_ind, &quot;dataset/sequences_unlabeled_hairpins.fold&quot;, otest, oneg, maxb=ntrain)
+        print(&quot;train&quot;, ptrain, ntrain)    
+        print(&quot;test&quot;, ptest, ntest)    
     # Run train script
-    ! python3 mirDNN/mirdnn_fit.py -i tmp/negative_sequences.fold -i tmp/positive_sequences.fold -m tmp/out_model.pmt -l tmp/train_{imb}_{fold}.log -d "cuda" -s 160
+    ! python3 mirDNN/mirdnn_fit.py -i tmp/negative_sequences.fold -i tmp/positive_sequences.fold -m tmp/out_model.pmt -l tmp/train_{imb}_{fold}.log -d &quot;cuda&quot; -s 160
 
     # Run test script
-    ! python3 mirDNN/mirdnn_eval.py -i tmp/test_sequences.fold -o res/mirdnn_predictions_{imb}_{fold}.csv -m tmp/out_model.pmt -s 160 -d "cuda"
-    
-```
-
-
-### Analyze results
-
-
-
-```{python, eval = FALSE}
-from sklearn.metrics import average_precision_score
+    ! python3 mirDNN/mirdnn_eval.py -i tmp/test_sequences.fold -o res/mirdnn_predictions_{imb}_{fold}.csv -m tmp/out_model.pmt -s 160 -d &quot;cuda&quot;</code></pre>
+</div>
+</div>
+<div id="analyze-results" class="section level3">
+<h3>Analyze results</h3>
+<pre class="python"><code>from sklearn.metrics import average_precision_score
 from matplotlib import pyplot as plt 
 from sklearn.metrics import precision_recall_curve
 from scipy.interpolate import interp1d
 
-colors = ["r+-", "b+-", "g+-"]
+colors = [&quot;r+-&quot;, &quot;b+-&quot;, &quot;g+-&quot;]
 res = []
             
-for imb in ["1:50", "1:100", "1:200"]:
-    for m, model in enumerate(["mirDNN", "deeSOM", "OC-SVM"]):
+for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
+    for m, model in enumerate([&quot;mirDNN&quot;, &quot;deeSOM&quot;, &quot;OC-SVM&quot;]):
         res_m = []
         for fold in range(nfolds):
             
             try:
-                if model != "mirDNN":
-                    s = scores[f"{model} {imb}"][fold]
+                if model != &quot;mirDNN&quot;:
+                    s = scores[f&quot;{model} {imb}&quot;][fold]
                 else:
-                    s = pd.read_csv(f"res/mirdnn_predictions_{imb}_{fold}.csv", header=None).values[:, 1]
+                    s = pd.read_csv(f&quot;res/mirdnn_predictions_{imb}_{fold}.csv&quot;, header=None).values[:, 1]
             except:
-                print(f"{model}_{imb}_{fold} not found")
+                print(f&quot;{model}_{imb}_{fold} not found&quot;)
                 continue
 
             pre, rec, _ = precision_recall_curve(labels[test_ind[imb][fold]], s)
@@ -388,63 +320,52 @@ for imb in ["1:50", "1:100", "1:200"]:
                 f1 = 2*p*r / (p + r)
                 res.append([model, imb, p, r, f1])
 
-df = pd.DataFrame(res, columns=["model", "imb", "precision", "recall", "f1"])
-```
-
-
-```{python, eval = FALSE}
-import seaborn as sns
+df = pd.DataFrame(res, columns=[&quot;model&quot;, &quot;imb&quot;, &quot;precision&quot;, &quot;recall&quot;, &quot;f1&quot;])</code></pre>
+<pre class="python"><code>import seaborn as sns
 from matplotlib import pyplot as plt
 
-models = ["mirDNN", "deeSOM", "OC-SVM"]
-imbalances = ["1:50", "1:100", "1:200"]
+models = [&quot;mirDNN&quot;, &quot;deeSOM&quot;, &quot;OC-SVM&quot;]
+imbalances = [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]
 
 fig, ax = plt.subplots(1, 3, sharey=True, figsize=(15, 5))
 for i, imb in enumerate(imbalances):
     legend = False
     if i == 0:
-        legend = "auto"
-    sns.lineplot(data=df[df.imb==imb], x="recall", y="precision", hue="model", 
+        legend = &quot;auto&quot;
+    sns.lineplot(data=df[df.imb==imb], x=&quot;recall&quot;, y=&quot;precision&quot;, hue=&quot;model&quot;, 
                  ax=ax[i], legend=legend)
     for m, model in enumerate(models):
-        s = df[(df.model==model) & (df.imb==imb)].groupby("recall").mean()
+        s = df[(df.model==model) &amp; (df.imb==imb)].groupby(&quot;recall&quot;).mean()
         x = s.index[s.f1.argmax()]
         y = s.precision.values[int(s.f1.argmax())]
         f1 = s.f1.max()
         auc = s.precision.mean()
-        ax[i].plot(x, y, 'o', markersize=7, color=f"C{m}" )
-        if model == "OC-SVM":
+        ax[i].plot(x, y, &#39;o&#39;, markersize=7, color=f&quot;C{m}&quot; )
+        if model == &quot;OC-SVM&quot;:
             difx, dify = -.15, -.15
         else:
             difx, dify = .02, .02
 
-        ax[i].text(x + difx, y + dify, f"F1 = {f1: .2f}\nAUCPR = {auc: .2f}")
+        ax[i].text(x + difx, y + dify, f&quot;F1 = {f1: .2f}\nAUCPR = {auc: .2f}&quot;)
 
-        xlab = ""
+        xlab = &quot;&quot;
         if i == 1:
-            xlab = "Recall"
+            xlab = &quot;Recall&quot;
         ax[i].set_xlabel(xlab)
-        ax[i].set_ylabel("Precision")
-        ax[i].spines['right'].set_visible(False)
-        ax[i].spines['top'].set_visible(False)
-        ax[i].set_title(f"{['a', 'b', 'c'][i]}): Imbalance ratio {imb}")
-```
-
-
-### Final Results
-
-```{r, out.width='100%', echo = FALSE}
-
-knitr::include_graphics("models.png", error = FALSE)
-
-```
-
-
-
-The results demonstrate that computational models can provide accurate
+        ax[i].set_ylabel(&quot;Precision&quot;)
+        ax[i].spines[&#39;right&#39;].set_visible(False)
+        ax[i].spines[&#39;top&#39;].set_visible(False)
+        ax[i].set_title(f&quot;{[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;][i]}): Imbalance ratio {imb}&quot;)</code></pre>
+</div>
+<div id="final-results" class="section level3">
+<h3>Final Results</h3>
+<p><img src="models.png" width="100%" /></p>
+<p>The results demonstrate that computational models can provide accurate
 and useful predictions of pre-miRNAs in the SARS-CoV-2 genome,
 underscoring the relevance of machine learning in the response to a
 global sanitary emergency. Moreover, the interpretability of our model
 shed light on the molecular mechanisms underlying the viral infection,
 thus contributing to the fight against the COVID-19 pandemic and the
-fast development of new treatments.
+fast development of new treatments.</p>
+</div>
+</div>
