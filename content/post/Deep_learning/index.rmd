@@ -61,7 +61,7 @@ the neighborhood of the sequences.
 The second step consists in the prediction of the secondary structure
 resulting from the folding of the sequences obtained in the previous
 windowing and cutting step. This is classically done with the RNAfold
-tool (Hofacker, 2003), an algorithm that uses dynamic programming for
+tool, an algorithm that uses dynamic programming for
 finding the secondary structure which minimizes the energy released.
 Then, simple representations are used to extract the main features of
 pre-miRNAs, which are based on the inherent characteristics of the
@@ -71,8 +71,7 @@ proportion, the matching triplets, the GC content, the length of the
 sequence, the MFE, the frequency of occurrence of certain pairs of
 nucleotides, among many others. A large number of studies indicate that
 local sequence features as well as secondary structure are very
-important for pre-miRNAs identification (Allmer and Yousef, 2012, Li et
-al., 2009, Liu et al., 2012). The candidate sequences, their secondary
+important for pre-miRNAs identification. The candidate sequences, their secondary
 structures and the set of extracted features are then used as inputs to
 a ML classifier, specifically designed for pre-miRNA prediction. These
 classifiers provide scores according to the likelihood of each RNA
@@ -80,31 +79,30 @@ sequence of being a pre-miRNA. For this study, three ML methods were
 selected: a classical model as baseline and two top-performing and very
 recently published proposals based on deep learning. These methods have
 already been validated individually with benchmark data from well-known
-pre-miRNAs in humans (Bugnon et al., 2021, Yones et al., 2021). Finally,
+pre-miRNAs in humans. Finally,
 the best model was used for the pre-miRNA predictions in SARS-CoV-2.
 
 #### Machine learning models for pre-miRNAs prediction
 
 The ML methods must be trained for identifying RNA sequences highly
-likely to be miRNA precursors (Stegmayer et al., 2019). Among all
+likely to be miRNA precursors. Among all
 possible supervised classifiers, support vector machines (SVM) have been
-the first and most widely applied algorithm for pre-miRNAs prediction
-(Xue et al., 2005). A classical supervised approach needs both positive
+the first and most widely applied algorithm for pre-miRNAs prediction. A classical supervised approach needs both positive
 (real well-known pre-miRNA) and negative sequences. In this study, a
 more recent approach was used, which employs only the positive labeled
 data for building a classification frontier: the one-class SVM (OC-SVM).
 It has been shown that this approach outperforms standard two-classes
 SVM in pre-miRNA prediction because it is capable of learning a decision
 frontier only from the well-known pre-miRNAs, avoiding the large class
-imbalance issue (Yousef et al., 2010). Thus, the OC-SVM was trained with
+imbalance issue. Thus, the OC-SVM was trained with
 features from known viral pre-miRNAs only from miRBase. Then, the fitted
 model was used on the sequences extracted from the SARS-CoV-2
 full-genome.
 
-The second method was the deeSOM model (Bugnon et al., 2020), which
+The second method was the deeSOM model, which
 consists of several hierarchical layers with self-organizing maps
 (SOMs). This model has already proven to be very suited to the pre-miRNA
-prediction task (Bugnon et al., 2021). This model has an ensemble of
+prediction task. This model has an ensemble of
 unsupervised SOMs that are used in parallel at the first level. The
 unlabeled samples are provided as input data by splitting them among the
 members of the ensemble, which also receive the full set of positive
