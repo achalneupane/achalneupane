@@ -17,10 +17,21 @@ summary: Statistics series
 </script>
 
 ```{css, echo=FALSE}
+.content {
+  max-width: 700px;
+  margin: 40px auto 10px;
+  padding: 0 15px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #333;
+```
+
+```{css, echo=FALSE}
 .watch-out {
   background-color: lightpink;
   border: 3px solid red;
   font-weight: bold;
+  <!-- font-size: 1.0em; -->
 }
 ```
 
