@@ -16,6 +16,13 @@ summary: Statistics series
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
+<style type="text/css">
+.watch-out {
+  background-color: lightpink;
+  border: 3px solid red;
+  font-weight: bold;
+}
+</style>
 <div id="comparison-of-ml-models-for-virus-mirnas-prediction" class="section level2">
 <h2>Comparison of ML models for virus miRNAs prediction</h2>
 <p>This notebook reproduces the numerical comparison of three different
@@ -160,7 +167,7 @@ prediction.</p>
 <h3>Install and import packages</h3>
 <p>Run this cell to download the dataset and install all required
 libraries.</p>
-<pre class="python"><code>import os
+<pre class="python watch-out"><code>import os
 
 import numpy as np
 import pandas as pd
@@ -175,7 +182,7 @@ from Bio import Seq, SeqIO</code></pre>
 <p>mirBase virus miRNAs are used as positive class, along with non-mirna
 hairpin-like sequences from the human genome. Data is split to perform a
 10-fold cross-validation with each method.</p>
-<pre class="python"><code># all the known virus miRNAs are used as positive examples
+<pre class="python watch-out"><code># all the known virus miRNAs are used as positive examples
 features_virus_mirnas = pd.read_csv(&#39;dataset/features_virus_miRNAs.csv&#39;)
 
 # The negative set is composed of a random set of hsa hairpin-like sequences 
@@ -196,10 +203,10 @@ nfolds = 10</code></pre>
 </div>
 <div id="run-experiment-train-and-evaluate-each-model-with-10-repetitions" class="section level3">
 <h3>Run experiment: train and evaluate each model with 10 repetitions</h3>
-<pre class="python"><code>scores = {}</code></pre>
+<pre class="python watch-out"><code>scores = {}</code></pre>
 <div id="oc-svm" class="section level4">
 <h4>OC-SVM</h4>
-<pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
+<pre class="python watch-out"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
     m_name = &quot;OC-SVM &quot; + imb
     scores[m_name] = []
     for fold in range(nfolds):
@@ -216,7 +223,7 @@ print(&quot;Done!&quot;)</code></pre>
 </div>
 <div id="deesom" class="section level4">
 <h4>deeSOM</h4>
-<pre class="python"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
+<pre class="python watch-out"><code>for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
     m_name = &quot;deeSOM_full_train_data&quot; + imb
     scores[m_name] = []
     for fold in range(nfolds):
@@ -235,7 +242,7 @@ print(&quot;Done!&quot;)</code></pre>
 </div>
 <div id="mirdnn" class="section level4">
 <h4>mirDNN</h4>
-<pre class="python"><code>import shutil
+<pre class="python watch-out"><code>import shutil
 npos = int(np.sum(labels))
 
 imb = &quot;1:200&quot; # Change to use &quot;1:50&quot;, &quot;1:100&quot; or &quot;1:200&quot; imbalance ratio
@@ -287,7 +294,7 @@ for fold in range(9, nfolds):
 </div>
 <div id="analyze-results" class="section level3">
 <h3>Analyze results</h3>
-<pre class="python"><code>from sklearn.metrics import average_precision_score
+<pre class="python watch-out"><code>from sklearn.metrics import average_precision_score
 from matplotlib import pyplot as plt 
 from sklearn.metrics import precision_recall_curve
 from scipy.interpolate import interp1d
@@ -319,7 +326,7 @@ for imb in [&quot;1:50&quot;, &quot;1:100&quot;, &quot;1:200&quot;]:
                 res.append([model, imb, p, r, f1])
 
 df = pd.DataFrame(res, columns=[&quot;model&quot;, &quot;imb&quot;, &quot;precision&quot;, &quot;recall&quot;, &quot;f1&quot;])</code></pre>
-<pre class="python"><code>import seaborn as sns
+<pre class="python watch-out"><code>import seaborn as sns
 from matplotlib import pyplot as plt
 
 models = [&quot;mirDNN&quot;, &quot;deeSOM&quot;, &quot;OC-SVM&quot;]
