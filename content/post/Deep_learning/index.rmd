@@ -18,7 +18,7 @@ summary: Statistics series
 
 ```{css, echo=FALSE}
 .content {
-  max-width: 700px;
+  max-width: 1400px;
   margin: 40px auto 10px;
   padding: 0 15px;
   font-size: 16px;
@@ -36,7 +36,7 @@ summary: Statistics series
 ```
 
 ```{r setup, include = F}
-knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE, class.source = "watch-out")
+knitr::opts_chunk$set(echo=T, warning=FALSE, message=FALSE, class.source = "watch-out", class.source = ".content")
 
 # vi $HOME/.Renviron
 # RETICULATE_PYTHON="c:/Users/aneupane/AppData/Local/Microsoft/WindowsApps/python3"
