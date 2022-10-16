@@ -1,0 +1,1890 @@
+---
+Authors: ["**Achal Neupane**"]
+title: "Pandas tutorial"
+date: 2016-07-29T17:26:23-05:00
+draft: false
+output: html_document
+tags:
+- Python
+---
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<div id="pandas-tutorial" class="section level2">
+<h2>Pandas Tutorial</h2>
+<p>Before starting on Pandas, let’s take a look at Python’s data types and how they are different from one another. This table below summarizes everything we need to know about python’s data types.</p>
+<p><img src="data_types.jfif" width="100%" /></p>
+<p>Pandas provides numerous tools to work with tabular data like you'd
+find in spreadsheets or databases. It is widely used for data
+preparation, cleaning, and analysis. It can work with a wide variety of
+data and provides many visualization options. It is built on top of
+NumPy.</p>
+<div id="series" class="section level3">
+<h3>Series</h3>
+<pre class="python"><code>import numpy as np
+import pandas as pd
+
+# Pandas uses something called a dataframe. It is a 
+# 2D data structure that can hold multiple data types.
+# Columns have labels.
+
+# Series are built on top of NumPy arrays. 
+# Create a series by first creating a list
+list_1 = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;]
+# I can define that I want the series indexes to be the
+# provided labels
+labels = [1, 2, 3, 4]
+ser_1 = pd.Series(data=list_1, index=labels)
+
+# You can also add a NumPy array
+arr_1 = np.array([1, 2, 3, 4])
+ser_2 = pd.Series(arr_1)
+
+# You can quickly add labels and values with a dictionary
+dict_1 = {&quot;f_name&quot;: &quot;Derek&quot;, 
+              &quot;l_name&quot;: &quot;Banas&quot;, 
+              &quot;age&quot;: 44}
+ser_3 = pd.Series(dict_1)
+
+# Get data by label
+ser_3[&quot;f_name&quot;]
+
+# You can get the datatype</code></pre>
+<pre><code>## &#39;Derek&#39;</code></pre>
+<pre class="python"><code>ser_2.dtype
+
+# You can perform math operations on series</code></pre>
+<pre><code>## dtype(&#39;int32&#39;)</code></pre>
+<pre class="python"><code>ser_2 + ser_2</code></pre>
+<pre><code>## 0    2
+## 1    4
+## 2    6
+## 3    8
+## dtype: int32</code></pre>
+<pre class="python"><code>ser_2 - ser_2</code></pre>
+<pre><code>## 0    0
+## 1    0
+## 2    0
+## 3    0
+## dtype: int32</code></pre>
+<pre class="python"><code>ser_2 * ser_2</code></pre>
+<pre><code>## 0     1
+## 1     4
+## 2     9
+## 3    16
+## dtype: int32</code></pre>
+<pre class="python"><code>ser_2 / ser_2
+
+# You can pass them into NumPy methods
+# See NumPy tutorial for more math methods</code></pre>
+<pre><code>## 0    1.0
+## 1    1.0
+## 2    1.0
+## 3    1.0
+## dtype: float64</code></pre>
+<pre class="python"><code>np.exp(ser_2)
+
+# The difference between Series and ndarray is that operations
+# align by labels
+# Create a series from a dictionary</code></pre>
+<pre><code>## 0     2.718282
+## 1     7.389056
+## 2    20.085537
+## 3    54.598150
+## dtype: float64</code></pre>
+<pre class="python"><code>ser_4 = pd.Series({4: 5, 5: 6, 6: 7, 7: 8})
+# If labels don&#39;t align you will get NaN
+ser_2 + ser_4
+
+# You can assign names to series</code></pre>
+<pre><code>## 0   NaN
+## 1   NaN
+## 2   NaN
+## 3   NaN
+## 4   NaN
+## 5   NaN
+## 6   NaN
+## 7   NaN
+## dtype: float64</code></pre>
+<pre class="python"><code>ser_4 = pd.Series({8: 9, 9: 10}, name=&#39;rand_nums&#39;)
+ser_4.name</code></pre>
+<pre><code>## &#39;rand_nums&#39;</code></pre>
+</div>
+<div id="dataframes" class="section level3">
+<h3>DataFrames</h3>
+<p>DataFrames are the most commonly used data structure with Pandas. They
+are made up of multiple series that share the same index / label. They
+can contain multiple data types. They can be created from dicts, series,
+lists or other dataframes.</p>
+</div>
+<div id="creating-dataframes" class="section level3">
+<h3>Creating DataFrames</h3>
+<pre class="python"><code>from numpy import random
+
+# Create random matrix 2x3 with values between 10 and 50
+arr_2 = np.random.randint(10, 50, size=(2, 3))
+
+# Create DF with data, row labels &amp; column labels
+df_1 = pd.DataFrame(arr_2, [&#39;A&#39;, &#39;B&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
+
+# Create a DF from multiple series in a dict
+# If series are of different lengthes extra spaces are NaN
+dict_3 = {&#39;one&#39;: pd.Series([1., 2., 3.], index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]),
+         &#39;two&#39;: pd.Series([1., 2., 3., 4.], index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])}
+df_2 = pd.DataFrame(dict_3)
+df_2
+
+# from_dict accepts a column labels and lists</code></pre>
+<pre><code>##    one  two
+## a  1.0  1.0
+## b  2.0  2.0
+## c  3.0  3.0
+## d  NaN  4.0</code></pre>
+<pre class="python"><code>pd.DataFrame.from_dict(dict([(&#39;A&#39;, [1,2,3]), (&#39;B&#39;, [4,5,6])]))
+
+# You can assign the keys as row labels and column labels separate
+# with orient=&#39;index&#39;</code></pre>
+<pre><code>##    A  B
+## 0  1  4
+## 1  2  5
+## 2  3  6</code></pre>
+<pre class="python"><code>pd.DataFrame.from_dict(dict([(&#39;A&#39;, [1,2,3]), (&#39;B&#39;, [4,5,6])]),
+                      orient=&#39;index&#39;, columns=[&#39;one&#39;,&#39;two&#39;,&#39;three&#39;])
+
+# Get number of rows and columns as tuple</code></pre>
+<pre><code>##    one  two  three
+## A    1    2      3
+## B    4    5      6</code></pre>
+<pre class="python"><code>print(df_1.shape)</code></pre>
+<pre><code>## (2, 3)</code></pre>
+</div>
+<div id="editing--retrieving-data" class="section level3">
+<h3>Editing &amp; Retrieving Data</h3>
+<pre class="python"><code># Grab a column
+df_1[&#39;C&#39;]
+# Get multiple columns</code></pre>
+<pre><code>## A    17
+## B    42
+## Name: C, dtype: int32</code></pre>
+<pre class="python"><code>df_1[[&#39;C&#39;, &#39;E&#39;]]
+
+# Grabb a row as a series</code></pre>
+<pre><code>##     C   E
+## A  17  22
+## B  42  36</code></pre>
+<pre class="python"><code>df_1.loc[&#39;A&#39;]
+# Grab row by index position</code></pre>
+<pre><code>## C    17
+## D    32
+## E    22
+## Name: A, dtype: int32</code></pre>
+<pre class="python"><code>df_1.iloc[1]
+
+# Grab cell with Row &amp; Column</code></pre>
+<pre><code>## C    42
+## D    27
+## E    36
+## Name: B, dtype: int32</code></pre>
+<pre class="python"><code>df_1.loc[&#39;A&#39;, &#39;C&#39;]
+# Grab multiple cells by defining rows wanted &amp; the
+# columns from those rows</code></pre>
+<pre><code>## 17</code></pre>
+<pre class="python"><code>print(df_1.loc[[&#39;A&#39;, &#39;B&#39;], [&#39;D&#39;, &#39;E&#39;]])
+
+# Make new column</code></pre>
+<pre><code>##     D   E
+## A  32  22
+## B  27  36</code></pre>
+<pre class="python"><code>df_1[&#39;Total&#39;] = df_1[&#39;C&#39;] + df_1[&#39;D&#39;] + df_1[&#39;E&#39;]
+df_1
+
+# You can perform multiple calculations</code></pre>
+<pre><code>##     C   D   E  Total
+## A  17  32  22     71
+## B  42  27  36    105</code></pre>
+<pre class="python"><code>df_2[&#39;mult&#39;] = df_2[&#39;one&#39;] * df_2[&#39;two&#39;]
+df_2
+
+# Make a new row by appending</code></pre>
+<pre><code>##    one  two  mult
+## a  1.0  1.0   1.0
+## b  2.0  2.0   4.0
+## c  3.0  3.0   9.0
+## d  NaN  4.0   NaN</code></pre>
+<pre class="python"><code>dict_2 = {&#39;C&#39;: 44, &#39;D&#39;: 45, &#39;E&#39;: 46}
+new_row = pd.Series(dict_2, name=&#39;F&#39;)
+df_1_save = df_1
+df_1 = df_1.append(new_row, ignore_index = False)
+# df_1 = pd.concat([df_1, new_row], axis = 0)
+
+# Delete column and set inplace to True which is required
+# because Pandas tries to help you not delete data
+# by accident</code></pre>
+<pre><code>## &lt;string&gt;:1: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.</code></pre>
+<pre class="python"><code>df_1.drop(&#39;Total&#39;, axis=1, inplace=True)
+df_1
+# Delete a row</code></pre>
+<pre><code>##     C   D   E
+## A  17  32  22
+## B  42  27  36
+## F  44  45  46</code></pre>
+<pre class="python"><code>df_1.drop(&#39;B&#39;, axis=0, inplace=True)
+df_1
+
+# Create a new column and make it the index</code></pre>
+<pre><code>##     C   D   E
+## A  17  32  22
+## F  44  45  46</code></pre>
+<pre class="python"><code>df_1[&#39;Sex&#39;] = [&#39;Men&#39;, &#39;Women&#39;]
+df_1.set_index(&#39;Sex&#39;, inplace=True)
+
+# You can reset index values to numbers
+#df_1.reset_index(inplace=True)
+df_1
+
+# Assign can be used to create a column while leaving the
+# original DF untouched</code></pre>
+<pre><code>##         C   D   E
+## Sex              
+## Men    17  32  22
+## Women  44  45  46</code></pre>
+<pre class="python"><code>df_2.assign(div=df_2[&#39;one&#39;] / df_2[&#39;two&#39;])
+
+# You can pass in a function as well</code></pre>
+<pre><code>##    one  two  mult  div
+## a  1.0  1.0   1.0  1.0
+## b  2.0  2.0   4.0  1.0
+## c  3.0  3.0   9.0  1.0
+## d  NaN  4.0   NaN  NaN</code></pre>
+<pre class="python"><code>df_2.assign(div=lambda x: (x[&#39;one&#39;] / x[&#39;two&#39;]))
+
+# Combine DataFrames while keeping df_3 data unless
+# there is a NaN value</code></pre>
+<pre><code>##    one  two  mult  div
+## a  1.0  1.0   1.0  1.0
+## b  2.0  2.0   4.0  1.0
+## c  3.0  3.0   9.0  1.0
+## d  NaN  4.0   NaN  NaN</code></pre>
+<pre class="python"><code>df_3 = pd.DataFrame({&#39;A&#39;: [1., np.nan, 3., np.nan]})
+df_4 = pd.DataFrame({&#39;A&#39;: [8., 9., 2., 4.]})
+df_3.combine_first(df_4)</code></pre>
+<pre><code>##      A
+## 0  1.0
+## 1  9.0
+## 2  3.0
+## 3  4.0</code></pre>
+<pre><code>    D   E
+A  23  23
+B  34  49</code></pre>
+<p>Extract Keys with values</p>
+<pre class="python"><code># creating a new dictionary
+my_dict ={&quot;Java&quot;:100, &quot;Python&quot;:112, &quot;C&quot;:11}
+
+# one-liner
+print(&quot;One line Code Key value: &quot;, list(my_dict.keys())
+    [list(my_dict.values()).index(100)])
+
+
+# Get the key by Value using list comprehension</code></pre>
+<pre><code>## One line Code Key value:  Java</code></pre>
+<pre class="python"><code>dic ={&quot;geeks&quot;: &quot;A&quot;,&quot;for&quot;:&quot;B&quot;,&quot;geeks&quot;:&quot;C&quot;}
+
+value = {i for i in dic if dic[i]==&quot;B&quot;}
+print(&quot;key by value:&quot;,value)
+
+
+# Using list.index
+# creating a new dictionary</code></pre>
+<pre><code>## key by value: {&#39;for&#39;}</code></pre>
+<pre class="python"><code>my_dict ={&quot;java&quot;:100, &quot;python&quot;:112, &quot;c&quot;:11}
+
+# list out keys and values separately
+key_list = list(my_dict.keys())
+val_list = list(my_dict.values())
+
+# print key with val 100
+position = val_list.index(100)
+print(key_list[position])
+</code></pre>
+<pre><code>## java</code></pre>
+</div>
+<div id="concatenate-rows-of-two-dataframes-in-pandas" class="section level3">
+<h3>Concatenate rows of two dataframes in pandas</h3>
+<pre class="python"><code>t=pd.DataFrame()
+t[&#39;a&#39;]=[1,2,3,4]
+t=t.loc[t[&#39;a&#39;]&gt;1] #now index starts from 1
+
+u=pd.DataFrame()
+u[&#39;b&#39;]=[1,2,3] #index starts from 0
+
+#option 1
+#keep index of t
+u.index = t.index 
+
+#option 2
+#index of t starts from 0
+t.reset_index(drop=True, inplace=True)
+
+#now concat will keep number of rows 
+r=pd.concat([t,u], axis=1)
+
+
+dict_data = {&#39;Treatment&#39;: [&#39;C&#39;, &#39;C&#39;, &#39;C&#39;], &#39;Biorep&#39;: [&#39;A&#39;, &#39;A&#39;, &#39;A&#39;], &#39;Techrep&#39;: [1, 1, 1], &#39;AAseq&#39;: [&#39;ELVISLIVES&#39;, &#39;ELVISLIVES&#39;, &#39;ELVISLIVES&#39;], &#39;mz&#39;:[500.0, 500.5, 501.0]}
+df_a = pd.DataFrame(dict_data)
+dict_data = {&#39;Treatment1&#39;: [&#39;C&#39;, &#39;C&#39;, &#39;C&#39;], &#39;Biorep1&#39;: [&#39;A&#39;, &#39;A&#39;, &#39;A&#39;], &#39;Techrep1&#39;: [1, 1, 1], &#39;AAseq1&#39;: [&#39;ELVISLIVES&#39;, &#39;ELVISLIVES&#39;, &#39;ELVISLIVES&#39;], &#39;inte1&#39;:[1100.0, 1050.0, 1010.0]}
+df_b = pd.DataFrame(dict_data)
+
+
+# call concat and pass param axis=1 to concatenate column-wise:
+pd.concat([df_a,df_b], axis=1)
+
+# Since we have no clashing columns, we can merge and use the indices as they have the same number of rows:</code></pre>
+<pre><code>##   Treatment Biorep  Techrep       AAseq  ...  Biorep1 Techrep1      AAseq1   inte1
+## 0         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1100.0
+## 1         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1050.0
+## 2         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1010.0
+## 
+## [3 rows x 10 columns]</code></pre>
+<pre class="python"><code>df_a.merge(df_b, left_index=True, right_index=True)
+
+# And for the same reasons as above a simple join works too:</code></pre>
+<pre><code>##   Treatment Biorep  Techrep       AAseq  ...  Biorep1 Techrep1      AAseq1   inte1
+## 0         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1100.0
+## 1         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1050.0
+## 2         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1010.0
+## 
+## [3 rows x 10 columns]</code></pre>
+<pre class="python"><code>df_a.join(df_b)
+
+# Appending rows to a DataFrame</code></pre>
+<pre><code>##   Treatment Biorep  Techrep       AAseq  ...  Biorep1 Techrep1      AAseq1   inte1
+## 0         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1100.0
+## 1         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1050.0
+## 2         C      A        1  ELVISLIVES  ...        A        1  ELVISLIVES  1010.0
+## 
+## [3 rows x 10 columns]</code></pre>
+<pre class="python"><code>s2 = pd.Series([&quot;X0&quot;, &quot;X1&quot;, &quot;X2&quot;, &quot;X3&quot;], index=[&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;])
+
+
+df1 = pd.DataFrame(
+  {
+  &quot;A&quot;: [&quot;A0&quot;, &quot;A1&quot;, &quot;A2&quot;, &quot;A3&quot;],
+  &quot;B&quot;: [&quot;B0&quot;, &quot;B1&quot;, &quot;B2&quot;, &quot;B3&quot;],
+  &quot;C&quot;: [&quot;C0&quot;, &quot;C1&quot;, &quot;C2&quot;, &quot;C3&quot;],
+  &quot;D&quot;: [&quot;D0&quot;, &quot;D1&quot;, &quot;D2&quot;, &quot;D3&quot;],
+   }, index=[0, 1, 2, 3],)
+
+df2 = pd.DataFrame(
+  {
+  &quot;A&quot;: [&quot;A4&quot;, &quot;A5&quot;, &quot;A6&quot;, &quot;A7&quot;],
+  &quot;B&quot;: [&quot;B4&quot;, &quot;B5&quot;, &quot;B6&quot;, &quot;B7&quot;],
+  &quot;C&quot;: [&quot;C4&quot;, &quot;C5&quot;, &quot;C6&quot;, &quot;C7&quot;],
+  &quot;D&quot;: [&quot;D4&quot;, &quot;D5&quot;, &quot;D6&quot;, &quot;D7&quot;],
+  },index=[4, 5, 6, 7],)
+
+df3 = pd.DataFrame(
+     {
+   &quot;A&quot;: [&quot;A8&quot;, &quot;A9&quot;, &quot;A10&quot;, &quot;A11&quot;],
+   &quot;B&quot;: [&quot;B8&quot;, &quot;B9&quot;, &quot;B10&quot;, &quot;B11&quot;],
+   &quot;C&quot;: [&quot;C8&quot;, &quot;C9&quot;, &quot;C10&quot;, &quot;C11&quot;],
+   &quot;D&quot;: [&quot;D8&quot;, &quot;D9&quot;, &quot;D10&quot;, &quot;D11&quot;],
+   }, index=[8, 9, 10, 11],)
+
+frames = [df1, df2, df3]
+
+
+# result = pd.concat([df1, s2.to_frame().T], ignore_index=True)
+
+result = pd.concat(frames)</code></pre>
+</div>
+<div id="conditional-selection" class="section level3">
+<h3>Conditional Selection</h3>
+<pre class="python"><code>arr_2 = np.random.randint(10, 50, size=(2, 3))
+df_1 = pd.DataFrame(arr_2, [&#39;A&#39;, &#39;B&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
+print(df_1)
+
+# You can use conditional operators to retrieve a table
+# based on the condition</code></pre>
+<pre><code>##     C   D   E
+## A  18  42  45
+## B  29  36  19</code></pre>
+<pre class="python"><code>print(&quot;Greater than 40\n&quot;, df_1 &gt; 40.0)
+
+# You can use comparison operater functions as well like
+# gt, lt, ge, le, eq, ne</code></pre>
+<pre><code>## Greater than 40
+##         C      D      E
+## A  False   True   True
+## B  False  False  False</code></pre>
+<pre class="python"><code>print(&quot;Greater than 45\n&quot;, df_1.gt(45.0))
+
+# You can place conditions in brackets as well</code></pre>
+<pre><code>## Greater than 45
+##         C      D      E
+## A  False  False  False
+## B  False  False  False</code></pre>
+<pre class="python"><code>bool_1 = df_1 &gt;= 45.0
+df_1[bool_1]
+
+# Get bools for a column</code></pre>
+<pre><code>##     C   D     E
+## A NaN NaN  45.0
+## B NaN NaN   NaN</code></pre>
+<pre class="python"><code>df_1[&#39;E&#39;] &gt; 40
+
+# Return a row if cell value in column matches a condition</code></pre>
+<pre><code>## A     True
+## B    False
+## Name: E, dtype: bool</code></pre>
+<pre class="python"><code>df_1[df_1[&#39;E&#39;]&gt;30]
+
+# You can focus on a column based on resulting dataframe</code></pre>
+<pre><code>##     C   D   E
+## A  18  42  45</code></pre>
+<pre class="python"><code>df_2 = df_1[df_1[&#39;E&#39;]&gt;30]
+df_2[&#39;C&#39;]
+
+# You can stack these commands</code></pre>
+<pre><code>## A    18
+## Name: C, dtype: int32</code></pre>
+<pre class="python"><code>print(df_1[df_1[&#39;E&#39;]&gt;20][&#39;C&#39;])</code></pre>
+<pre><code>## A    18
+## Name: C, dtype: int32</code></pre>
+<pre class="python"><code>print()
+
+# You can also grab multiple columns</code></pre>
+<pre class="python"><code>print(df_1[df_1[&#39;E&#39;]&gt;20][[&#39;C&#39;, &#39;D&#39;]])</code></pre>
+<pre><code>##     C   D
+## A  18  42</code></pre>
+<pre class="python"><code>print()
+
+# You can use multiple conditions</code></pre>
+<pre class="python"><code>arr_3 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+df_2 = pd.DataFrame(arr_3, [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;], [&#39;X&#39;, &#39;Y&#39;, &#39;Z&#39;])
+print(df_2, &quot;\n&quot;)
+# You can use or | to combine conditions as well</code></pre>
+<pre><code>##    X  Y  Z
+## A  1  2  3
+## B  4  5  6
+## C  7  8  9</code></pre>
+<pre class="python"><code>df_2[(df_2[&#39;X&#39;]&gt;3) &amp; (df_2[&#39;X&#39;]&lt;7)]</code></pre>
+<pre><code>##    X  Y  Z
+## B  4  5  6</code></pre>
+<pre><code>    C   D   E
+A  19  38  16
+B  17  14  13
+Greater than 40
+        C      D      E
+A  False  False  False
+B  False  False  False
+Greater than 45
+        C      D      E
+A  False  False  False
+B  False  False  False
+Series([], Name: C, dtype: int64)
+
+Empty DataFrame
+Columns: [C, D]
+Index: []
+
+   X  Y  Z
+A  1  2  3
+B  4  5  6
+C  7  8  9 </code></pre>
+</div>
+<div id="file-input--output" class="section level3">
+<h3>File Input / Output</h3>
+<p>Pandas can work with the following types of data : CSV, Plain Text,
+JSON, XML, PDF, SQL, HTML, XLSX, DOCX, ZIP, Images Hierarchical Data
+Format, MP3, and MP4.</p>
+<pre class="python"><code># !pip install openpyxl
+import pymysql
+import openpyxl
+# Read a CSV file
+# Type pd.read_ [TAB] to see the file types you can read
+cs_df = pd.read_csv(&#39;ComputerSales.csv&#39;)
+
+# Save a CSV file, but don&#39;t save the index as a column
+cs_df.to_csv(&#39;ComputerSalesBU.csv&#39;, index=False)
+
+# You can read data from Excel, but not formulas and macros
+pd.read_excel(&#39;Financial Sample.xlsx&#39;,0)
+
+# Write to Excel</code></pre>
+<pre><code>##               Segment                   Country  ... Month Name  Year
+## 0          Government                    Canada  ...    January  2014
+## 1          Government                   Germany  ...    January  2014
+## 2           Midmarket                    France  ...       June  2014
+## 3           Midmarket                   Germany  ...       June  2014
+## 4           Midmarket                    Mexico  ...       June  2014
+## ..                ...                       ...  ...        ...   ...
+## 695    Small Business                    France  ...      March  2014
+## 696    Small Business                    Mexico  ...    October  2014
+## 697        Government                    Mexico  ...   February  2014
+## 698        Government                    Canada  ...      April  2014
+## 699  Channel Partners  United States of America  ...        May  2014
+## 
+## [700 rows x 16 columns]</code></pre>
+<pre class="python"><code>cs_df.to_excel(&#39;ComputerSales.xlsx&#39;)
+
+# Check if written
+pd.read_excel(&#39;ComputerSales.xlsx&#39;,0)
+
+# # Read from MySQL Database
+# try:
+#     db_connection = pymysql.connect(db=&#39;students&#39;, user=&#39;studentadmin&#39;, passwd=&#39;TurtleDove&#39;, host=&#39;localhost&#39;, port=3306)
+# 
+#     stud_df = pd.read_sql(&#39;SELECT * FROM students&#39;, con=db_connection)
+#     # print(stud_df)
+# except Exception as e:
+#     print(&quot;Exception : {}&quot;.format(e))
+# finally:
+#     db_connection.close()
+#     
+# 
+# # Write to table 
+# try:
+#     db_connection = pymysql.connect(db=&#39;students&#39;, user=&#39;studentadmin&#39;, passwd=&#39;TurtleDove&#39;, host=&#39;localhost&#39;, port=3306)
+#     # Used to issue queries
+#     cursor = db_connection.cursor()
+#     # Query to enter new student
+#     insert_stmt = &quot;INSERT INTO students VALUES(NULL, &#39;Frank&#39;, &#39;Silva&#39;, &#39;fsilva@aol.com&#39;, &#39;666 Hell St&#39;, &#39;Yakima&#39;, &#39;WA&#39;, 98901, &#39;792-223-8966&#39;, &#39;1959-2-22&#39;, &#39;M&#39;, NOW(), 3.50)&quot;
+#     # Execute query
+#     cursor.execute(insert_stmt)
+#     # Commit changes to DB
+#     db_connection.commit()
+#     stud_df = pd.read_sql(&#39;SELECT * FROM students&#39;, con=db_connection)
+#     print(stud_df)
+# except Exception as e:
+#     print(&quot;Exception : {}&quot;.format(e))
+# finally:
+#     db_connection.close()
+
+# Just get 1 column of data </code></pre>
+<pre><code>##     Unnamed: 0  Sale ID          Contact Sex  ...  Profit     Lead     Month  Year
+## 0            0        1      Paul Thomas   M  ...  143.39  Website   January  2018
+## 1            1        2      Margo Simms   F  ...  230.89  Flyer 4   January  2018
+## 2            2        3        Sam Stine   M  ...  118.64  Website  February  2018
+## 3            3        4       Moe Eggert   M  ...   72.09  Website     March  2018
+## 4            4        5      Jessica Elk   F  ...   98.09  Flyer 4     March  2018
+## 5            5        6  Sally Struthers   F  ...  230.89  Flyer 2     April  2018
+## 6            6        7   Michelle Samms   F  ...  180.34    Email       May  2018
+## 7            7        8     Mick Roberts   M  ...  146.69  Website      July  2018
+## 8            8        9      Ed Klondike   M  ...  122.34    Email      July  2018
+## 9            9       10       Phil Jones   M  ...  143.39  Flyer 2    August  2018
+## 10          10       11       Rick James   M  ...  180.34  Flyer 3  November  2018
+## 11          11       12         Sue Etna   F  ...  230.89  Flyer 2  November  2018
+## 12          12       13       Jason Case   M  ...  122.34    Email  November  2018
+## 13          13       14     Doug Johnson   M  ...  118.64  Website  December  2018
+## 14          14       15       Andy Sands   M  ...  146.69  Flyer 1  December  2018
+## 15          15       16      Kim Collins   F  ...   72.09  Flyer 2   January  2019
+## 16          16       17     Edna Sanders   F  ...   98.09    Email  February  2019
+## 17          17       18   Michelle Samms   F  ...  146.69  Website     March  2019
+## 18          18       19     Mick Roberts   M  ...   72.09  Flyer 4     March  2019
+## 19          19       20  Sally Struthers   F  ...  122.34  Website     April  2019
+## 20          20       21       Jason Case   M  ...  143.39  Flyer 4       May  2019
+## 21          21       22     Doug Johnson   M  ...  180.34  Website    August  2019
+## 22          22       23      Paul Thomas   M  ...  122.34  Website    August  2019
+## 23          23       24      Margo Simms   F  ...  143.09  Flyer 4  November  2019
+## 24          24       25   Michelle Samms   F  ...  118.64  Flyer 2  November  2019
+## 25          25       26     Mick Roberts   M  ...  143.09    Email  November  2019
+## 26          26       27      Ed Klondike   M  ...  143.09  Website  December  2019
+## 27          27       28       Moe Eggert   M  ...   98.09    Email  December  2019
+## 28          28       29      Jessica Elk   F  ...  180.34  Flyer 2  December  2019
+## 29          29       30       Phil Jones   M  ...  143.39  Flyer 2   January  2020
+## 30          30       31       Rick James   M  ...  180.34  Flyer 1   January  2020
+## 31          31       32         Sue Etna   F  ...  230.89  Flyer 2  February  2020
+## 32          32       33      Kim Collins   F  ...   72.09  Flyer 2     March  2020
+## 33          33       34     Edna Sanders   F  ...   98.09    Email     March  2020
+## 34          34       35   Michelle Samms   F  ...  146.69  Website     April  2020
+## 35          35       36  Sally Struthers   F  ...  122.34  Website     April  2020
+## 36          36       37       Jason Case   M  ...  143.39  Flyer 4     April  2020
+## 37          37       38     Doug Johnson   M  ...  180.34  Website       May  2020
+## 38          38       39       Moe Eggert   M  ...   72.09  Website       May  2020
+## 
+## [39 rows x 13 columns]</code></pre>
+<pre class="python"><code>cs_df_st = pd.read_csv(&#39;ComputerSales.csv&#39;, usecols=[&quot;State&quot;], squeeze=True)</code></pre>
+<pre><code>## &lt;string&gt;:1: FutureWarning: The squeeze argument has been deprecated and will be removed in a future version. Append .squeeze(&quot;columns&quot;) to the call to squeeze.</code></pre>
+<pre class="python"><code>cs_df_st</code></pre>
+<pre><code>## 0     OH
+## 1     WV
+## 2     PA
+## 3     PA
+## 4     PA
+## 5     PA
+## 6     OH
+## 7     OH
+## 8     OH
+## 9     WV
+## 10    PA
+## 11    OH
+## 12    PA
+## 13    PA
+## 14    OH
+## 15    PA
+## 16    OH
+## 17    NY
+## 18    PA
+## 19    NY
+## 20    PA
+## 21    PA
+## 22    OH
+## 23    WV
+## 24    NY
+## 25    PA
+## 26    OH
+## 27    PA
+## 28    PA
+## 29    WV
+## 30    PA
+## 31    OH
+## 32    PA
+## 33    OH
+## 34    NY
+## 35    NY
+## 36    PA
+## 37    PA
+## 38    PA
+## Name: State, dtype: object</code></pre>
+<pre><code>    student_id first_name last_name             email           street  \
+0            1       Dale    Cooper   dcooper@aol.com      123 Main St   
+1            2      Harry    Truman   htruman@aol.com     202 South St   
+2            3     Shelly   Johnson  sjohnson@aol.com        9 Pond Rd   
+3            4      Bobby    Briggs   bbriggs@aol.com       14 12th St   
+4            5      Donna   Hayward  dhayward@aol.com      120 16th St   
+5            6     Audrey     Horne    ahorne@aol.com      342 19th St   
+6            7      James    Hurley   jhurley@aol.com    2578 Cliff St   
+7            8       Lucy     Moran    lmoran@aol.com     178 Dover St   
+8            9      Tommy      Hill     thill@aol.com  672 High Plains   
+9           10       Andy   Brennan  abrennan@aol.com       281 4th St   
+10          13      Frank     Silva    fsilva@aol.com      666 Hell St   
+11          14      Frank     Silva    fsilva@aol.com      666 Hell St   
+12          15      Frank     Silva    fsilva@aol.com      666 Hell St   
+13          16      Frank     Silva    fsilva@aol.com      666 Hell St   
+
+            city state    zip         phone  birth_date sex  \
+0         Yakima    WA  98901  792-223-8901  1959-02-22   M   
+1      Vancouver    WA  98660  792-223-9810  1946-01-24   M   
+2         Sparks    NV  89431  792-223-6734  1970-12-12   F   
+3      San Diego    CA  92101  792-223-6178  1967-05-24   M   
+4      Davenport    IA  52801  792-223-2001  1970-03-24   F   
+5        Detroit    MI  48222  792-223-2001  1965-02-01   F   
+6         Queens    NY  11427  792-223-1890  1967-01-02   M   
+7      Hollywood    CA  90078  792-223-9678  1954-11-27   F   
+8         Tucson    AZ  85701  792-223-1115  1951-12-21   M   
+9   Jacksonville    NC  28540  792-223-8902  1960-12-27   M   
+10        Yakima    WA  98901  792-223-8966  1959-02-22   M   
+11        Yakima    WA  98901  792-223-8966  1959-02-22   M   
+12        Yakima    WA  98901  792-223-8966  1959-02-22   M   
+13        Yakima    WA  98901  792-223-8966  1959-02-22   M   
+
+          date_entered  lunch_cost  
+0  2019-12-10 13:09:03         3.5  
+1  2019-12-10 13:19:12         3.5  
+2  2019-12-10 13:19:12         3.5  
+3  2019-12-10 13:19:12         3.5  
+4  2019-12-10 13:19:12         3.5  
+5  2019-12-10 13:19:12         3.5  
+6  2019-12-10 13:19:12         3.5  
+7  2019-12-10 13:19:12         3.5  
+8  2019-12-10 13:19:12         3.5  
+9  2019-12-10 13:19:12         3.5  
+10 2020-08-09 13:42:56         3.5  
+11 2020-08-11 09:54:40         3.5  
+12 2020-08-12 16:43:43         3.5  
+13 2020-08-12 16:54:12         3.5  
+
+
+
+0     OH
+1     WV
+2     PA
+3     PA
+4     PA
+5     PA
+6     OH
+7     OH
+8     OH
+9     WV
+10    PA
+11    OH
+12    PA
+13    PA
+14    OH
+15    PA
+16    OH
+17    NY
+18    PA
+19    NY
+20    PA
+21    PA
+22    OH
+23    WV
+24    NY
+25    PA
+26    OH
+27    PA
+28    PA
+29    WV
+30    PA
+31    OH
+32    PA
+33    OH
+34    NY
+35    NY
+36    PA
+37    PA
+38    PA
+Name: State, dtype: object</code></pre>
+</div>
+<div id="basics--math" class="section level3">
+<h3>Basics &amp; Math</h3>
+<pre class="python"><code># Display 1st 5 rows
+cs_df.head()
+# Display last 5 rows</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...  Profit     Lead     Month  Year
+## 0        1  Paul Thomas   M   43  ...  143.39  Website   January  2018
+## 1        2  Margo Simms   F   37  ...  230.89  Flyer 4   January  2018
+## 2        3    Sam Stine   M   26  ...  118.64  Website  February  2018
+## 3        4   Moe Eggert   M   35  ...   72.09  Website     March  2018
+## 4        5  Jessica Elk   F   55  ...   98.09  Flyer 4     March  2018
+## 
+## [5 rows x 12 columns]</code></pre>
+<pre class="python"><code>cs_df.tail()
+# Get 1st 2</code></pre>
+<pre><code>##     Sale ID          Contact Sex  Age  ...  Profit     Lead  Month  Year
+## 34       35   Michelle Samms   F   46  ...  146.69  Website  April  2020
+## 35       36  Sally Struthers   F   45  ...  122.34  Website  April  2020
+## 36       37       Jason Case   M   57  ...  143.39  Flyer 4  April  2020
+## 37       38     Doug Johnson   M   51  ...  180.34  Website    May  2020
+## 38       39       Moe Eggert   M   35  ...   72.09  Website    May  2020
+## 
+## [5 rows x 12 columns]</code></pre>
+<pre class="python"><code>cs_df[:2]
+# Get 1st through 5 with a 2 step</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...  Profit     Lead    Month  Year
+## 0        1  Paul Thomas   M   43  ...  143.39  Website  January  2018
+## 1        2  Margo Simms   F   37  ...  230.89  Flyer 4  January  2018
+## 
+## [2 rows x 12 columns]</code></pre>
+<pre class="python"><code>cs_df[:5:2]
+
+# Get indexes</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...  Profit     Lead     Month  Year
+## 0        1  Paul Thomas   M   43  ...  143.39  Website   January  2018
+## 2        3    Sam Stine   M   26  ...  118.64  Website  February  2018
+## 4        5  Jessica Elk   F   55  ...   98.09  Flyer 4     March  2018
+## 
+## [3 rows x 12 columns]</code></pre>
+<pre class="python"><code>cs_df.index.array
+# Get NumPy array</code></pre>
+<pre><code>## &lt;PandasArray&gt;
+## [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+##  19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+##  38]
+## Length: 39, dtype: int64</code></pre>
+<pre class="python"><code>cs_df.to_numpy()
+# Get array from series</code></pre>
+<pre><code>## array([[1, &#39;Paul Thomas&#39;, &#39;M&#39;, 43, &#39;OH&#39;, &#39;M01-F0024&#39;, &#39;Desktop&#39;, 479.99,
+##         143.39, &#39;Website&#39;, &#39;January&#39;, 2018],
+##        [2, &#39;Margo Simms&#39;, &#39;F&#39;, 37, &#39;WV&#39;, &#39;GT13-0024&#39;, &#39;Desktop&#39;, 1249.99,
+##         230.89, &#39;Flyer 4&#39;, &#39;January&#39;, 2018],
+##        [3, &#39;Sam Stine&#39;, &#39;M&#39;, 26, &#39;PA&#39;, &#39;I3670&#39;, &#39;Desktop&#39;, 649.99,
+##         118.64, &#39;Website&#39;, &#39;February&#39;, 2018],
+##        [4, &#39;Moe Eggert&#39;, &#39;M&#39;, 35, &#39;PA&#39;, &#39;I3593&#39;, &#39;Laptop&#39;, 399.99, 72.09,
+##         &#39;Website&#39;, &#39;March&#39;, 2018],
+##        [5, &#39;Jessica Elk&#39;, &#39;F&#39;, 55, &#39;PA&#39;, &#39;15M-ED&#39;, &#39;Laptop&#39;, 699.99,
+##         98.09, &#39;Flyer 4&#39;, &#39;March&#39;, 2018],
+##        [6, &#39;Sally Struthers&#39;, &#39;F&#39;, 45, &#39;PA&#39;, &#39;GT13-0024&#39;, &#39;Desktop&#39;,
+##         1249.99, 230.89, &#39;Flyer 2&#39;, &#39;April&#39;, 2018],
+##        [7, &#39;Michelle Samms&#39;, &#39;F&#39;, 46, &#39;OH&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Email&#39;, &#39;May&#39;, 2018],
+##        [8, &#39;Mick Roberts&#39;, &#39;M&#39;, 23, &#39;OH&#39;, &#39;MY2J2LL&#39;, &#39;Tablet&#39;, 999.99,
+##         146.69, &#39;Website&#39;, &#39;July&#39;, 2018],
+##        [9, &#39;Ed Klondike&#39;, &#39;M&#39;, 52, &#39;OH&#39;, &#39;81TC00&#39;, &#39;Laptop&#39;, 649.99,
+##         122.34, &#39;Email&#39;, &#39;July&#39;, 2018],
+##        [10, &#39;Phil Jones&#39;, &#39;M&#39;, 56, &#39;WV&#39;, &#39;M01-F0024&#39;, &#39;Desktop&#39;, 479.99,
+##         143.39, &#39;Flyer 2&#39;, &#39;August&#39;, 2018],
+##        [11, &#39;Rick James&#39;, &#39;M&#39;, 49, &#39;PA&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Flyer 3&#39;, &#39;November&#39;, 2018],
+##        [12, &#39;Sue Etna&#39;, &#39;F&#39;, 54, &#39;OH&#39;, &#39;GT13-0024&#39;, &#39;Desktop&#39;, 1249.99,
+##         230.89, &#39;Flyer 2&#39;, &#39;November&#39;, 2018],
+##        [13, &#39;Jason Case&#39;, &#39;M&#39;, 57, &#39;PA&#39;, &#39;81TC00&#39;, &#39;Laptop&#39;, 649.99,
+##         122.34, &#39;Email&#39;, &#39;November&#39;, 2018],
+##        [14, &#39;Doug Johnson&#39;, &#39;M&#39;, 51, &#39;PA&#39;, &#39;I3670&#39;, &#39;Desktop&#39;, 649.99,
+##         118.64, &#39;Website&#39;, &#39;December&#39;, 2018],
+##        [15, &#39;Andy Sands&#39;, &#39;M&#39;, 56, &#39;OH&#39;, &#39;MY2J2LL&#39;, &#39;Tablet&#39;, 999.99,
+##         146.69, &#39;Flyer 1&#39;, &#39;December&#39;, 2018],
+##        [16, &#39;Kim Collins&#39;, &#39;F&#39;, 49, &#39;PA&#39;, &#39;I3593&#39;, &#39;Laptop&#39;, 399.99,
+##         72.09, &#39;Flyer 2&#39;, &#39;January&#39;, 2019],
+##        [17, &#39;Edna Sanders&#39;, &#39;F&#39;, 46, &#39;OH&#39;, &#39;15M-ED&#39;, &#39;Laptop&#39;, 699.99,
+##         98.09, &#39;Email&#39;, &#39;February&#39;, 2019],
+##        [18, &#39;Michelle Samms&#39;, &#39;F&#39;, 46, &#39;NY&#39;, &#39;MY2J2LL&#39;, &#39;Tablet&#39;, 999.99,
+##         146.69, &#39;Website&#39;, &#39;March&#39;, 2019],
+##        [19, &#39;Mick Roberts&#39;, &#39;M&#39;, 23, &#39;PA&#39;, &#39;I3593&#39;, &#39;Laptop&#39;, 399.99,
+##         72.09, &#39;Flyer 4&#39;, &#39;March&#39;, 2019],
+##        [20, &#39;Sally Struthers&#39;, &#39;F&#39;, 45, &#39;NY&#39;, &#39;81TC00&#39;, &#39;Laptop&#39;, 649.99,
+##         122.34, &#39;Website&#39;, &#39;April&#39;, 2019],
+##        [21, &#39;Jason Case&#39;, &#39;M&#39;, 57, &#39;PA&#39;, &#39;M01-F0024&#39;, &#39;Desktop&#39;, 479.99,
+##         143.39, &#39;Flyer 4&#39;, &#39;May&#39;, 2019],
+##        [22, &#39;Doug Johnson&#39;, &#39;M&#39;, 51, &#39;PA&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Website&#39;, &#39;August&#39;, 2019],
+##        [23, &#39;Paul Thomas&#39;, &#39;M&#39;, 43, &#39;OH&#39;, &#39;81TC00&#39;, &#39;Laptop&#39;, 649.99,
+##         122.34, &#39;Website&#39;, &#39;August&#39;, 2019],
+##        [24, &#39;Margo Simms&#39;, &#39;F&#39;, 37, &#39;WV&#39;, &#39;Q526FA&#39;, &#39;Laptop&#39;, 1049.99,
+##         143.09, &#39;Flyer 4&#39;, &#39;November&#39;, 2019],
+##        [25, &#39;Michelle Samms&#39;, &#39;F&#39;, 46, &#39;NY&#39;, &#39;I3670&#39;, &#39;Desktop&#39;, 649.99,
+##         118.64, &#39;Flyer 2&#39;, &#39;November&#39;, 2019],
+##        [26, &#39;Mick Roberts&#39;, &#39;M&#39;, 23, &#39;PA&#39;, &#39;Q526FA&#39;, &#39;Laptop&#39;, 1049.99,
+##         143.09, &#39;Email&#39;, &#39;November&#39;, 2019],
+##        [27, &#39;Ed Klondike&#39;, &#39;M&#39;, 52, &#39;OH&#39;, &#39;Q526FA&#39;, &#39;Laptop&#39;, 1049.99,
+##         143.09, &#39;Website&#39;, &#39;December&#39;, 2019],
+##        [28, &#39;Moe Eggert&#39;, &#39;M&#39;, 35, &#39;PA&#39;, &#39;15M-ED&#39;, &#39;Laptop&#39;, 699.99,
+##         98.09, &#39;Email&#39;, &#39;December&#39;, 2019],
+##        [29, &#39;Jessica Elk&#39;, &#39;F&#39;, 55, &#39;PA&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Flyer 2&#39;, &#39;December&#39;, 2019],
+##        [30, &#39;Phil Jones&#39;, &#39;M&#39;, 56, &#39;WV&#39;, &#39;M01-F0024&#39;, &#39;Desktop&#39;, 479.99,
+##         143.39, &#39;Flyer 2&#39;, &#39;January&#39;, 2020],
+##        [31, &#39;Rick James&#39;, &#39;M&#39;, 49, &#39;PA&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Flyer 1&#39;, &#39;January&#39;, 2020],
+##        [32, &#39;Sue Etna&#39;, &#39;F&#39;, 54, &#39;OH&#39;, &#39;GT13-0024&#39;, &#39;Desktop&#39;, 1249.99,
+##         230.89, &#39;Flyer 2&#39;, &#39;February&#39;, 2020],
+##        [33, &#39;Kim Collins&#39;, &#39;F&#39;, 49, &#39;PA&#39;, &#39;I3593&#39;, &#39;Laptop&#39;, 399.99,
+##         72.09, &#39;Flyer 2&#39;, &#39;March&#39;, 2020],
+##        [34, &#39;Edna Sanders&#39;, &#39;F&#39;, 46, &#39;OH&#39;, &#39;15M-ED&#39;, &#39;Laptop&#39;, 699.99,
+##         98.09, &#39;Email&#39;, &#39;March&#39;, 2020],
+##        [35, &#39;Michelle Samms&#39;, &#39;F&#39;, 46, &#39;NY&#39;, &#39;MY2J2LL&#39;, &#39;Tablet&#39;, 999.99,
+##         146.69, &#39;Website&#39;, &#39;April&#39;, 2020],
+##        [36, &#39;Sally Struthers&#39;, &#39;F&#39;, 45, &#39;NY&#39;, &#39;81TC00&#39;, &#39;Laptop&#39;, 649.99,
+##         122.34, &#39;Website&#39;, &#39;April&#39;, 2020],
+##        [37, &#39;Jason Case&#39;, &#39;M&#39;, 57, &#39;PA&#39;, &#39;M01-F0024&#39;, &#39;Desktop&#39;, 479.99,
+##         143.39, &#39;Flyer 4&#39;, &#39;April&#39;, 2020],
+##        [38, &#39;Doug Johnson&#39;, &#39;M&#39;, 51, &#39;PA&#39;, &#39;GA401IV&#39;, &#39;Laptop&#39;, 1349.99,
+##         180.34, &#39;Website&#39;, &#39;May&#39;, 2020],
+##        [39, &#39;Moe Eggert&#39;, &#39;M&#39;, 35, &#39;PA&#39;, &#39;I3593&#39;, &#39;Laptop&#39;, 399.99,
+##         72.09, &#39;Website&#39;, &#39;May&#39;, 2020]], dtype=object)</code></pre>
+<pre class="python"><code>ser_1.array</code></pre>
+<pre><code>## &lt;PandasArray&gt;
+## [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;]
+## Length: 4, dtype: object</code></pre>
+<pre class="python"><code>dict_3 = {&#39;one&#39;: pd.Series([1., 2., 3.], index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]),
+         &#39;two&#39;: pd.Series([1., 2., 3., 4.], index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])}
+df_2 = pd.DataFrame(dict_3)
+
+# You can replace NaN values with 0 or anything else
+print(df_2.fillna(0))
+# Get values in row 2</code></pre>
+<pre><code>##    one  two
+## a  1.0  1.0
+## b  2.0  2.0
+## c  3.0  3.0
+## d  0.0  4.0</code></pre>
+<pre class="python"><code>row = df_2.iloc[1]
+# Add items in row 2 to all rows including row 2
+# You can do the same with sub, mul, and div
+df_2.add(row, axis=&#39;columns&#39;)
+
+# Get column 2</code></pre>
+<pre><code>##    one  two
+## a  3.0  3.0
+## b  4.0  4.0
+## c  5.0  5.0
+## d  NaN  6.0</code></pre>
+<pre class="python"><code>col = df_2[&#39;two&#39;]
+# Subtract from other columns
+df_2.sub(col, axis=0)
+
+# Check if empty</code></pre>
+<pre><code>##    one  two
+## a  0.0  0.0
+## b  0.0  0.0
+## c  0.0  0.0
+## d  NaN  0.0</code></pre>
+<pre class="python"><code>df_2.empty
+
+# Transform executes a function on a dataframe</code></pre>
+<pre><code>## False</code></pre>
+<pre class="python"><code>df_5 = pd.DataFrame({&#39;A&#39;: range(3), &#39;B&#39;: range(1, 4)})
+df_5.transform(lambda x: x+1)</code></pre>
+<pre><code>##    A  B
+## 0  1  2
+## 1  2  3
+## 2  3  4</code></pre>
+<pre class="python"><code>df_5.transform(lambda x: x**2)</code></pre>
+<pre><code>##    A  B
+## 0  0  1
+## 1  1  4
+## 2  4  9</code></pre>
+<pre class="python"><code>df_5.transform(lambda x: np.sqrt(x))
+# You can transform using multiple functions</code></pre>
+<pre><code>##           A         B
+## 0  0.000000  1.000000
+## 1  1.000000  1.414214
+## 2  1.414214  1.732051</code></pre>
+<pre class="python"><code>df_5.transform([lambda x: x**2, lambda x: x**3])
+# Passing a dictionary allows you to perform different calculations
+# on different columns</code></pre>
+<pre><code>##          A        B
+##   &lt;lambda&gt; &lt;lambda&gt;
+## 0        0        1
+## 1        1        8
+## 2        8       27</code></pre>
+<pre class="python"><code>df_5.transform({&#39;A&#39;: lambda x: x**2, &#39;B&#39;: lambda x: x**3})
+
+# map performs a function on a series</code></pre>
+<pre><code>##    A   B
+## 0  0   1
+## 1  1   8
+## 2  4  27</code></pre>
+<pre class="python"><code>df_5[&#39;A&#39;].map(lambda x: x**2)
+
+# applymap does the same on a dataframe</code></pre>
+<pre><code>## 0    0
+## 1    1
+## 2    4
+## Name: A, dtype: int64</code></pre>
+<pre class="python"><code>df_5.applymap(lambda x: x**2)
+
+# Get unique values in column 2 of DF</code></pre>
+<pre><code>##    A  B
+## 0  0  1
+## 1  1  4
+## 2  4  9</code></pre>
+<pre class="python"><code>df_2[&#39;two&#39;].unique()
+
+# Get number of uniques</code></pre>
+<pre><code>## array([1., 2., 3., 4.])</code></pre>
+<pre class="python"><code>df_2[&#39;two&#39;].nunique()
+
+# Get the number of times each value showed in column 2</code></pre>
+<pre><code>## 4</code></pre>
+<pre class="python"><code>df_2[&#39;two&#39;].value_counts()
+
+# Get column names</code></pre>
+<pre><code>## 1.0    1
+## 2.0    1
+## 3.0    1
+## 4.0    1
+## Name: two, dtype: int64</code></pre>
+<pre class="python"><code>df_2.columns
+
+# Get index info</code></pre>
+<pre><code>## Index([&#39;one&#39;, &#39;two&#39;], dtype=&#39;object&#39;)</code></pre>
+<pre class="python"><code>df_2.index
+
+# Return a DF that lists null values as True</code></pre>
+<pre><code>## Index([&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;], dtype=&#39;object&#39;)</code></pre>
+<pre class="python"><code>df_2.isnull()</code></pre>
+<pre><code>##      one    two
+## a  False  False
+## b  False  False
+## c  False  False
+## d   True  False</code></pre>
+<pre><code>   one  two
+a  1.0  1.0
+b  2.0  2.0
+c  3.0  3.0
+d  0.0  4.0</code></pre>
+</div>
+<div id="group-data" class="section level3">
+<h3>Group Data</h3>
+<pre class="python"><code># Groupby allows you to group rows based on a columnand perform a function
+# that combines those values (Aggregate Function)
+dict_5 = {&#39;Store&#39;: [1,2,1,2], &#39;Flavor&#39;: [&#39;Choc&#39;, &#39;Van&#39;, &#39;Straw&#39;, &#39;Choc&#39;], 
+         &#39;Sales&#39;: [26, 12, 18, 22]}
+
+df_11 = pd.DataFrame(dict_5)
+
+# Group data by the store number
+by_store = df_11.groupby(&#39;Store&#39;)
+# Get mean sales by store
+by_store.mean()
+
+# Get sales total just for store 1</code></pre>
+<pre><code>##        Sales
+## Store       
+## 1       22.0
+## 2       17.0</code></pre>
+<pre class="python"><code>by_store.sum().loc[1]
+
+# You can use multiple functions of get a bunch</code></pre>
+<pre><code>## Sales    44
+## Name: 1, dtype: int64</code></pre>
+<pre class="python"><code>by_store.describe()</code></pre>
+<pre><code>##       Sales                                              
+##       count  mean       std   min   25%   50%   75%   max
+## Store                                                    
+## 1       2.0  22.0  5.656854  18.0  20.0  22.0  24.0  26.0
+## 2       2.0  17.0  7.071068  12.0  14.5  17.0  19.5  22.0</code></pre>
+</div>
+<div id="concatenate-merge--join-data" class="section level3">
+<h3>Concatenate Merge &amp; Join Data</h3>
+<pre class="python"><code># You can concatenate DFs in the order DFs are provided
+df_12 = pd.DataFrame({&#39;A&#39;: [1,2,3],
+                     &#39;B&#39;: [4,5,6]},
+                    index=[1,2,3])
+df_13 = pd.DataFrame({&#39;A&#39;: [7,8,9],
+                     &#39;B&#39;: [10,11,12]},
+                    index=[4,5,6])
+pd.concat([df_12, df_13])
+
+# Merge 2 DFs using their shared key column</code></pre>
+<pre><code>##    A   B
+## 1  1   4
+## 2  2   5
+## 3  3   6
+## 4  7  10
+## 5  8  11
+## 6  9  12</code></pre>
+<pre class="python"><code>df_12 = pd.DataFrame({&#39;A&#39;: [1,2,3],
+                     &#39;B&#39;: [4,5,6],
+                     &#39;key&#39;: [1,2,3]})
+df_13 = pd.DataFrame({&#39;A&#39;: [7,8,9],
+                     &#39;B&#39;: [10,11,12],
+                     &#39;key&#39;: [1,2,3]})
+# inner merges at the intersection of keys
+pd.merge(df_12, df_13, how=&#39;inner&#39;, on=&#39;key&#39;)
+# how=&#39;left&#39; or &#39;right&#39; : Use keys from left or right frame
+# how=&#39;outer&#39; : Use union of keys
+
+# You can join DFs with different indexes and instead of using 
+# keys use a column</code></pre>
+<pre><code>##    A_x  B_x  key  A_y  B_y
+## 0    1    4    1    7   10
+## 1    2    5    2    8   11
+## 2    3    6    3    9   12</code></pre>
+<pre class="python"><code>df_12 = pd.DataFrame({&#39;A&#39;: [1,2,3],
+                     &#39;B&#39;: [4,5,6]},
+                    index=[1,2,3])
+df_13 = pd.DataFrame({&#39;C&#39;: [7,8,9],
+                     &#39;D&#39;: [10,11,12]},
+                    index=[1,4,5])
+df_12.join(df_13, how=&#39;outer&#39;)</code></pre>
+<pre><code>##      A    B    C     D
+## 1  1.0  4.0  7.0  10.0
+## 2  2.0  5.0  NaN   NaN
+## 3  3.0  6.0  NaN   NaN
+## 4  NaN  NaN  8.0  11.0
+## 5  NaN  NaN  9.0  12.0</code></pre>
+</div>
+<div id="statistics" class="section level3">
+<h3>Statistics</h3>
+<pre class="python"><code># Get ice cream sales data
+ics_df = pd.read_csv(&#39;icecreamsales.csv&#39;)
+ics_df
+
+# Get total count of both columns</code></pre>
+<pre><code>##     Temperature  Sales
+## 0            37    292
+## 1            40    228
+## 2            49    324
+## 3            61    376
+## 4            72    440
+## 5            79    496
+## 6            83    536
+## 7            81    556
+## 8            75    496
+## 9            64    412
+## 10           53    324
+## 11           40    320</code></pre>
+<pre class="python"><code>ics_df.count()
+
+# skipna skips null / NaN values</code></pre>
+<pre><code>## Temperature    12
+## Sales          12
+## dtype: int64</code></pre>
+<pre class="python"><code>ics_df.sum(skipna=True)
+# Get mean for named column</code></pre>
+<pre><code>## Temperature     734
+## Sales          4800
+## dtype: int64</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].mean()</code></pre>
+<pre><code>## 400.0</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].median()</code></pre>
+<pre><code>## 394.0</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].mode()</code></pre>
+<pre><code>## 0    324
+## 1    496
+## Name: Sales, dtype: int64</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].min()</code></pre>
+<pre><code>## 228</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].max()</code></pre>
+<pre><code>## 556</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].prod() # Product of values</code></pre>
+<pre><code>## 4582080946295013376</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].std() # Standard deviation</code></pre>
+<pre><code>## 105.65122724408751</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].var() # Variance</code></pre>
+<pre><code>## 11162.181818181818</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].sem() # Standard error
+# Negative : Left long tail, Positive : Right long tail</code></pre>
+<pre><code>## 30.498882244794125</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].skew()
+# Kurtosis : &lt; 3 less outliers, 3 Normal Distribution,
+# &gt; 3 more outliers</code></pre>
+<pre><code>## 0.036552031682046925</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].kurt()</code></pre>
+<pre><code>## -1.2179973006069797</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].quantile(.5)</code></pre>
+<pre><code>## 394.0</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].cumsum()</code></pre>
+<pre><code>## 0      292
+## 1      520
+## 2      844
+## 3     1220
+## 4     1660
+## 5     2156
+## 6     2692
+## 7     3248
+## 8     3744
+## 9     4156
+## 10    4480
+## 11    4800
+## Name: Sales, dtype: int64</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].cumprod()</code></pre>
+<pre><code>## 0                     292
+## 1                   66576
+## 2                21570624
+## 3              8110554624
+## 4           3568644034560
+## 5        1770047441141760
+## 6      948745428451983360
+## 7    -7453119918274248704
+## 8    -7398664722117033984
+## 9    -4537093350141984768
+## 10    5721280450761064448
+## 11    4582080946295013376
+## Name: Sales, dtype: int64</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].cummax()</code></pre>
+<pre><code>## 0     292
+## 1     292
+## 2     324
+## 3     376
+## 4     440
+## 5     496
+## 6     536
+## 7     556
+## 8     556
+## 9     556
+## 10    556
+## 11    556
+## Name: Sales, dtype: int64</code></pre>
+<pre class="python"><code>ics_df[&quot;Sales&quot;].cummin()
+
+# Multiple stats at once</code></pre>
+<pre><code>## 0     292
+## 1     228
+## 2     228
+## 3     228
+## 4     228
+## 5     228
+## 6     228
+## 7     228
+## 8     228
+## 9     228
+## 10    228
+## 11    228
+## Name: Sales, dtype: int64</code></pre>
+<pre class="python"><code>ics_df.describe()</code></pre>
+<pre><code>##        Temperature       Sales
+## count    12.000000   12.000000
+## mean     61.166667  400.000000
+## std      17.055169  105.651227
+## min      37.000000  228.000000
+## 25%      46.750000  323.000000
+## 50%      62.500000  394.000000
+## 75%      76.000000  496.000000
+## max      83.000000  556.000000</code></pre>
+<pre class="python"><code>ser_dice = pd.Series(data=[2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 
+                           6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8,
+                          8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 11, 12])
+# Count for each value in series
+ser_dice.value_counts()
+
+# You can perform calculations on multiple columns using
+# aggregate</code></pre>
+<pre><code>## 7     6
+## 6     5
+## 8     5
+## 5     4
+## 9     4
+## 4     3
+## 10    3
+## 3     2
+## 11    2
+## 2     1
+## 12    1
+## dtype: int64</code></pre>
+<pre class="python"><code>print(df_2)</code></pre>
+<pre><code>##    one  two
+## a  1.0  1.0
+## b  2.0  2.0
+## c  3.0  3.0
+## d  NaN  4.0</code></pre>
+<pre class="python"><code>df_2.agg(np.mean)
+
+# You can do this with multiple functions</code></pre>
+<pre><code>## one    2.0
+## two    2.5
+## dtype: float64</code></pre>
+<pre class="python"><code>df_2.agg([&#39;mean&#39;, &#39;std&#39;])</code></pre>
+<pre><code>##       one       two
+## mean  2.0  2.500000
+## std   1.0  1.290994</code></pre>
+<pre><code>   one  two
+a  1.0  1.0
+b  2.0  2.0
+c  3.0  3.0
+d  NaN  4.0</code></pre>
+</div>
+<div id="iteration" class="section level3">
+<h3>Iteration</h3>
+<pre class="python"><code># Iterating over series
+ser_7 = pd.Series(range(5), index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;])
+for col in ser_7:
+    print(col)
+    </code></pre>
+<pre><code>## 0
+## 1
+## 2
+## 3
+## 4</code></pre>
+<pre class="python"><code>print()
+# Iterating over DFs</code></pre>
+<pre class="python"><code>arr_4 = np.random.randint(10, 50, size=(2, 3))
+df_8 = pd.DataFrame(arr_4, [&#39;B&#39;, &#39;C&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
+print(df_8)
+
+# items allows you to iterate through key value pairs to make
+# calculations 1 column at a time</code></pre>
+<pre><code>##     C   D   E
+## B  36  36  32
+## C  34  39  30</code></pre>
+<pre class="python"><code>for label, ser in df_8.items():
+    print(label)
+    print(ser)
+    </code></pre>
+<pre><code>## C
+## B    36
+## C    34
+## Name: C, dtype: int32
+## D
+## B    36
+## C    39
+## Name: D, dtype: int32
+## E
+## B    32
+## C    30
+## Name: E, dtype: int32</code></pre>
+<pre class="python"><code>print()
+# You can also iterate through rows</code></pre>
+<pre class="python"><code>for index, row in df_8.iterrows():
+    print(f&quot;{index}\n{row}&quot;)</code></pre>
+<pre><code>## B
+## C    36
+## D    36
+## E    32
+## Name: B, dtype: int32
+## C
+## C    34
+## D    39
+## E    30
+## Name: C, dtype: int32</code></pre>
+<pre class="python"><code>print()
+
+# Get a tuple that contains row data</code></pre>
+<pre class="python"><code>for row in df_8.itertuples():
+    print(row)</code></pre>
+<pre><code>## Pandas(Index=&#39;B&#39;, C=36, D=36, E=32)
+## Pandas(Index=&#39;C&#39;, C=34, D=39, E=30)</code></pre>
+<pre><code>0
+1
+2
+3
+4
+
+    C   D   E
+B  22  40  23
+C  44  42  45
+C
+B    22
+C    44
+Name: C, dtype: int64
+D
+B    40
+C    42
+Name: D, dtype: int64
+E
+B    23
+C    45
+Name: E, dtype: int64
+
+B
+C    22
+D    40
+E    23
+Name: B, dtype: int64
+C
+C    44
+D    42
+E    45
+Name: C, dtype: int64
+
+Pandas(Index=&#39;B&#39;, C=22, D=40, E=23)
+Pandas(Index=&#39;C&#39;, C=44, D=42, E=45)</code></pre>
+</div>
+<div id="sorting" class="section level3">
+<h3>Sorting</h3>
+<pre class="python"><code>df_8
+
+# Sorting by index will return the same results if indexes
+# are in order, to reverse indexes mark ascending as False</code></pre>
+<pre><code>##     C   D   E
+## B  36  36  32
+## C  34  39  30</code></pre>
+<pre class="python"><code>df_8.sort_index(ascending=False)
+
+# Sort by value for column D (Use the same function for series)</code></pre>
+<pre><code>##     C   D   E
+## C  34  39  30
+## B  36  36  32</code></pre>
+<pre class="python"><code>df_8.sort_values(by=&#39;D&#39;)</code></pre>
+<pre><code>##     C   D   E
+## B  36  36  32
+## C  34  39  30</code></pre>
+</div>
+<div id="passing-data-to-functions" class="section level3">
+<h3>Passing Data to Functions</h3>
+<pre class="python"><code>import sys
+
+# You can pass DataFrames and Series into functions
+def get_profit_total(df):
+    prof_ser = df[&#39;Profit&#39;]
+    print(f&quot;Total Profit : {prof_ser.sum()}&quot;)
+
+get_profit_total(cs_df)
+
+# Receives a DataFrame, splits the contact into new columns
+# being first and last name</code></pre>
+<pre><code>## Total Profit : 5459.010000000001</code></pre>
+<pre class="python"><code>def split_name(df):
+    def get_names(full_name):
+        # Split contact at space
+        f_name, l_name = full_name.split()
+        # Create a series with first &amp; last names in columns
+        # with those labels
+        return pd.Series(
+        (f_name, l_name),
+        index=[&#39;First Name&#39;, &#39;Last Name&#39;]
+        )
+    # apply() executes the function on all names in Contact column
+    names = df[&#39;Contact&#39;].apply(get_names)
+    df[names.columns] = names
+    return df
+
+# Run function and display top 5 results
+split_name(cs_df).head()
+
+# Will assign people to different age groups based on age</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...     Month  Year First Name  Last Name
+## 0        1  Paul Thomas   M   43  ...   January  2018       Paul     Thomas
+## 1        2  Margo Simms   F   37  ...   January  2018      Margo      Simms
+## 2        3    Sam Stine   M   26  ...  February  2018        Sam      Stine
+## 3        4   Moe Eggert   M   35  ...     March  2018        Moe     Eggert
+## 4        5  Jessica Elk   F   55  ...     March  2018    Jessica        Elk
+## 
+## [5 rows x 14 columns]</code></pre>
+<pre class="python"><code>def create_age_groups(df):
+    # Must have 1 more bins than labels
+    bins = [0, 30, 50, sys.maxsize]
+    # Group labels
+    labels = [&#39;&lt;30&#39;, &#39;30-50&#39;, &#39;&gt;50&#39;]
+    
+    # cut puts values into certain groups based on intervals
+    # The group assigned to &lt;30 has an age between 0 and 30
+    # between 30 &amp; 50 is assigned 30-50 and so on
+    age_group = pd.cut(df[&#39;Age&#39;], bins=bins, labels=labels)
+    # Create new column and return new dataframe info
+    df[&#39;Age Group&#39;] = age_group
+    return df
+
+create_age_groups(cs_df)
+
+# You can use a pipe to pass a dataframe to multiple functions</code></pre>
+<pre><code>##     Sale ID          Contact Sex  Age  ...  Year First Name  Last Name  Age Group
+## 0         1      Paul Thomas   M   43  ...  2018       Paul     Thomas      30-50
+## 1         2      Margo Simms   F   37  ...  2018      Margo      Simms      30-50
+## 2         3        Sam Stine   M   26  ...  2018        Sam      Stine        &lt;30
+## 3         4       Moe Eggert   M   35  ...  2018        Moe     Eggert      30-50
+## 4         5      Jessica Elk   F   55  ...  2018    Jessica        Elk        &gt;50
+## 5         6  Sally Struthers   F   45  ...  2018      Sally  Struthers      30-50
+## 6         7   Michelle Samms   F   46  ...  2018   Michelle      Samms      30-50
+## 7         8     Mick Roberts   M   23  ...  2018       Mick    Roberts        &lt;30
+## 8         9      Ed Klondike   M   52  ...  2018         Ed   Klondike        &gt;50
+## 9        10       Phil Jones   M   56  ...  2018       Phil      Jones        &gt;50
+## 10       11       Rick James   M   49  ...  2018       Rick      James      30-50
+## 11       12         Sue Etna   F   54  ...  2018        Sue       Etna        &gt;50
+## 12       13       Jason Case   M   57  ...  2018      Jason       Case        &gt;50
+## 13       14     Doug Johnson   M   51  ...  2018       Doug    Johnson        &gt;50
+## 14       15       Andy Sands   M   56  ...  2018       Andy      Sands        &gt;50
+## 15       16      Kim Collins   F   49  ...  2019        Kim    Collins      30-50
+## 16       17     Edna Sanders   F   46  ...  2019       Edna    Sanders      30-50
+## 17       18   Michelle Samms   F   46  ...  2019   Michelle      Samms      30-50
+## 18       19     Mick Roberts   M   23  ...  2019       Mick    Roberts        &lt;30
+## 19       20  Sally Struthers   F   45  ...  2019      Sally  Struthers      30-50
+## 20       21       Jason Case   M   57  ...  2019      Jason       Case        &gt;50
+## 21       22     Doug Johnson   M   51  ...  2019       Doug    Johnson        &gt;50
+## 22       23      Paul Thomas   M   43  ...  2019       Paul     Thomas      30-50
+## 23       24      Margo Simms   F   37  ...  2019      Margo      Simms      30-50
+## 24       25   Michelle Samms   F   46  ...  2019   Michelle      Samms      30-50
+## 25       26     Mick Roberts   M   23  ...  2019       Mick    Roberts        &lt;30
+## 26       27      Ed Klondike   M   52  ...  2019         Ed   Klondike        &gt;50
+## 27       28       Moe Eggert   M   35  ...  2019        Moe     Eggert      30-50
+## 28       29      Jessica Elk   F   55  ...  2019    Jessica        Elk        &gt;50
+## 29       30       Phil Jones   M   56  ...  2020       Phil      Jones        &gt;50
+## 30       31       Rick James   M   49  ...  2020       Rick      James      30-50
+## 31       32         Sue Etna   F   54  ...  2020        Sue       Etna        &gt;50
+## 32       33      Kim Collins   F   49  ...  2020        Kim    Collins      30-50
+## 33       34     Edna Sanders   F   46  ...  2020       Edna    Sanders      30-50
+## 34       35   Michelle Samms   F   46  ...  2020   Michelle      Samms      30-50
+## 35       36  Sally Struthers   F   45  ...  2020      Sally  Struthers      30-50
+## 36       37       Jason Case   M   57  ...  2020      Jason       Case        &gt;50
+## 37       38     Doug Johnson   M   51  ...  2020       Doug    Johnson        &gt;50
+## 38       39       Moe Eggert   M   35  ...  2020        Moe     Eggert      30-50
+## 
+## [39 rows x 15 columns]</code></pre>
+<pre class="python"><code>cs_df.pipe(split_name).pipe(create_age_groups).head()</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...  Year First Name Last Name  Age Group
+## 0        1  Paul Thomas   M   43  ...  2018       Paul    Thomas      30-50
+## 1        2  Margo Simms   F   37  ...  2018      Margo     Simms      30-50
+## 2        3    Sam Stine   M   26  ...  2018        Sam     Stine        &lt;30
+## 3        4   Moe Eggert   M   35  ...  2018        Moe    Eggert      30-50
+## 4        5  Jessica Elk   F   55  ...  2018    Jessica       Elk        &gt;50
+## 
+## [5 rows x 15 columns]</code></pre>
+<pre><code>Total Profit : 5459.010000000001</code></pre>
+</div>
+<div id="aligning-reindexing-and-renaming-labels" class="section level3">
+<h3>Aligning, Reindexing and Renaming Labels</h3>
+<pre class="python"><code>ser_6 = pd.Series(range(5), index=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;])
+sl_1 = ser_6[:4]
+sl_2 = ser_6[1:]
+print(sl_1)</code></pre>
+<pre><code>## a    0
+## b    1
+## c    2
+## d    3
+## dtype: int64</code></pre>
+<pre class="python"><code>print(sl_2)
+# Align both series by the union of their indexes</code></pre>
+<pre><code>## b    1
+## c    2
+## d    3
+## e    4
+## dtype: int64</code></pre>
+<pre class="python"><code>sl_1.align(sl_2)
+# Align by calling series</code></pre>
+<pre><code>## (a    0.0
+## b    1.0
+## c    2.0
+## d    3.0
+## e    NaN
+## dtype: float64, a    NaN
+## b    1.0
+## c    2.0
+## d    3.0
+## e    4.0
+## dtype: float64)</code></pre>
+<pre class="python"><code>sl_1.align(sl_2, join=&#39;left&#39;)
+# Use passed series indexes</code></pre>
+<pre><code>## (a    0
+## b    1
+## c    2
+## d    3
+## dtype: int64, a    NaN
+## b    1.0
+## c    2.0
+## d    3.0
+## dtype: float64)</code></pre>
+<pre class="python"><code>sl_1.align(sl_2, join=&#39;right&#39;)
+# Get where indexes intersect</code></pre>
+<pre><code>## (b    1.0
+## c    2.0
+## d    3.0
+## e    NaN
+## dtype: float64, b    1
+## c    2
+## d    3
+## e    4
+## dtype: int64)</code></pre>
+<pre class="python"><code>sl_1.align(sl_2, join=&#39;inner&#39;)
+
+# You can use align with DFs as well</code></pre>
+<pre><code>## (b    1
+## c    2
+## d    3
+## dtype: int64, b    1
+## c    2
+## d    3
+## dtype: int64)</code></pre>
+<pre class="python"><code>arr_3 = np.random.randint(10, 50, size=(2, 3))
+df_6 = pd.DataFrame(arr_3, [&#39;A&#39;, &#39;B&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
+arr_3 = np.random.randint(10, 50, size=(2, 3))
+df_7 = pd.DataFrame(arr_3, [&#39;B&#39;, &#39;C&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
+df_6</code></pre>
+<pre><code>##     C   D   E
+## A  28  42  32
+## B  48  33  19</code></pre>
+<pre class="python"><code>df_6.align(df_7)
+
+# reindex allows you to align data by index</code></pre>
+<pre><code>## (      C     D     E
+## A  28.0  42.0  32.0
+## B  48.0  33.0  19.0
+## C   NaN   NaN   NaN,       C     D     E
+## A   NaN   NaN   NaN
+## B  34.0  27.0  41.0
+## C  44.0  32.0  30.0)</code></pre>
+<pre class="python"><code>ser_6.reindex([&#39;c&#39;,&#39;b&#39;,&#39;a&#39;])
+
+# Do the same with DFs</code></pre>
+<pre><code>## c    2
+## b    1
+## a    0
+## dtype: int64</code></pre>
+<pre class="python"><code>df_6.reindex([&#39;B&#39;,&#39;A&#39;])
+
+# Drop is very similar to reindex except it receives labels
+# you don&#39;t want to include</code></pre>
+<pre><code>##     C   D   E
+## B  48  33  19
+## A  28  42  32</code></pre>
+<pre class="python"><code>df_6.drop([&#39;A&#39;], axis=0)</code></pre>
+<pre><code>##     C   D   E
+## B  48  33  19</code></pre>
+<pre class="python"><code>df_6.drop([&#39;D&#39;], axis=1)
+
+# You can rename labels</code></pre>
+<pre><code>##     C   E
+## A  28  32
+## B  48  19</code></pre>
+<pre class="python"><code>df_6.rename(columns={&#39;C&#39;: &#39;Men&#39;, &#39;D&#39;: &#39;Women&#39;, &#39;E&#39;: &#39;Pets&#39;},
+           index={&#39;A&#39;: 1, &#39;B&#39;: 2})</code></pre>
+<pre><code>##    Men  Women  Pets
+## 1   28     42    32
+## 2   48     33    19</code></pre>
+<pre><code>a    0
+b    1
+c    2
+d    3
+dtype: int64
+b    1
+c    2
+d    3
+e    4
+dtype: int64</code></pre>
+</div>
+<div id="multiindex" class="section level3">
+<h3>MultiIndex</h3>
+<pre class="python"><code># Multi-level indexing allows you to store data on multiple
+# dimensions
+days = [&#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;]
+meals = [1,2,3,1,2,3]
+# zip pairs the days and meals arrays 
+# Then we create a list of those paired tuples
+hier_index = list(zip(days, meals))
+print(hier_index)
+# Converts list of tuples into each row and column</code></pre>
+<pre><code>## [(&#39;Day 1&#39;, 1), (&#39;Day 1&#39;, 2), (&#39;Day 1&#39;, 3), (&#39;Day 2&#39;, 1), (&#39;Day 2&#39;, 2), (&#39;Day 2&#39;, 3)]</code></pre>
+<pre class="python"><code>hier_index = pd.MultiIndex.from_tuples(hier_index)
+# Generate random array representing calories eaten per meal
+arr_5 = np.random.randint(500, 700, size=(6, 2))
+df_9 = pd.DataFrame(arr_5, hier_index, [&#39;M&#39;, &#39;F&#39;])
+print(df_9)
+
+# Grab the day 1 DF</code></pre>
+<pre><code>##            M    F
+## Day 1 1  579  639
+##       2  613  604
+##       3  539  580
+## Day 2 1  669  656
+##       2  683  608
+##       3  638  676</code></pre>
+<pre class="python"><code>df_9.loc[&#39;Day 1&#39;]
+
+# Grab 1st row as a series</code></pre>
+<pre><code>##      M    F
+## 1  579  639
+## 2  613  604
+## 3  539  580</code></pre>
+<pre class="python"><code>df_9.loc[&#39;Day 1&#39;].loc[1]
+
+# Grab calories eaten by the female on day 2 for the 2nd meal</code></pre>
+<pre><code>## M    579
+## F    639
+## Name: 1, dtype: int32</code></pre>
+<pre class="python"><code>df_9.loc[&#39;Day 2&#39;].loc[2][&#39;F&#39;]
+
+# We can assign names to the Day and Meals Column</code></pre>
+<pre><code>## 608</code></pre>
+<pre class="python"><code>df_9.index.names = [&#39;Day&#39;, &#39;Meal&#39;]
+df_9
+
+# Get a cross section
+# This gets me the Day 2 DF</code></pre>
+<pre><code>##               M    F
+## Day   Meal          
+## Day 1 1     579  639
+##       2     613  604
+##       3     539  580
+## Day 2 1     669  656
+##       2     683  608
+##       3     638  676</code></pre>
+<pre class="python"><code>df_9.xs(&#39;Day 2&#39;)
+
+# Get calories for the 1st meal for both days by saying what
+# meal index you want and the Meal column name</code></pre>
+<pre><code>##         M    F
+## Meal          
+## 1     669  656
+## 2     683  608
+## 3     638  676</code></pre>
+<pre class="python"><code>df_9.xs(1, level=&#39;Meal&#39;)
+
+# Create a MultiIndex out of a DF using a pivot table</code></pre>
+<pre><code>##          M    F
+## Day            
+## Day 1  579  639
+## Day 2  669  656</code></pre>
+<pre class="python"><code>dict_6 = {&#39;A&#39;:[&#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;],
+         &#39;B&#39;: [1,2,3,1,2,3],
+         &#39;C&#39;: [&#39;M&#39;, &#39;F&#39;, &#39;M&#39;, &#39;F&#39;, &#39;M&#39;, &#39;F&#39;],
+         &#39;D&#39;: [1,2,3,4,5,6]}
+df_14 = pd.DataFrame(dict_6)
+# Designate the D column is the data
+# Make A &amp; B a multilevel index
+# Define column names come from column C
+# You will have NaNs where data was missing
+df_14.pivot_table(values=&#39;D&#39;, index=[&#39;A&#39;,&#39;B&#39;], columns=[&#39;C&#39;])</code></pre>
+<pre><code>## C          F    M
+## A     B          
+## Day 1 1  NaN  1.0
+##       2  2.0  NaN
+##       3  NaN  3.0
+## Day 2 1  4.0  NaN
+##       2  NaN  5.0
+##       3  6.0  NaN</code></pre>
+<pre><code>[(&#39;Day 1&#39;, 1), (&#39;Day 1&#39;, 2), (&#39;Day 1&#39;, 3), (&#39;Day 2&#39;, 1), (&#39;Day 2&#39;, 2), (&#39;Day 2&#39;, 3)]
+           M    F
+Day 1 1  682  514
+      2  525  613
+      3  542  576
+Day 2 1  553  651
+      2  676  677
+      3  645  676</code></pre>
+</div>
+<div id="handling-missing-data" class="section level3">
+<h3>Handling Missing Data</h3>
+<pre class="python"><code>dict_4 = {&#39;A&#39;: [1,2,np.nan], &#39;B&#39;: [4, np.nan, np.nan], &#39;C&#39;: [7.,8.,9.]}
+df_10 = pd.DataFrame(dict_4)
+print(df_10)
+
+# Drop missing data from DF (Drops any row with missing values)</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0
+## 1  2.0  NaN  8.0
+## 2  NaN  NaN  9.0</code></pre>
+<pre class="python"><code>df_10.dropna()
+
+# Drop all columns with any missing data</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0</code></pre>
+<pre class="python"><code>df_10.dropna(axis=1)
+
+# Drop row unless it has at least 2 non-NaN values</code></pre>
+<pre><code>##      C
+## 0  7.0
+## 1  8.0
+## 2  9.0</code></pre>
+<pre class="python"><code>df_10.dropna(thresh=2)
+
+# Fill NaN values with 0</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0
+## 1  2.0  NaN  8.0</code></pre>
+<pre class="python"><code>df_10.fillna(value=0.0)
+
+# Fill A column with the mean of column</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0
+## 1  2.0  0.0  8.0
+## 2  0.0  0.0  9.0</code></pre>
+<pre class="python"><code>df_10[&#39;A&#39;].fillna(value=df_10[&#39;A&#39;].mean())
+
+# Fill with previous value</code></pre>
+<pre><code>## 0    1.0
+## 1    2.0
+## 2    1.5
+## Name: A, dtype: float64</code></pre>
+<pre class="python"><code>df_10.fillna(method=&#39;ffill&#39;)
+
+# Fill with next value (Only works if there is a next value)</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0
+## 1  2.0  4.0  8.0
+## 2  2.0  4.0  9.0</code></pre>
+<pre class="python"><code>df_10.fillna(method=&#39;bfill&#39;)</code></pre>
+<pre><code>##      A    B    C
+## 0  1.0  4.0  7.0
+## 1  2.0  NaN  8.0
+## 2  NaN  NaN  9.0</code></pre>
+<pre><code>     A    B    C
+0  1.0  4.0  7.0
+1  2.0  NaN  8.0
+2  NaN  NaN  9.0</code></pre>
+</div>
+<div id="experimenting-with-data" class="section level3">
+<h3>Experimenting with Data</h3>
+<pre class="python"><code>cs_df.head() # Get 1st 5</code></pre>
+<pre><code>##    Sale ID      Contact Sex  Age  ...  Year First Name Last Name  Age Group
+## 0        1  Paul Thomas   M   43  ...  2018       Paul    Thomas      30-50
+## 1        2  Margo Simms   F   37  ...  2018      Margo     Simms      30-50
+## 2        3    Sam Stine   M   26  ...  2018        Sam     Stine        &lt;30
+## 3        4   Moe Eggert   M   35  ...  2018        Moe    Eggert      30-50
+## 4        5  Jessica Elk   F   55  ...  2018    Jessica       Elk        &gt;50
+## 
+## [5 rows x 15 columns]</code></pre>
+<pre class="python"><code>print(cs_df.columns) # Get column names</code></pre>
+<pre><code>## Index([&#39;Sale ID&#39;, &#39;Contact&#39;, &#39;Sex&#39;, &#39;Age&#39;, &#39;State&#39;, &#39;Product ID&#39;,
+##        &#39;Product Type&#39;, &#39;Sale Price&#39;, &#39;Profit&#39;, &#39;Lead&#39;, &#39;Month&#39;, &#39;Year&#39;,
+##        &#39;First Name&#39;, &#39;Last Name&#39;, &#39;Age Group&#39;],
+##       dtype=&#39;object&#39;)</code></pre>
+<pre class="python"><code>cs_df[&#39;Profit&#39;].mean() # Average profit per item
+# Get the product with the highest profit</code></pre>
+<pre><code>## 139.97461538461542</code></pre>
+<pre class="python"><code>cs_df[[&#39;Product ID&#39;, &#39;Profit&#39;]].max(axis=0).head()
+# Number of people who purchased from WV</code></pre>
+<pre><code>## Product ID    Q526FA
+## Profit        230.89
+## dtype: object</code></pre>
+<pre class="python"><code>cs_df[cs_df[&#39;State&#39;]==&#39;WV&#39;][&#39;State&#39;].count()
+# Number of purchases in 2019</code></pre>
+<pre><code>## 4</code></pre>
+<pre class="python"><code>len(cs_df[cs_df[&#39;Year&#39;]==2019].index)
+# Get number of sales for each product type</code></pre>
+<pre><code>## 14</code></pre>
+<pre class="python"><code>cs_df[&#39;Product ID&#39;].value_counts()
+# Get list of customers that bought a specific product</code></pre>
+<pre><code>## GA401IV      6
+## M01-F0024    5
+## I3593        5
+## 81TC00       5
+## GT13-0024    4
+## 15M-ED       4
+## MY2J2LL      4
+## I3670        3
+## Q526FA       3
+## Name: Product ID, dtype: int64</code></pre>
+<pre class="python"><code>cs_df[cs_df[&#39;Product ID&#39;]==&#39;M01-F0024&#39;][&#39;Contact&#39;]
+# How many made a website purchase for a profit over $200</code></pre>
+<pre><code>## 0     Paul Thomas
+## 9      Phil Jones
+## 20     Jason Case
+## 29     Phil Jones
+## 36     Jason Case
+## Name: Contact, dtype: object</code></pre>
+<pre class="python"><code>cs_df[(cs_df[&#39;Lead&#39;]==&#39;Website&#39;) &amp; (cs_df[&#39;Profit&#39;]&gt;150)][&#39;Lead&#39;].count()
+# Find out how many product profit amounts include .89 in cents</code></pre>
+<pre><code>## 2</code></pre>
+<pre class="python"><code>cs_df[&#39;Profit&#39;].apply(lambda cents: str(cents).split(&#39;.&#39;)[1]==&#39;89&#39;).value_counts()</code></pre>
+<pre><code>## False    35
+## True      4
+## Name: Profit, dtype: int64</code></pre>
+<pre><code>Index([&#39;Sale ID&#39;, &#39;Contact&#39;, &#39;Sex&#39;, &#39;Age&#39;, &#39;State&#39;, &#39;Product ID&#39;,
+       &#39;Product Type&#39;, &#39;Sale Price&#39;, &#39;Profit&#39;, &#39;Lead&#39;, &#39;Month&#39;, &#39;Year&#39;,
+       &#39;First Name&#39;, &#39;Last Name&#39;, &#39;Age Group&#39;],
+      dtype=&#39;object&#39;)
+
+
+
+False    35
+True      4
+Name: Profit, dtype: int64</code></pre>
+</div>
+<div id="visualization" class="section level3">
+<h3>Visualization</h3>
+<pre class="python"><code># Library usef to create advanced static, animated and
+# interactive visualizations
+import matplotlib.pyplot as plt
+
+# Displays matplotlib plots in the Notebook
+# %matplotlib inline
+
+# Histograms provide an approximation of the distribution of
+# results. You create them by dividing the range of values into 
+# bins or buckets. Then you count how many of the results fall
+# into each bin.
+# Rolls 2 dice 5000 times and charts the frequency and 
+# a histogram
+
+# Even though the odds increase as you approach 7 and then
+# decrease again (1 way to roll a 2 / 6 ways to roll a 7)
+# over many rolls they are nearly equal.
+df_dice = pd.DataFrame(
+    np.random.randint(1,7,5000),
+    columns = [&#39;Hist&#39;])
+df_dice[&#39;Odds&#39;] = df_dice[&#39;Hist&#39;] + np.random.randint(1,7,5000)
+# Alpha decreases the opacity in the chart
+ax = df_dice.plot.hist(bins=12, alpha=0.5)
+
+# Basic plot using 1000 random values that create cumulative sums
+# over an increasing date range
+ser_5 = pd.Series(np.random.randn(1000),
+                 index=pd.date_range(&#39;11/15/2017&#39;, periods=1000))
+ser_5 = ser_5.cumsum()
+# ser_5.plot()
+
+# Display 3 random plots
+df_15 = pd.DataFrame(np.random.randn(1000, 3),
+                    index=pd.date_range(&#39;11/15/2017&#39;, periods=1000),
+                    columns=list(&#39;ABC&#39;))
+df_15 = df_15.cumsum()
+# df_15.plot()
+
+# Make bar chart from 5 random values
+# pd.DataFrame(np.random.randn(5)).plot.bar()
+
+# Make MultiBar Charts
+vals = [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]
+df_15 = pd.DataFrame(np.random.rand(10,4), columns=vals)
+# df_15.plot.bar()
+
+# Area plot 
+# Define x range and y values
+x_rng = range(1,15)
+y_vals = [1,5,4,7,6,9,5,7,10,14,10,12,9,8]
+# Change fill color and opacity
+# plt.fill_between(x_rng, y_vals, color=&quot;skyblue&quot;, alpha=0.5)
+# plt.show()
+
+# Area plot with multiple areas
+# pd.DataFrame(np.random.rand(10,3), columns=[&#39;A&#39;,&#39;B&#39;,&#39;C&#39;]).plot.area()
+
+# Create a scatterplot with 100 random values
+# pd.DataFrame(np.random.rand(100,2), 
+#              columns=[&#39;A&#39;,&#39;B&#39;]).plot.scatter(x=&#39;A&#39;, y=&#39;B&#39;)
+
+# Multiple column scatter plots
+df_15 = pd.DataFrame(np.random.rand(50,4), columns=[&#39;A&#39;,&#39;B&#39;,&#39;C&#39;,&#39;D&#39;])
+# ax = df_15.plot.scatter(x=&#39;A&#39;, y=&#39;B&#39;, color=&#39;DarkBlue&#39;, label=&#39;Grp 1&#39;)
+# df_15.plot.scatter(x=&#39;C&#39;, y=&#39;D&#39;, color=&#39;Orange&#39;, label=&#39;Grp 2&#39;, ax=ax)
+
+# Pie Charts with 4 random values
+# pd.Series(np.random.rand(4),
+#          index=[&#39;a&#39;,&#39;b&#39;,&#39;c&#39;,&#39;d&#39;], 
+#           name=&#39;Pie&#39;).plot.pie(figsize=(6,6))</code></pre>
+<p><img src="db48a5b99ee639eb2dcc53e396e266b18fcc64cd.png" /></p>
+</div>
+</div>
