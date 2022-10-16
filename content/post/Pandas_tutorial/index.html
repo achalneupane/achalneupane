@@ -15,7 +15,7 @@ tags:
 <div id="pandas-tutorial" class="section level2">
 <h2>Pandas Tutorial</h2>
 <p>Before starting on Pandas, let’s take a look at Python’s data types and how they are different from one another. This table below summarizes everything we need to know about python’s data types.</p>
-<p><img src="data_types.jfif" width="100%" /></p>
+<embed src="data_types.pdf" width="100%" type="application/pdf" />
 <p>Pandas provides numerous tools to work with tabular data like you'd
 find in spreadsheets or databases. It is widely used for data
 preparation, cleaning, and analysis. It can work with a wide variety of
@@ -165,45 +165,45 @@ df_2
 <pre class="python"><code># Grab a column
 df_1[&#39;C&#39;]
 # Get multiple columns</code></pre>
-<pre><code>## A    17
-## B    42
+<pre><code>## A    11
+## B    28
 ## Name: C, dtype: int32</code></pre>
 <pre class="python"><code>df_1[[&#39;C&#39;, &#39;E&#39;]]
 
 # Grabb a row as a series</code></pre>
 <pre><code>##     C   E
-## A  17  22
-## B  42  36</code></pre>
+## A  11  12
+## B  28  42</code></pre>
 <pre class="python"><code>df_1.loc[&#39;A&#39;]
 # Grab row by index position</code></pre>
-<pre><code>## C    17
-## D    32
-## E    22
+<pre><code>## C    11
+## D    19
+## E    12
 ## Name: A, dtype: int32</code></pre>
 <pre class="python"><code>df_1.iloc[1]
 
 # Grab cell with Row &amp; Column</code></pre>
-<pre><code>## C    42
-## D    27
-## E    36
+<pre><code>## C    28
+## D    18
+## E    42
 ## Name: B, dtype: int32</code></pre>
 <pre class="python"><code>df_1.loc[&#39;A&#39;, &#39;C&#39;]
 # Grab multiple cells by defining rows wanted &amp; the
 # columns from those rows</code></pre>
-<pre><code>## 17</code></pre>
+<pre><code>## 11</code></pre>
 <pre class="python"><code>print(df_1.loc[[&#39;A&#39;, &#39;B&#39;], [&#39;D&#39;, &#39;E&#39;]])
 
 # Make new column</code></pre>
 <pre><code>##     D   E
-## A  32  22
-## B  27  36</code></pre>
+## A  19  12
+## B  18  42</code></pre>
 <pre class="python"><code>df_1[&#39;Total&#39;] = df_1[&#39;C&#39;] + df_1[&#39;D&#39;] + df_1[&#39;E&#39;]
 df_1
 
 # You can perform multiple calculations</code></pre>
 <pre><code>##     C   D   E  Total
-## A  17  32  22     71
-## B  42  27  36    105</code></pre>
+## A  11  19  12     42
+## B  28  18  42     88</code></pre>
 <pre class="python"><code>df_2[&#39;mult&#39;] = df_2[&#39;one&#39;] * df_2[&#39;two&#39;]
 df_2
 
@@ -227,15 +227,15 @@ df_1 = df_1.append(new_row, ignore_index = False)
 df_1
 # Delete a row</code></pre>
 <pre><code>##     C   D   E
-## A  17  32  22
-## B  42  27  36
+## A  11  19  12
+## B  28  18  42
 ## F  44  45  46</code></pre>
 <pre class="python"><code>df_1.drop(&#39;B&#39;, axis=0, inplace=True)
 df_1
 
 # Create a new column and make it the index</code></pre>
 <pre><code>##     C   D   E
-## A  17  32  22
+## A  11  19  12
 ## F  44  45  46</code></pre>
 <pre class="python"><code>df_1[&#39;Sex&#39;] = [&#39;Men&#39;, &#39;Women&#39;]
 df_1.set_index(&#39;Sex&#39;, inplace=True)
@@ -248,7 +248,7 @@ df_1
 # original DF untouched</code></pre>
 <pre><code>##         C   D   E
 ## Sex              
-## Men    17  32  22
+## Men    11  19  12
 ## Women  44  45  46</code></pre>
 <pre class="python"><code>df_2.assign(div=df_2[&#39;one&#39;] / df_2[&#39;two&#39;])
 
@@ -408,16 +408,16 @@ print(df_1)
 # You can use conditional operators to retrieve a table
 # based on the condition</code></pre>
 <pre><code>##     C   D   E
-## A  18  42  45
-## B  29  36  19</code></pre>
+## A  18  29  18
+## B  38  36  41</code></pre>
 <pre class="python"><code>print(&quot;Greater than 40\n&quot;, df_1 &gt; 40.0)
 
 # You can use comparison operater functions as well like
 # gt, lt, ge, le, eq, ne</code></pre>
 <pre><code>## Greater than 40
 ##         C      D      E
-## A  False   True   True
-## B  False  False  False</code></pre>
+## A  False  False  False
+## B  False  False   True</code></pre>
 <pre class="python"><code>print(&quot;Greater than 45\n&quot;, df_1.gt(45.0))
 
 # You can place conditions in brackets as well</code></pre>
@@ -429,35 +429,35 @@ print(df_1)
 df_1[bool_1]
 
 # Get bools for a column</code></pre>
-<pre><code>##     C   D     E
-## A NaN NaN  45.0
-## B NaN NaN   NaN</code></pre>
+<pre><code>##     C   D   E
+## A NaN NaN NaN
+## B NaN NaN NaN</code></pre>
 <pre class="python"><code>df_1[&#39;E&#39;] &gt; 40
 
 # Return a row if cell value in column matches a condition</code></pre>
-<pre><code>## A     True
-## B    False
+<pre><code>## A    False
+## B     True
 ## Name: E, dtype: bool</code></pre>
 <pre class="python"><code>df_1[df_1[&#39;E&#39;]&gt;30]
 
 # You can focus on a column based on resulting dataframe</code></pre>
 <pre><code>##     C   D   E
-## A  18  42  45</code></pre>
+## B  38  36  41</code></pre>
 <pre class="python"><code>df_2 = df_1[df_1[&#39;E&#39;]&gt;30]
 df_2[&#39;C&#39;]
 
 # You can stack these commands</code></pre>
-<pre><code>## A    18
+<pre><code>## B    38
 ## Name: C, dtype: int32</code></pre>
 <pre class="python"><code>print(df_1[df_1[&#39;E&#39;]&gt;20][&#39;C&#39;])</code></pre>
-<pre><code>## A    18
+<pre><code>## B    38
 ## Name: C, dtype: int32</code></pre>
 <pre class="python"><code>print()
 
 # You can also grab multiple columns</code></pre>
 <pre class="python"><code>print(df_1[df_1[&#39;E&#39;]&gt;20][[&#39;C&#39;, &#39;D&#39;]])</code></pre>
 <pre><code>##     C   D
-## A  18  42</code></pre>
+## B  38  36</code></pre>
 <pre class="python"><code>print()
 
 # You can use multiple conditions</code></pre>
@@ -1260,45 +1260,45 @@ print(df_8)
 # items allows you to iterate through key value pairs to make
 # calculations 1 column at a time</code></pre>
 <pre><code>##     C   D   E
-## B  36  36  32
-## C  34  39  30</code></pre>
+## B  49  48  36
+## C  39  39  10</code></pre>
 <pre class="python"><code>for label, ser in df_8.items():
     print(label)
     print(ser)
     </code></pre>
 <pre><code>## C
-## B    36
-## C    34
+## B    49
+## C    39
 ## Name: C, dtype: int32
 ## D
-## B    36
+## B    48
 ## C    39
 ## Name: D, dtype: int32
 ## E
-## B    32
-## C    30
+## B    36
+## C    10
 ## Name: E, dtype: int32</code></pre>
 <pre class="python"><code>print()
 # You can also iterate through rows</code></pre>
 <pre class="python"><code>for index, row in df_8.iterrows():
     print(f&quot;{index}\n{row}&quot;)</code></pre>
 <pre><code>## B
-## C    36
-## D    36
-## E    32
+## C    49
+## D    48
+## E    36
 ## Name: B, dtype: int32
 ## C
-## C    34
+## C    39
 ## D    39
-## E    30
+## E    10
 ## Name: C, dtype: int32</code></pre>
 <pre class="python"><code>print()
 
 # Get a tuple that contains row data</code></pre>
 <pre class="python"><code>for row in df_8.itertuples():
     print(row)</code></pre>
-<pre><code>## Pandas(Index=&#39;B&#39;, C=36, D=36, E=32)
-## Pandas(Index=&#39;C&#39;, C=34, D=39, E=30)</code></pre>
+<pre><code>## Pandas(Index=&#39;B&#39;, C=49, D=48, E=36)
+## Pandas(Index=&#39;C&#39;, C=39, D=39, E=10)</code></pre>
 <pre><code>0
 1
 2
@@ -1342,18 +1342,18 @@ Pandas(Index=&#39;C&#39;, C=44, D=42, E=45)</code></pre>
 # Sorting by index will return the same results if indexes
 # are in order, to reverse indexes mark ascending as False</code></pre>
 <pre><code>##     C   D   E
-## B  36  36  32
-## C  34  39  30</code></pre>
+## B  49  48  36
+## C  39  39  10</code></pre>
 <pre class="python"><code>df_8.sort_index(ascending=False)
 
 # Sort by value for column D (Use the same function for series)</code></pre>
 <pre><code>##     C   D   E
-## C  34  39  30
-## B  36  36  32</code></pre>
+## C  39  39  10
+## B  49  48  36</code></pre>
 <pre class="python"><code>df_8.sort_values(by=&#39;D&#39;)</code></pre>
 <pre><code>##     C   D   E
-## B  36  36  32
-## C  34  39  30</code></pre>
+## C  39  39  10
+## B  49  48  36</code></pre>
 </div>
 <div id="passing-data-to-functions" class="section level3">
 <h3>Passing Data to Functions</h3>
@@ -1535,18 +1535,18 @@ arr_3 = np.random.randint(10, 50, size=(2, 3))
 df_7 = pd.DataFrame(arr_3, [&#39;B&#39;, &#39;C&#39;], [&#39;C&#39;, &#39;D&#39;, &#39;E&#39;])
 df_6</code></pre>
 <pre><code>##     C   D   E
-## A  28  42  32
-## B  48  33  19</code></pre>
+## A  33  27  14
+## B  27  42  46</code></pre>
 <pre class="python"><code>df_6.align(df_7)
 
 # reindex allows you to align data by index</code></pre>
 <pre><code>## (      C     D     E
-## A  28.0  42.0  32.0
-## B  48.0  33.0  19.0
+## A  33.0  27.0  14.0
+## B  27.0  42.0  46.0
 ## C   NaN   NaN   NaN,       C     D     E
 ## A   NaN   NaN   NaN
-## B  34.0  27.0  41.0
-## C  44.0  32.0  30.0)</code></pre>
+## B  13.0  14.0  33.0
+## C  10.0  22.0  26.0)</code></pre>
 <pre class="python"><code>ser_6.reindex([&#39;c&#39;,&#39;b&#39;,&#39;a&#39;])
 
 # Do the same with DFs</code></pre>
@@ -1559,22 +1559,22 @@ df_6</code></pre>
 # Drop is very similar to reindex except it receives labels
 # you don&#39;t want to include</code></pre>
 <pre><code>##     C   D   E
-## B  48  33  19
-## A  28  42  32</code></pre>
+## B  27  42  46
+## A  33  27  14</code></pre>
 <pre class="python"><code>df_6.drop([&#39;A&#39;], axis=0)</code></pre>
 <pre><code>##     C   D   E
-## B  48  33  19</code></pre>
+## B  27  42  46</code></pre>
 <pre class="python"><code>df_6.drop([&#39;D&#39;], axis=1)
 
 # You can rename labels</code></pre>
 <pre><code>##     C   E
-## A  28  32
-## B  48  19</code></pre>
+## A  33  14
+## B  27  46</code></pre>
 <pre class="python"><code>df_6.rename(columns={&#39;C&#39;: &#39;Men&#39;, &#39;D&#39;: &#39;Women&#39;, &#39;E&#39;: &#39;Pets&#39;},
            index={&#39;A&#39;: 1, &#39;B&#39;: 2})</code></pre>
 <pre><code>##    Men  Women  Pets
-## 1   28     42    32
-## 2   48     33    19</code></pre>
+## 1   33     27    14
+## 2   27     42    46</code></pre>
 <pre><code>a    0
 b    1
 c    2
@@ -1606,29 +1606,29 @@ print(df_9)
 
 # Grab the day 1 DF</code></pre>
 <pre><code>##            M    F
-## Day 1 1  579  639
-##       2  613  604
-##       3  539  580
-## Day 2 1  669  656
-##       2  683  608
-##       3  638  676</code></pre>
+## Day 1 1  632  556
+##       2  584  569
+##       3  530  523
+## Day 2 1  652  648
+##       2  689  671
+##       3  582  512</code></pre>
 <pre class="python"><code>df_9.loc[&#39;Day 1&#39;]
 
 # Grab 1st row as a series</code></pre>
 <pre><code>##      M    F
-## 1  579  639
-## 2  613  604
-## 3  539  580</code></pre>
+## 1  632  556
+## 2  584  569
+## 3  530  523</code></pre>
 <pre class="python"><code>df_9.loc[&#39;Day 1&#39;].loc[1]
 
 # Grab calories eaten by the female on day 2 for the 2nd meal</code></pre>
-<pre><code>## M    579
-## F    639
+<pre><code>## M    632
+## F    556
 ## Name: 1, dtype: int32</code></pre>
 <pre class="python"><code>df_9.loc[&#39;Day 2&#39;].loc[2][&#39;F&#39;]
 
 # We can assign names to the Day and Meals Column</code></pre>
-<pre><code>## 608</code></pre>
+<pre><code>## 671</code></pre>
 <pre class="python"><code>df_9.index.names = [&#39;Day&#39;, &#39;Meal&#39;]
 df_9
 
@@ -1636,28 +1636,28 @@ df_9
 # This gets me the Day 2 DF</code></pre>
 <pre><code>##               M    F
 ## Day   Meal          
-## Day 1 1     579  639
-##       2     613  604
-##       3     539  580
-## Day 2 1     669  656
-##       2     683  608
-##       3     638  676</code></pre>
+## Day 1 1     632  556
+##       2     584  569
+##       3     530  523
+## Day 2 1     652  648
+##       2     689  671
+##       3     582  512</code></pre>
 <pre class="python"><code>df_9.xs(&#39;Day 2&#39;)
 
 # Get calories for the 1st meal for both days by saying what
 # meal index you want and the Meal column name</code></pre>
 <pre><code>##         M    F
 ## Meal          
-## 1     669  656
-## 2     683  608
-## 3     638  676</code></pre>
+## 1     652  648
+## 2     689  671
+## 3     582  512</code></pre>
 <pre class="python"><code>df_9.xs(1, level=&#39;Meal&#39;)
 
 # Create a MultiIndex out of a DF using a pivot table</code></pre>
 <pre><code>##          M    F
 ## Day            
-## Day 1  579  639
-## Day 2  669  656</code></pre>
+## Day 1  632  556
+## Day 2  652  648</code></pre>
 <pre class="python"><code>dict_6 = {&#39;A&#39;:[&#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 1&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;, &#39;Day 2&#39;],
          &#39;B&#39;: [1,2,3,1,2,3],
          &#39;C&#39;: [&#39;M&#39;, &#39;F&#39;, &#39;M&#39;, &#39;F&#39;, &#39;M&#39;, &#39;F&#39;],

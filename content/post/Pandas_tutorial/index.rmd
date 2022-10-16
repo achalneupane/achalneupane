@@ -30,7 +30,7 @@ Before starting on Pandas, let's take a look at Python's data types and how they
 
 ```{r, out.width='100%', echo = FALSE}
 
-knitr::include_graphics("data_types.jfif", error = FALSE)
+knitr::include_graphics("data_types.pdf", error = FALSE)
 
 ```
 
