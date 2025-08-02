@@ -1,4 +1,4 @@
-# Achal Neupane, PhD — Sr. Bioinformatics Research Scientist
+# Achal Neupane, PhD — Sr. Scientist (St. Jude Children's Research Hospital)
 
 Welcome to my GitHub!  
 I am a data scientist and bioinformatician at St. Jude Children's Research Hospital, specializing in advanced statistical modeling, machine learning, and large-scale genomic data analysis. My work leverages modern computational and statistical techniques to solve complex biomedical challenges.
