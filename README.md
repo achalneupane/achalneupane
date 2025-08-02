@@ -52,7 +52,7 @@ A full list of my publications is available below:
 - [Petrykey et al., 2025, Annals of Oncology](https://doi.org/10.1016/j.annonc.2025.05.539)
 - [Neupane et al., 2025, The Lancet Oncology](https://doi.org/10.1016/S1470-2045(25)00157-3)
 - [Im et al., 2024, Journal of Clinical Oncology](https://doi.org/10.1200/JCO.23.02281)
-- [Full publication list...](#publications-peer-reviewed)
+- [Full publication list...](https://scholar.google.com/citations?hl=en&user=p1ky6LcAAAAJ&view_op=list_works&sortby=pubdate)
 
 ---
 
