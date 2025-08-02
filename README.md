@@ -60,7 +60,7 @@ A full list of my publications is available below:
 
 - 📧 Email: [achalneupane@gmail.com](mailto:achalneupane@gmail.com)
 - 💼 [LinkedIn](https://linkedin.com/in/achalneupane)
-- 👨‍🔬 [Google Scholar](https://scholar.google.com/citations?user=YOURUSERID)
+- 👨‍🔬 [Google Scholar]([https://scholar.google.com/citations?user=YOURUSERID](https://scholar.google.com/citations?hl=en&user=p1ky6LcAAAAJ&view_op=list_works&sortby=pubdate))
 - 🐦 [GitHub](https://github.com/achalneupane)
 
 ---
